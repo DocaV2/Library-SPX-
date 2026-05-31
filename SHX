@@ -511,17 +511,17 @@ function Speed_Library:CreateWindow(Config)
   }, Top)
 
   local Min = Custom:Create("TextButton", {
-    Font = Enum.Font.SourceSans,
+    Font = Enum.Font.GothamBold,
     Text = "-", 
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 18,
+    TextSize = 28,
     AnchorPoint = Vector2.new(1, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
     BackgroundTransparency = 0.9990000128746033,
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     BorderSizePixel = 0,
     Position = UDim2.new(1, -42, 0.5, 0),
-    Size = UDim2.new(0, 25, 0, 25),
+    Size = UDim2.new(0, 32, 0, 32),
     Name = "Min"
 }, Top)
 
@@ -1727,8 +1727,8 @@ function Speed_Library:CreateWindow(Config)
           AnchorPoint = Vector2.new(1, 0.5),
           BackgroundColor3 = Custom.ColorRGB,
           BorderSizePixel = 0,
-          Position = UDim2.new(1, 7, 0.5, 0),
-          Size = UDim2.new(0, 9, 0, 9),
+          Position = UDim2.new(1, 13, 0.5, 0),
+          Size = UDim2.new(0, 10, 0, 10),
           Name = "SliderCircle",
         }, SliderDraggable)
         Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, SliderCircle)
@@ -2315,6 +2315,113 @@ function Speed_Library:CreateWindow(Config)
 
     CountTab += 1
     return Sections
+  end
+
+
+  --// Built-in Window Settings tab
+  --// Call after CreateWindow: Window:AddWindowSettingsTab()
+  --// It changes only this window visuals, not Custom.ColorRGB/global theme.
+  function Tabs:AddWindowSettingsTab()
+    local SettingsTab = Tabs:CreateTab({
+      Name = "Window",
+      Icon = "rbxassetid://10734950309"
+    })
+
+    local WindowSection = SettingsTab:AddSection("Window Settings", true)
+
+    WindowSection:AddSlider({
+      Title = "Window Transparency",
+      Content = "Change only main window transparency",
+      Increment = 0.01,
+      Min = 0,
+      Max = 0.65,
+      Default = Main.BackgroundTransparency or 0.1,
+      Callback = function(Value)
+        Main.BackgroundTransparency = Value
+      end
+    })
+
+    WindowSection:AddSlider({
+      Title = "Stroke Thickness",
+      Content = "Change only window outline thickness",
+      Increment = 0.1,
+      Min = 0,
+      Max = 4,
+      Default = 1.6,
+      Callback = function(Value)
+        local Stroke = Main:FindFirstChildOfClass("UIStroke")
+        if Stroke then Stroke.Thickness = Value end
+      end
+    })
+
+    WindowSection:AddSlider({
+      Title = "Corner Radius",
+      Content = "Change only window roundness",
+      Increment = 1,
+      Min = 0,
+      Max = 18,
+      Default = 8,
+      Callback = function(Value)
+        local Corner = Main:FindFirstChildOfClass("UICorner")
+        if Corner then Corner.CornerRadius = UDim.new(0, Value) end
+      end
+    })
+
+    WindowSection:AddSlider({
+      Title = "Shadow Transparency",
+      Content = "Change only shadow visibility",
+      Increment = 0.01,
+      Min = 0,
+      Max = 1,
+      Default = DropShadow.ImageTransparency or 0.5,
+      Callback = function(Value)
+        DropShadow.ImageTransparency = Value
+      end
+    })
+
+    WindowSection:AddDropdown({
+      Title = "Title Color",
+      Content = "Changes only the title/description text",
+      Multi = false,
+      Default = {"White"},
+      Options = {
+        "White", "Red", "Dark Red", "Orange", "Gold", "Yellow", "Lime", "Green",
+        "Emerald", "Cyan", "Sky Blue", "Blue", "Dark Blue", "Purple", "Violet",
+        "Pink", "Hot Pink", "Rose", "Gray", "Silver"
+      },
+      Callback = function(Value)
+        local Pick = type(Value) == "table" and Value[1] or Value
+        local Colors = {
+          ["White"] = Color3.fromRGB(255,255,255),
+          ["Red"] = Color3.fromRGB(255,0,0),
+          ["Dark Red"] = Color3.fromRGB(180,0,0),
+          ["Orange"] = Color3.fromRGB(255,120,0),
+          ["Gold"] = Color3.fromRGB(255,180,0),
+          ["Yellow"] = Color3.fromRGB(255,255,0),
+          ["Lime"] = Color3.fromRGB(140,255,0),
+          ["Green"] = Color3.fromRGB(0,255,0),
+          ["Emerald"] = Color3.fromRGB(0,255,150),
+          ["Cyan"] = Color3.fromRGB(0,255,255),
+          ["Sky Blue"] = Color3.fromRGB(0,170,255),
+          ["Blue"] = Color3.fromRGB(0,80,255),
+          ["Dark Blue"] = Color3.fromRGB(0,40,180),
+          ["Purple"] = Color3.fromRGB(170,0,255),
+          ["Violet"] = Color3.fromRGB(130,0,255),
+          ["Pink"] = Color3.fromRGB(255,0,170),
+          ["Hot Pink"] = Color3.fromRGB(255,0,100),
+          ["Rose"] = Color3.fromRGB(255,70,120),
+          ["Gray"] = Color3.fromRGB(120,120,120),
+          ["Silver"] = Color3.fromRGB(200,200,200),
+        }
+        local Color = Colors[Pick] or Color3.fromRGB(255,255,255)
+        TextLabel.TextColor3 = Color
+        TextLabel1.TextColor3 = Color
+        local Stroke = TextLabel1:FindFirstChildOfClass("UIStroke")
+        if Stroke then Stroke.Color = Color end
+      end
+    })
+
+    return WindowSection
   end
 
   return Tabs
