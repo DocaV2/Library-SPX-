@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local TextService = game:GetService("TextService")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 
@@ -403,6 +404,12 @@ function Speed_Library:CreateWindow(Config)
   local TabWidth = Config[3] or Config["Tab Width"] or 120
   local SizeUi = Config[4] or Config.SizeUi or UDim2.fromOffset(550, 315)
 
+  local WindowWidth = Config.Width or Config["Window Width"] or (SizeUi.X.Offset > 0 and SizeUi.X.Offset or 550)
+  local WindowHeight = Config.Height or Config["Window Height"] or (SizeUi.Y.Offset > 0 and SizeUi.Y.Offset or 315)
+  WindowWidth = math.clamp(WindowWidth, 450, 950)
+  WindowHeight = math.clamp(WindowHeight, 280, 650)
+  SizeUi = UDim2.fromOffset(WindowWidth, WindowHeight)
+
   local Funcs = {}
 
   local SpeedHubXGui = Custom:Create("ScreenGui", {
@@ -412,10 +419,10 @@ function Speed_Library:CreateWindow(Config)
   local DropShadowHolder = Custom:Create("Frame", {
     BackgroundTransparency = 1,
     BorderSizePixel = 0,
-    Size = UDim2.new(0, 455, 0, 350),
+    Size = UDim2.fromOffset(WindowWidth, WindowHeight),
     ZIndex = 0,
     Name = "DropShadowHolder",
-    Position = UDim2.new(0, (SpeedHubXGui.AbsoluteSize.X // 2 - 455 // 2), 0, (SpeedHubXGui.AbsoluteSize.Y // 2 - 350 // 2))
+    Position = UDim2.new(0, (SpeedHubXGui.AbsoluteSize.X // 2 - WindowWidth // 2), 0, (SpeedHubXGui.AbsoluteSize.Y // 2 - WindowHeight // 2))
   }, SpeedHubXGui)
 
   local DropShadow = Custom:Create("ImageLabel", {
@@ -444,7 +451,9 @@ function Speed_Library:CreateWindow(Config)
     Name = "Main"
   }, DropShadow)
 
-  Custom:Create("UICorner", {}, Main)
+  Custom:Create("UICorner", {
+    CornerRadius = UDim.new(0, 14)
+  }, Main)
 
   Custom:Create("UIStroke", {
     Color = Color3.fromRGB(50, 50, 50),
@@ -511,10 +520,10 @@ function Speed_Library:CreateWindow(Config)
   }, Top)
 
   local Min = Custom:Create("TextButton", {
-    Font = Enum.Font.GothamBold,
+    Font = Enum.Font.SourceSans,
     Text = "-", 
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 28,
+    TextSize = 26,
     AnchorPoint = Vector2.new(1, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
     BackgroundTransparency = 0.9990000128746033,
@@ -620,6 +629,49 @@ function Speed_Library:CreateWindow(Config)
     Padding = UDim.new(0, 0),
     SortOrder = Enum.SortOrder.LayoutOrder
   }, ScrollTab)
+  local CurrentTabWidth = TabWidth
+
+  local function ApplyTabWidth(NewWidth, Animated)
+    CurrentTabWidth = math.clamp(math.floor(tonumber(NewWidth) or CurrentTabWidth), 100, 260)
+    local tweenInfo = TweenInfo.new(Animated and 0.18 or 0, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+    TweenService:Create(LayersTab, tweenInfo, {
+      Size = UDim2.new(0, CurrentTabWidth, 1, -59)
+    }):Play()
+
+    TweenService:Create(Layers, tweenInfo, {
+      Position = UDim2.new(0, CurrentTabWidth + 18, 0, 50),
+      Size = UDim2.new(1, -(CurrentTabWidth + 9 + 18), 1, -59)
+    }):Play()
+  end
+
+  local function AutoResizeTabs()
+    local NeededWidth = TabWidth
+
+    for _, TabFrame in ipairs(ScrollTab:GetChildren()) do
+      if TabFrame.Name == "Tab" then
+        local TabName = TabFrame:FindFirstChild("TabName")
+        if TabName and TabName:IsA("TextLabel") then
+          local TextSize = TextService:GetTextSize(TabName.Text, TabName.TextSize, TabName.Font, Vector2.new(1000, 30))
+          NeededWidth = math.max(NeededWidth, TextSize.X + 52)
+        end
+      end
+    end
+
+    ApplyTabWidth(NeededWidth, true)
+  end
+
+  local function ApplyWindowSize(NewWidth, NewHeight)
+    WindowWidth = math.clamp(math.floor(tonumber(NewWidth) or WindowWidth), 450, 950)
+    WindowHeight = math.clamp(math.floor(tonumber(NewHeight) or WindowHeight), 280, 650)
+    SizeUi = UDim2.fromOffset(WindowWidth, WindowHeight)
+
+    local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(DropShadowHolder, tweenInfo, {Size = SizeUi}):Play()
+    TweenService:Create(DropShadow, tweenInfo, {Size = SizeUi}):Play()
+    TweenService:Create(Main, tweenInfo, {Size = SizeUi}):Play()
+  end
+
 
   local function UpdateSize()
     local _Total = 0
@@ -648,138 +700,13 @@ function Speed_Library:CreateWindow(Config)
 		if Open_Close.Visible then Open_Close.Visible = false end
 	end)
 
-  local CloseConfirmOpen = false
-
-  local function ShowCloseConfirm()
-    if CloseConfirmOpen then return end
-    CloseConfirmOpen = true
-
-    local Overlay = Custom:Create("Frame", {
-      Name = "CloseConfirmOverlay",
-      BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-      BackgroundTransparency = 1,
-      BorderSizePixel = 0,
-      Size = UDim2.new(1, 0, 1, 0),
-      Position = UDim2.new(0, 0, 0, 0),
-      ZIndex = 200,
-    }, Main)
-
-    local Box = Custom:Create("Frame", {
-      Name = "CloseConfirmBox",
-      AnchorPoint = Vector2.new(0.5, 0.5),
-      BackgroundColor3 = Color3.fromRGB(16, 16, 18),
-      BackgroundTransparency = 1,
-      BorderSizePixel = 0,
-      Position = UDim2.new(0.5, 0, 0.5, 0),
-      Size = UDim2.new(0, 0, 0, 0),
-      ZIndex = 201,
-    }, Overlay)
-
-    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 14)}, Box)
-    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Transparency = 0.84, Thickness = 1.4}, Box)
-
-    local IconBack = Custom:Create("Frame", {
-      BackgroundColor3 = Custom.ColorRGB,
-      BackgroundTransparency = 0.12,
-      BorderSizePixel = 0,
-      Position = UDim2.new(0, 18, 0, 20),
-      Size = UDim2.new(0, 38, 0, 38),
-      ZIndex = 202,
-    }, Box)
-    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 12)}, IconBack)
-
-    local Icon = Custom:Create("TextLabel", {
-      BackgroundTransparency = 1,
-      Text = "!",
-      Font = Enum.Font.GothamBlack,
-      TextSize = 24,
-      TextColor3 = Color3.fromRGB(255, 255, 255),
-      Size = UDim2.new(1, 0, 1, 0),
-      ZIndex = 203,
-    }, IconBack)
-
-    local TitleWarn = Custom:Create("TextLabel", {
-      BackgroundTransparency = 1,
-      Text = "Close Speed Hub X?",
-      Font = Enum.Font.GothamBold,
-      TextSize = 18,
-      TextColor3 = Color3.fromRGB(255, 255, 255),
-      TextXAlignment = Enum.TextXAlignment.Left,
-      Position = UDim2.new(0, 68, 0, 18),
-      Size = UDim2.new(1, -84, 0, 24),
-      ZIndex = 202,
-    }, Box)
-
-    local DescWarn = Custom:Create("TextLabel", {
-      BackgroundTransparency = 1,
-      Text = "Are you sure? The GUI will be closed.",
-      Font = Enum.Font.Gotham,
-      TextSize = 13,
-      TextColor3 = Color3.fromRGB(255, 255, 255),
-      TextTransparency = 0.16,
-      TextWrapped = true,
-      TextXAlignment = Enum.TextXAlignment.Left,
-      TextYAlignment = Enum.TextYAlignment.Top,
-      Position = UDim2.new(0, 68, 0, 43),
-      Size = UDim2.new(1, -84, 0, 38),
-      ZIndex = 202,
-    }, Box)
-
-    local YesButton = Custom:Create("TextButton", {
-      BackgroundColor3 = Custom.ColorRGB,
-      BorderSizePixel = 0,
-      Text = "Yes",
-      Font = Enum.Font.GothamBold,
-      TextSize = 14,
-      TextColor3 = Color3.fromRGB(255, 255, 255),
-      Position = UDim2.new(0, 18, 1, -48),
-      Size = UDim2.new(0.5, -24, 0, 32),
-      ZIndex = 202,
-    }, Box)
-    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 9)}, YesButton)
-
-    local NoButton = Custom:Create("TextButton", {
-      BackgroundColor3 = Color3.fromRGB(38, 38, 44),
-      BorderSizePixel = 0,
-      Text = "No",
-      Font = Enum.Font.GothamBold,
-      TextSize = 14,
-      TextColor3 = Color3.fromRGB(255, 255, 255),
-      Position = UDim2.new(0.5, 6, 1, -48),
-      Size = UDim2.new(0.5, -24, 0, 32),
-      ZIndex = 202,
-    }, Box)
-    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 9)}, NoButton)
-
-    local function ClosePopup()
-      TweenService:Create(Overlay, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
-      TweenService:Create(Box, TweenInfo.new(0.16, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}):Play()
-      task.wait(0.16)
-      if Overlay then Overlay:Destroy() end
-      CloseConfirmOpen = false
-    end
-
-    NoButton.Activated:Connect(function()
-      ClosePopup()
-    end)
-
-    YesButton.Activated:Connect(function()
-      TweenService:Create(DropShadowHolder, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
-      task.wait(0.14)
-      if SpeedHubXGui then SpeedHubXGui:Destroy() end
-      if not Speed_Library.Unloaded then Speed_Library.Unloaded = true end
-    end)
-
-    TweenService:Create(Overlay, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.36}):Play()
-    TweenService:Create(Box, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 340, 0, 142), BackgroundTransparency = 0}):Play()
-  end
-
   Close.Activated:Connect(function()
 		CircleClick(Close, Player:GetMouse().X, Player:GetMouse().Y)
-    ShowCloseConfirm()
+    if SpeedHubXGui then SpeedHubXGui:Destroy() end
+		if not Speed_Library.Unloaded then Speed_Library.Unloaded = true end
 	end)
 
-  DropShadowHolder.Size = UDim2.new(0, 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X, 0, 350)
+  DropShadowHolder.Size = SizeUi
 	MakeDraggable(Top, DropShadowHolder)
 
 
@@ -962,17 +889,18 @@ function Speed_Library:CreateWindow(Config)
       Name = "TabButton",
     }, Tab)
 
-    Custom:Create("TextLabel", {
+    local TabNameLabel = Custom:Create("TextLabel", {
       Font = Enum.Font.GothamBold,
       Text = _Name,
       TextColor3 = Color3.fromRGB(255, 255, 255),
       TextSize = 13,
       TextXAlignment = Enum.TextXAlignment.Left,
+      TextTruncate = Enum.TextTruncate.None,
       BackgroundColor3 = Color3.fromRGB(255, 255, 255),
       BackgroundTransparency = 0.999,
       BorderColor3 = Color3.fromRGB(0, 0, 0),
       BorderSizePixel = 0,
-      Size = UDim2.new(1, 0, 1, 0),
+      Size = UDim2.new(1, -38, 1, 0),
       Position = UDim2.new(0, 30, 0, 0),
       Name = "TabName",
     }, Tab)
@@ -988,26 +916,66 @@ function Speed_Library:CreateWindow(Config)
       Name = "FeatureImg",
     }, Tab)
 
+    task.defer(AutoResizeTabs)
+
     if CountTab == 0 then
       LayersPageLayout:JumpToIndex(0)
       NameTab.Text = _Name
+  
+      local ChooseFrame = Custom:Create("Frame", {
+        BackgroundColor3 = Custom.ColorRGB,
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        BorderSizePixel = 0,
+        Position = UDim2.new(0, 2, 0, 9),
+        Size = UDim2.new(0, 1, 0, 12),
+        Name = "ChooseFrame",
+      }, Tab)
+  
+      Custom:Create("UIStroke", {
+        Color = Custom.ColorRGB,
+        Thickness = 1.6,
+      }, ChooseFrame)
+  
+      Custom:Create("UICorner", {}, ChooseFrame)
     end
 
     TabButton.Activated:Connect(function()
       CircleClick(TabButton, Player:GetMouse().X, Player:GetMouse().Y)
+      local FrameChoose = nil
 
-      if Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
-        for _, TabFrame in pairs(ScrollTab:GetChildren()) do
-          if TabFrame.Name == "Tab" then
-            TweenService:Create(TabFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.999}):Play()
+      for _, s in pairs(ScrollTab:GetChildren()) do
+        for _, v in pairs(s:GetChildren()) do
+          if v.Name == "ChooseFrame" then
+            FrameChoose = v
+            break
           end
         end
 
-        TweenService:Create(Tab, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.92}):Play()
-        LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
+        if FrameChoose then break end
+      end
+  
+      if FrameChoose and Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
+        for _, TabFrame in pairs(ScrollTab:GetChildren()) do
+          if TabFrame.Name == "Tab" then
+            TweenService:Create(TabFrame, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.999}):Play()
+          end
+        end
+  
+        local _TabT = TweenService:Create(Tab, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.92})
+        local _FTween = TweenService:Create(FrameChoose, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) })
 
+        _TabT:Play()
+        _FTween:Play()
+  
+        LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
+  
         task.wait(0.05)
         NameTab.Text = _Name
+  
+        TweenService:Create(FrameChoose, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 1, 0, 20)}):Play()
+  
+        task.wait(0.2)
+        TweenService:Create(FrameChoose, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 1, 0, 12)}):Play()
       end
     end)
 
@@ -1613,59 +1581,61 @@ function Speed_Library:CreateWindow(Config)
         local Increment = Config[3] or Config.Increment or 1
         local Min = Config[4] or Config.Min or 0
         local Max = Config[5] or Config.Max or 100
-        local Default = Config[6] or Config.Default or Min
+        local Default = Config[6] or Config.Default or 50
         local Callback = Config[7] or Config.Callback or function() end
 
-        local Funcs_Slider = {Value = Default}
-        local Dragging = false
-
+				local Funcs_Slider = {Value = Default}
+        
         local Slider = Custom:Create("Frame", {
-          BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-          BackgroundTransparency = 0.935,
-          BorderColor3 = Color3.fromRGB(0, 0, 0),
-          BorderSizePixel = 0,
-          LayoutOrder = ItemCount,
-          Size = UDim2.new(1, 0, 0, 35),
-          Name = "Slider",
-        }, SectionAdd)
+					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+					BackgroundTransparency = 0.9350000023841858,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					LayoutOrder = ItemCount,
+					Size = UDim2.new(1, 0, 0, 35),
+					Name = "Slider",
+				}, SectionAdd)
 
-        Custom:Create("UICorner", {CornerRadius = UDim.new(0, 4)}, Slider)
-
-        local SliderTitle = Custom:Create("TextLabel", {
-          Font = Enum.Font.GothamBold,
-          Text = Title,
-          TextColor3 = Color3.fromRGB(230, 230, 230),
-          TextSize = 13,
-          TextXAlignment = Enum.TextXAlignment.Left,
-          TextYAlignment = Enum.TextYAlignment.Top,
-          BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-          BackgroundTransparency = 0.999,
-          BorderSizePixel = 0,
-          Position = UDim2.new(0, 10, 0, 10),
-          Size = UDim2.new(1, -180, 0, 13),
-          Name = "SliderTitle",
+        Custom:Create("UICorner", {
+          CornerRadius = UDim.new(0, 4),
         }, Slider)
 
-        local SliderContent = Custom:Create("TextLabel", {
-          Font = Enum.Font.GothamBold,
-          Text = Content,
-          TextColor3 = Color3.fromRGB(255, 255, 255),
-          TextSize = 12,
-          TextTransparency = 0.6,
-          TextXAlignment = Enum.TextXAlignment.Left,
-          TextYAlignment = Enum.TextYAlignment.Bottom,
-          BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-          BackgroundTransparency = 0.999,
-          BorderSizePixel = 0,
-          Position = UDim2.new(0, 10, 0, 23),
-          Size = UDim2.new(1, -180, 0, 12),
-          Name = "SliderContent",
-        }, Slider)
+        Custom:Create("TextLabel", {
+					Font = Enum.Font.GothamBold,
+					Text = Title,
+					TextColor3 = Color3.fromRGB(230, 230, 230),
+					TextSize = 13,
+					TextXAlignment = Enum.TextXAlignment.Left,
+					TextYAlignment = Enum.TextYAlignment.Top,
+					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+					BackgroundTransparency = 0.9990000128746033,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 10, 0, 10),
+					Size = UDim2.new(1, -180, 0, 13),
+					Name = "SliderTitle",
+				}, Slider)
+
+				local SliderContent = Custom:Create("TextLabel", {
+					Font = Enum.Font.GothamBold,
+					Text = Content,
+					TextColor3 = Color3.fromRGB(255, 255, 255),
+					TextSize = 12,
+					TextTransparency = 0.6000000238418579,
+					TextXAlignment = Enum.TextXAlignment.Left,
+					TextYAlignment = Enum.TextYAlignment.Bottom,
+					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+					BackgroundTransparency = 0.9990000128746033,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 10, 0, 23),
+					Size = UDim2.new(1, -180, 0, 12),
+					Name = "SliderContent",
+				}, Slider)
 
         local function UpdateSliderSize()
           SliderContent.TextWrapped = false
-          local lines = math.max(1, math.ceil(SliderContent.TextBounds.X / math.max(SliderContent.AbsoluteSize.X, 1)))
-          SliderContent.Size = UDim2.new(1, -180, 0, 12 * lines)
+          SliderContent.Size = UDim2.new(1, -180, 0, 12 + (12 * math.floor(SliderContent.TextBounds.X / SliderContent.AbsoluteSize.X)))
           Slider.Size = UDim2.new(1, 0, 0, SliderContent.AbsoluteSize.Y + 33)
           SliderContent.TextWrapped = true
         end
@@ -1677,148 +1647,144 @@ function Speed_Library:CreateWindow(Config)
         UpdateSliderSize()
 
         local SliderInput = Custom:Create("Frame", {
-          AnchorPoint = Vector2.new(0, 0.5),
-          BackgroundColor3 = Custom.ColorRGB,
-          BorderSizePixel = 0,
-          Position = UDim2.new(1, -155, 0.5, 0),
-          Size = UDim2.new(0, 32, 0, 21),
-          Name = "SliderInput",
-        }, Slider)
-        Custom:Create("UICorner", {CornerRadius = UDim.new(0, 3)}, SliderInput)
-        Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 80, 80), Transparency = 0.18, Thickness = 1}, SliderInput)
+					AnchorPoint = Vector2.new(0, 0.5),
+					BackgroundColor3 = Custom.ColorRGB,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					Position = UDim2.new(1, -155, 0.5, 0),
+					Size = UDim2.new(0, 28, 0, 20),
+					Name = "SliderInput",
+				}, Slider)
 
-        local TextBox = Custom:Create("TextBox", {
-          Font = Enum.Font.GothamBold,
-          Text = tostring(Default),
-          TextColor3 = Color3.fromRGB(255, 255, 255),
-          TextSize = 13,
-          TextWrapped = true,
-          ClearTextOnFocus = false,
-          BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-          BackgroundTransparency = 0.999,
-          BorderSizePixel = 0,
-          Position = UDim2.new(0, 0, 0, 0),
-          Size = UDim2.new(1, 0, 1, 0),
-          Name = "SliderTextBox",
+        Custom:Create("UICorner", {
+          CornerRadius = UDim.new(0, 6),
         }, SliderInput)
 
+         
+				local TextBox = Custom:Create("TextBox", {
+					Font = Enum.Font.GothamBold,
+					Text = "90",
+					TextColor3 = Color3.fromRGB(255, 255, 255),
+					TextSize = 13,
+					TextWrapped = true,
+					BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+					BackgroundTransparency = 0.9990000128746033,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, -1, 0, 0),
+					Size = UDim2.new(1, 0, 1, 0),
+				}, SliderInput)
+
         local SliderFrame = Custom:Create("Frame", {
-          AnchorPoint = Vector2.new(1, 0.5),
-          BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-          BackgroundTransparency = 0.8,
-          BorderSizePixel = 0,
-          Position = UDim2.new(1, -20, 0.5, 0),
-          Size = UDim2.new(0, 100, 0, 3),
-          Name = "SliderFrame",
-        }, Slider)
+					AnchorPoint = Vector2.new(1, 0.5),
+					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+					BackgroundTransparency = 0.800000011920929,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					Position = UDim2.new(1, -20, 0.5, 0),
+					Size = UDim2.new(0, 100, 0, 3),
+					Name = "SliderFrame",
+				}, Slider)
+
         Custom:Create("UICorner", {}, SliderFrame)
 
         local SliderDraggable = Custom:Create("Frame", {
-          AnchorPoint = Vector2.new(0, 0.5),
-          BackgroundColor3 = Custom.ColorRGB,
-          BorderSizePixel = 0,
-          Position = UDim2.new(0, 0, 0.5, 0),
-          Size = UDim2.new(0, 0, 0, 2),
-          Name = "SliderDraggable",
-        }, SliderFrame)
+					AnchorPoint = Vector2.new(0, 0.5),
+					BackgroundColor3 = Custom.ColorRGB,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 0, 0.5, 0),
+					Size = UDim2.new(0.899999976, 0, 0, 1),
+					Name = "SliderDraggable",
+				}, SliderFrame)
+
         Custom:Create("UICorner", {}, SliderDraggable)
 
         local SliderCircle = Custom:Create("Frame", {
-          AnchorPoint = Vector2.new(1, 0.5),
-          BackgroundColor3 = Custom.ColorRGB,
-          BorderSizePixel = 0,
-          Position = UDim2.new(1, 13, 0.5, 0),
-          Size = UDim2.new(0, 10, 0, 10),
-          Name = "SliderCircle",
-        }, SliderDraggable)
-        Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, SliderCircle)
-        Custom:Create("UIStroke", {Color = Custom.ColorRGB, Thickness = 1.2}, SliderCircle)
+					AnchorPoint = Vector2.new(1, 0.5),
+					BackgroundColor3 = Custom.ColorRGB,
+					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					BorderSizePixel = 0,
+					Position = UDim2.new(1, 8, 0.5, 0),
+					Size = UDim2.new(0, 10, 0, 10),
+					Name = "SliderCircle",
+				}, SliderDraggable)
+
+        Custom:Create("UICorner", {}, SliderCircle)
+
+        Custom:Create("UIStroke", {
+          Color = Custom.ColorRGB,
+        }, SliderCircle)
+
+        local Dragging = false
 
         local function Round(Number, Factor)
-          Factor = tonumber(Factor) or 1
-          if Factor <= 0 then return Number end
-          return math.floor((Number / Factor) + 0.5) * Factor
-        end
-
-        local function FormatValue(Value)
-          if Increment < 1 then
-            local decimals = tostring(Increment):reverse():find("%.")
-            decimals = decimals and (decimals - 1) or 2
-            return string.format("%." .. math.clamp(decimals, 1, 4) .. "f", Value)
+          local Result = math.floor(Number / Factor + (math.sign(Number) * 0.5)) * Factor
+          if Result < 0 then 
+            Result = Result + Factor 
           end
-          return tostring(math.floor(Value + 0.5))
+          return Result
         end
-
-        function Funcs_Slider:Set(Value, FireCallback)
-          Value = tonumber(Value) or Min
+        
+        function Funcs_Slider:Set(Value)
           Value = math.clamp(Round(Value, Increment), Min, Max)
           Funcs_Slider.Value = Value
-          TextBox.Text = FormatValue(Value)
-
-          local percent = 0
-          if Max ~= Min then
-            percent = math.clamp((Value - Min) / (Max - Min), 0, 1)
-          end
-
-          TweenService:Create(SliderDraggable, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(percent, 0, 0, 2)
-          }):Play()
-
-          if FireCallback then
-            task.spawn(function()
-              Callback(Funcs_Slider.Value)
-            end)
-          end
+          TextBox.Text = tostring(Value)
+            
+          TweenService:Create(SliderDraggable, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.fromScale((Value - Min) / (Max - Min), 1) }):Play()
         end
-
-        local function SetFromX(X, FireCallback)
-          local percent = math.clamp((X - SliderFrame.AbsolutePosition.X) / math.max(SliderFrame.AbsoluteSize.X, 1), 0, 1)
-          Funcs_Slider:Set(Min + ((Max - Min) * percent), FireCallback)
-        end
-
+        
         SliderFrame.InputBegan:Connect(function(Input)
           if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             Dragging = true
-            SetFromX(Input.Position.X, true)
           end
         end)
-
+      
         SliderFrame.InputEnded:Connect(function(Input)
           if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             Dragging = false
             Callback(Funcs_Slider.Value)
           end
         end)
-
+      
+        local _LastX = nil
         UserInputService.InputChanged:Connect(function(Input)
-          if Dragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
-            SetFromX(Input.Position.X, true)
+          if Dragging then
+            local CurrPosX = Input.Position.X
+            if CurrPosX ~= _LastX then
+              _LastX = CurrPosX
+      
+              local SizeScale = math.clamp((CurrPosX - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
+              Funcs_Slider:Set(Min + ((Max - Min) * SizeScale))
+            end
           end
         end)
-
-        UserInputService.InputEnded:Connect(function(Input)
-          if Dragging and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
-            Dragging = false
+        
+        TextBox:GetPropertyChangedSignal("Text"):Connect(function()
+          local Valid = TextBox.Text:gsub("[^%d]", "")
+          if Valid ~= "" then
+            local ValidNumber = math.min(tonumber(Valid), Max)
+            TextBox.Text = tostring(ValidNumber)
+          else
+            TextBox.Text = "0"
+          end
+        end)
+        
+        TextBox.FocusLost:Connect(function()
+          if TextBox.Text ~= "" then
+            Funcs_Slider:Set(tonumber(TextBox.Text))
+            Callback(Funcs_Slider.Value)
+          else
+            Funcs_Slider:Set(0)
             Callback(Funcs_Slider.Value)
           end
         end)
-
-        TextBox:GetPropertyChangedSignal("Text"):Connect(function()
-          local cleaned = TextBox.Text:gsub("[^%d%.-]", "")
-          if cleaned ~= TextBox.Text then
-            TextBox.Text = cleaned
-          end
-        end)
-
-        TextBox.FocusLost:Connect(function()
-          Funcs_Slider:Set(tonumber(TextBox.Text) or Min, true)
-        end)
-
-        Funcs_Slider:Set(Default, false)
+        
+        Funcs_Slider:Set(tonumber(Default))
         Callback(Funcs_Slider.Value)
 
         ItemCount += 1
-        return Funcs_Slider
+				return Funcs_Slider
       end
 
       function Item:AddInput(Config)
@@ -2318,383 +2284,61 @@ function Speed_Library:CreateWindow(Config)
   end
 
 
-  --// Built-in Library Editor tab
-  --// Auto-created in every window. Edits only visible UI objects in this library.
-  local function _SHX_ApplyCorner(Object, Radius)
-    if not Object then return end
-    local Corner = Object:FindFirstChildOfClass("UICorner")
-    if not Corner then
-      Corner = Custom:Create("UICorner", {}, Object)
-    end
-    Corner.CornerRadius = UDim.new(0, Radius)
-  end
+  --// Built-in clean settings tab
+  task.defer(function()
+    local SettingsTab = Tabs:CreateTab({
+      Name = "Window Settings",
+      Icon = "rbxassetid://125609963478878"
+    })
 
-  local function _SHX_ApplyStroke(Object, Color, Thickness, Transparency)
-    if not Object then return end
-    local Stroke = Object:FindFirstChildOfClass("UIStroke")
-    if not Stroke then
-      Stroke = Custom:Create("UIStroke", {}, Object)
-    end
-    if Color then Stroke.Color = Color end
-    if Thickness ~= nil then Stroke.Thickness = Thickness end
-    if Transparency ~= nil then Stroke.Transparency = Transparency end
-  end
+    local WindowSection = SettingsTab:AddSection("Window Size", true)
 
-  local function _SHX_GetColor(Name)
-    local Colors = {
-      ["White"] = Color3.fromRGB(255,255,255),
-      ["Black"] = Color3.fromRGB(0,0,0),
-      ["Soft Black"] = Color3.fromRGB(15,15,15),
-      ["Dark Gray"] = Color3.fromRGB(25,25,28),
-      ["Gray"] = Color3.fromRGB(90,90,95),
-      ["Silver"] = Color3.fromRGB(190,190,195),
-      ["Red"] = Color3.fromRGB(250,7,7),
-      ["Dark Red"] = Color3.fromRGB(160,0,0),
-      ["Crimson"] = Color3.fromRGB(220,20,60),
-      ["Rose"] = Color3.fromRGB(255,70,120),
-      ["Orange"] = Color3.fromRGB(255,120,0),
-      ["Gold"] = Color3.fromRGB(255,180,0),
-      ["Yellow"] = Color3.fromRGB(255,235,0),
-      ["Lime"] = Color3.fromRGB(140,255,0),
-      ["Green"] = Color3.fromRGB(0,220,90),
-      ["Emerald"] = Color3.fromRGB(0,255,150),
-      ["Cyan"] = Color3.fromRGB(0,255,255),
-      ["Sky Blue"] = Color3.fromRGB(0,170,255),
-      ["Blue"] = Color3.fromRGB(0,80,255),
-      ["Dark Blue"] = Color3.fromRGB(0,40,180),
-      ["Purple"] = Color3.fromRGB(170,0,255),
-      ["Violet"] = Color3.fromRGB(130,0,255),
-      ["Pink"] = Color3.fromRGB(255,0,170),
-      ["Hot Pink"] = Color3.fromRGB(255,0,100)
-    }
-    return Colors[Name] or Colors.White
-  end
-
-  local _SHX_EditState = {
-    Accent = Custom.ColorRGB,
-    Text = Color3.fromRGB(255,255,255),
-    SubText = Color3.fromRGB(165,165,165),
-    Main = Main.BackgroundColor3,
-    Card = Color3.fromRGB(255,255,255),
-    RGBTitle = false,
-    RGBAccent = false,
-    Scale = 1,
-  }
-
-  local function _SHX_ForDescendants(Func)
-    if not DropShadowHolder then return end
-    for _, v in ipairs(DropShadowHolder:GetDescendants()) do
-      pcall(Func, v)
-    end
-  end
-
-  local function _SHX_SetAllCorners(Radius)
-    _SHX_ForDescendants(function(v)
-      if v:IsA("GuiObject") then
-        local n = v.Name:lower()
-        if n:find("button") or n:find("frame") or n:find("slider") or n:find("dropdown") or n:find("input") or n:find("toggle") or n:find("section") or n:find("tab") or v == Main or v == Layers or v == LayersTab then
-          _SHX_ApplyCorner(v, Radius)
-        end
-      end
-    end)
-    _SHX_ApplyCorner(Main, Radius)
-    _SHX_ApplyCorner(DropShadow, Radius)
-    _SHX_ApplyCorner(LayersTab, math.max(4, Radius - 4))
-    _SHX_ApplyCorner(Layers, math.max(4, Radius - 4))
-  end
-
-  local function _SHX_SetItemTransparency(Value)
-    _SHX_ForDescendants(function(v)
-      if v:IsA("Frame") then
-        local n = v.Name:lower()
-        if n:find("button") or n:find("toggle") or n:find("slider") or n:find("dropdown") or n:find("input") or n:find("paragraph") or n:find("sectionreal") then
-          v.BackgroundTransparency = Value
-        end
-      end
-    end)
-  end
-
-  local function _SHX_SetTextSize(Delta)
-    _SHX_ForDescendants(function(v)
-      if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-        local Base = v:GetAttribute("SHX_BaseTextSize")
-        if not Base then
-          Base = v.TextSize
-          v:SetAttribute("SHX_BaseTextSize", Base)
-        end
-        v.TextSize = math.clamp(Base + Delta, 8, 32)
-      end
-    end)
-  end
-
-  local function _SHX_SetFont(FontName)
-    local Font = Enum.Font[FontName] or Enum.Font.GothamBold
-    _SHX_ForDescendants(function(v)
-      if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-        v.Font = Font
-      end
-    end)
-  end
-
-  local function _SHX_SetAccent(Color, ChangeGlobal)
-    _SHX_EditState.Accent = Color
-    if ChangeGlobal then Custom.ColorRGB = Color end
-    _SHX_ForDescendants(function(v)
-      local n = v.Name:lower()
-      if v:IsA("Frame") then
-        if n:find("sliderdraggable") or n:find("sliderinput") or n:find("togglecircle") or n:find("chooseframe") or n:find("sectiondecide") then
-          v.BackgroundColor3 = Color
-        end
-      elseif v:IsA("ImageLabel") or v:IsA("ImageButton") then
-        if n:find("feature") or n:find("warning") then
-          v.ImageColor3 = Color
-        end
-      elseif v:IsA("UIStroke") then
-        if v.Parent and (v.Parent.Name:lower():find("sliderinput") or v.Parent.Name:lower():find("toggle") or v.Parent.Name:lower():find("main")) then
-          v.Color = Color
-        end
-      elseif v:IsA("UIGradient") then
-        v.Color = ColorSequence.new{
-          ColorSequenceKeypoint.new(0, Color3.fromRGB(20,20,20)),
-          ColorSequenceKeypoint.new(0.5, Color),
-          ColorSequenceKeypoint.new(1, Color3.fromRGB(20,20,20))
-        }
-      end
-    end)
-  end
-
-  local function _SHX_SetTitleColor(Color)
-    _SHX_EditState.Text = Color
-    TextLabel.TextColor3 = Color
-    TextLabel1.TextColor3 = Color
-    local Stroke = TextLabel1:FindFirstChildOfClass("UIStroke")
-    if Stroke then Stroke.Color = Color end
-  end
-
-  local function _SHX_SetAllTextColor(Color)
-    _SHX_ForDescendants(function(v)
-      if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-        if v.Name ~= "SliderContent" and v.Name ~= "DropdownContent" and v.Name ~= "InputContent" and v.Name ~= "ToggleContent" then
-          v.TextColor3 = Color
-        end
-      end
-    end)
-  end
-
-  local function _SHX_SetSubTextColor(Color)
-    _SHX_EditState.SubText = Color
-    _SHX_ForDescendants(function(v)
-      if v:IsA("TextLabel") and (v.Name:lower():find("content") or v.TextTransparency > 0.3) then
-        v.TextColor3 = Color
-      end
-    end)
-  end
-
-  local function _SHX_StyleSlider(Mode)
-    _SHX_ForDescendants(function(v)
-      local n = v.Name:lower()
-      if n == "sliderinput" and v:IsA("Frame") then
-        v.BackgroundColor3 = _SHX_EditState.Accent
-        v.BackgroundTransparency = 0
-        v.Size = (Mode == "Wide") and UDim2.new(0, 42, 0, 22) or UDim2.new(0, 30, 0, 20)
-        _SHX_ApplyCorner(v, Mode == "Round" and 8 or 4)
-      elseif n == "sliderframe" and v:IsA("Frame") then
-        v.Size = (Mode == "Long") and UDim2.new(0, 130, 0, 3) or UDim2.new(0, 100, 0, 3)
-        _SHX_ApplyCorner(v, 99)
-      elseif n == "sliderdraggable" and v:IsA("Frame") then
-        v.BackgroundColor3 = _SHX_EditState.Accent
-        _SHX_ApplyCorner(v, 99)
-      elseif n == "slidercircle" and v:IsA("Frame") then
-        v.BackgroundColor3 = Color3.fromRGB(255,255,255)
-        v.Size = (Mode == "Big Dot") and UDim2.new(0, 14, 0, 14) or UDim2.new(0, 10, 0, 10)
-        _SHX_ApplyCorner(v, 99)
-      elseif v:IsA("TextBox") and v.Parent and v.Parent.Name == "SliderInput" then
-        v.TextColor3 = Color3.fromRGB(255,255,255)
-        v.TextSize = 13
-      end
-    end)
-  end
-
-  local function _SHX_MoveSliderDot(Offset)
-    _SHX_ForDescendants(function(v)
-      if v:IsA("Frame") and v.Name:lower() == "slidercircle" then
-        v.Position = UDim2.new(v.Position.X.Scale, Offset, v.Position.Y.Scale, v.Position.Y.Offset)
-      end
-    end)
-  end
-
-  local function _SHX_SetMinButtonSize(Size)
-    if Min then
-      Min.TextSize = Size
-      Min.Font = Enum.Font.GothamBold
-      Min.Size = UDim2.new(0, math.max(25, Size + 10), 0, math.max(25, Size + 10))
-      Min.Position = UDim2.new(1, -(42 + math.max(0, Size - 18)), 0.5, 0)
-    end
-  end
-
-  local function _SHX_SetCloseWarningWhite()
-    _SHX_ForDescendants(function(v)
-      local n = v.Name:lower()
-      if (n:find("confirm") or n:find("warning") or n:find("yes") or n:find("no")) and (v:IsA("TextLabel") or v:IsA("TextButton")) then
-        v.TextColor3 = Color3.fromRGB(255,255,255)
-      end
-    end)
-  end
-
-  local function _SHX_ResetStyle()
-    Main.BackgroundColor3 = Color3.fromRGB(15,15,15)
-    Main.BackgroundTransparency = 0.1
-    DropShadow.ImageTransparency = 0.5
-    _SHX_ApplyStroke(Main, Color3.fromRGB(50,50,50), 1.6, 0)
-    _SHX_SetAllCorners(8)
-    _SHX_SetItemTransparency(0.935)
-    _SHX_SetAccent(Color3.fromRGB(250,7,7), false)
-    _SHX_SetTitleColor(Color3.fromRGB(255,255,255))
-    _SHX_SetSubTextColor(Color3.fromRGB(255,255,255))
-    _SHX_SetTextSize(0)
-    _SHX_StyleSlider("Classic")
-    _SHX_MoveSliderDot(0)
-    _SHX_SetMinButtonSize(22)
-  end
-
-  local function _SHX_ApplyPreset(Name)
-    if Name == "Original" then
-      _SHX_ResetStyle()
-    elseif Name == "Modern Red" then
-      Main.BackgroundColor3 = Color3.fromRGB(14,14,16)
-      Main.BackgroundTransparency = 0.05
-      _SHX_SetAccent(Color3.fromRGB(255,35,35), false)
-      _SHX_SetAllCorners(14)
-      _SHX_SetItemTransparency(0.92)
-      _SHX_ApplyStroke(Main, Color3.fromRGB(255,45,45), 1.2, 0.55)
-    elseif Name == "Glass Dark" then
-      Main.BackgroundColor3 = Color3.fromRGB(10,10,12)
-      Main.BackgroundTransparency = 0.22
-      DropShadow.ImageTransparency = 0.35
-      _SHX_SetAccent(Color3.fromRGB(255,70,70), false)
-      _SHX_SetAllCorners(18)
-      _SHX_SetItemTransparency(0.88)
-    elseif Name == "Clean Gray" then
-      Main.BackgroundColor3 = Color3.fromRGB(20,20,22)
-      Main.BackgroundTransparency = 0.08
-      _SHX_SetAccent(Color3.fromRGB(170,170,175), false)
-      _SHX_SetAllCorners(12)
-      _SHX_SetItemTransparency(0.93)
-    elseif Name == "Neon Purple" then
-      Main.BackgroundColor3 = Color3.fromRGB(12,10,18)
-      _SHX_SetAccent(Color3.fromRGB(170,0,255), false)
-      _SHX_SetAllCorners(16)
-      _SHX_ApplyStroke(Main, Color3.fromRGB(170,0,255), 1.5, 0.45)
-    elseif Name == "Ocean" then
-      Main.BackgroundColor3 = Color3.fromRGB(8,14,18)
-      _SHX_SetAccent(Color3.fromRGB(0,170,255), false)
-      _SHX_SetAllCorners(16)
-    end
-  end
-
-  function Tabs:AddLibraryEditorTab()
-    local SettingsTab = Tabs:CreateTab({Name = "Library Editor", Icon = "rbxassetid://10734950309"})
-
-    local Presets = SettingsTab:AddSection("Presets", true)
-    Presets:AddDropdown({
-      Title = "Style Preset",
-      Content = "Quick full UI style without breaking the library",
-      Multi = false,
-      Options = {"Original", "Modern Red", "Glass Dark", "Clean Gray", "Neon Purple", "Ocean"},
-      Default = {"Original"},
+    WindowSection:AddSlider({
+      Title = "Window Width",
+      Content = "Change main window width",
+      Increment = 10,
+      Min = 450,
+      Max = 950,
+      Default = WindowWidth,
       Callback = function(Value)
-        local Pick = type(Value) == "table" and Value[1] or Value
-        _SHX_ApplyPreset(Pick)
+        ApplyWindowSize(Value, WindowHeight)
       end
     })
-    Presets:AddButton({Title = "Reset Style", Content = "Restore original SHX look", Callback = _SHX_ResetStyle})
 
-    local WindowSec = SettingsTab:AddSection("Window", true)
-    WindowSec:AddSlider({Title = "Window Transparency", Content = "Only main window", Increment = 0.01, Min = 0, Max = 0.75, Default = Main.BackgroundTransparency or 0.1, Callback = function(v) Main.BackgroundTransparency = v end})
-    WindowSec:AddSlider({Title = "Window Roundness", Content = "Main window corners", Increment = 1, Min = 0, Max = 30, Default = 14, Callback = function(v) _SHX_ApplyCorner(Main, v); _SHX_ApplyCorner(DropShadow, v) end})
-    WindowSec:AddSlider({Title = "All Corners", Content = "Rounds all UI blocks", Increment = 1, Min = 0, Max = 24, Default = 8, Callback = _SHX_SetAllCorners})
-    WindowSec:AddSlider({Title = "Window Stroke", Content = "Border thickness", Increment = 0.1, Min = 0, Max = 5, Default = 1.6, Callback = function(v) _SHX_ApplyStroke(Main, nil, v, nil) end})
-    WindowSec:AddSlider({Title = "Window Stroke Transparency", Content = "Border opacity", Increment = 0.01, Min = 0, Max = 1, Default = 0, Callback = function(v) _SHX_ApplyStroke(Main, nil, nil, v) end})
-    WindowSec:AddSlider({Title = "Shadow Transparency", Content = "Shadow visibility", Increment = 0.01, Min = 0, Max = 1, Default = DropShadow.ImageTransparency or 0.5, Callback = function(v) DropShadow.ImageTransparency = v end})
+    WindowSection:AddSlider({
+      Title = "Window Height",
+      Content = "Change main window height",
+      Increment = 10,
+      Min = 280,
+      Max = 650,
+      Default = WindowHeight,
+      Callback = function(Value)
+        ApplyWindowSize(WindowWidth, Value)
+      end
+    })
 
-    local ColorsSec = SettingsTab:AddSection("Colors", true)
-    local ColorList = {"White", "Black", "Soft Black", "Dark Gray", "Gray", "Silver", "Red", "Dark Red", "Crimson", "Rose", "Orange", "Gold", "Yellow", "Lime", "Green", "Emerald", "Cyan", "Sky Blue", "Blue", "Dark Blue", "Purple", "Violet", "Pink", "Hot Pink"}
-    ColorsSec:AddDropdown({Title = "Accent Color", Content = "Buttons, sliders, toggles. Does not repaint whole UI red", Multi = false, Options = ColorList, Default = {"Red"}, Callback = function(v) _SHX_SetAccent(_SHX_GetColor(type(v)=="table" and v[1] or v), false) end})
-    ColorsSec:AddDropdown({Title = "Title Color", Content = "Only top title/description text", Multi = false, Options = ColorList, Default = {"White"}, Callback = function(v) _SHX_SetTitleColor(_SHX_GetColor(type(v)=="table" and v[1] or v)) end})
-    ColorsSec:AddDropdown({Title = "All Text Color", Content = "Main labels only", Multi = false, Options = ColorList, Default = {"White"}, Callback = function(v) _SHX_SetAllTextColor(_SHX_GetColor(type(v)=="table" and v[1] or v)) end})
-    ColorsSec:AddDropdown({Title = "Description Color", Content = "Small gray descriptions", Multi = false, Options = ColorList, Default = {"Silver"}, Callback = function(v) _SHX_SetSubTextColor(_SHX_GetColor(type(v)=="table" and v[1] or v)) end})
-    ColorsSec:AddDropdown({Title = "Window Background", Content = "Only main window background", Multi = false, Options = ColorList, Default = {"Soft Black"}, Callback = function(v) Main.BackgroundColor3 = _SHX_GetColor(type(v)=="table" and v[1] or v) end})
-    ColorsSec:AddToggle({Title = "RGB Title", Content = "Animated title color", Default = false, Callback = function(v) _SHX_EditState.RGBTitle = v end})
-    ColorsSec:AddToggle({Title = "RGB Accent", Content = "Animated sliders/toggles accent", Default = false, Callback = function(v) _SHX_EditState.RGBAccent = v end})
+    WindowSection:AddSlider({
+      Title = "Tab Frame Width",
+      Content = "Manual tab list width if you want it bigger",
+      Increment = 5,
+      Min = 100,
+      Max = 260,
+      Default = CurrentTabWidth,
+      Callback = function(Value)
+        ApplyTabWidth(Value, true)
+      end
+    })
 
-    local TextSec = SettingsTab:AddSection("Text", false)
-    TextSec:AddDropdown({Title = "Font", Content = "Change font everywhere", Multi = false, Options = {"GothamBold", "Gotham", "GothamSemibold", "SourceSans", "SourceSansBold", "Nunito", "FredokaOne", "Roboto", "Arial"}, Default = {"GothamBold"}, Callback = function(v) _SHX_SetFont(type(v)=="table" and v[1] or v) end})
-    TextSec:AddSlider({Title = "Text Size Boost", Content = "Make all text bigger/smaller", Increment = 1, Min = -4, Max = 8, Default = 0, Callback = _SHX_SetTextSize})
-    TextSec:AddInput({Title = "Window Title", Content = "Change first title text", Default = TextLabel.Text, Callback = function(v) TextLabel.Text = tostring(v) end})
-    TextSec:AddInput({Title = "Window Description", Content = "Change red/second title text", Default = TextLabel1.Text, Callback = function(v) TextLabel1.Text = tostring(v) end})
+    local InfoSection = SettingsTab:AddSection("Auto Tab Size", true)
+    InfoSection:AddButton({
+      Title = "Refresh Auto Tab Width",
+      Content = "Automatically fits the tab frame to long tab names",
+      Callback = function()
+        AutoResizeTabs()
+      end
+    })
 
-    local TabsSec = SettingsTab:AddSection("Tabs", false)
-    TabsSec:AddSlider({Title = "Tab Panel Transparency", Content = "Left tab panel", Increment = 0.01, Min = 0, Max = 1, Default = LayersTab.BackgroundTransparency or 0.999, Callback = function(v) LayersTab.BackgroundTransparency = v end})
-    TabsSec:AddSlider({Title = "Content Transparency", Content = "Right page area", Increment = 0.01, Min = 0, Max = 1, Default = Layers.BackgroundTransparency or 0.999, Callback = function(v) Layers.BackgroundTransparency = v end})
-    TabsSec:AddSlider({Title = "Tab Roundness", Content = "Only tab buttons", Increment = 1, Min = 0, Max = 20, Default = 6, Callback = function(v) _SHX_ForDescendants(function(o) if o.Name == "Tab" then _SHX_ApplyCorner(o, v) end end) end})
-    TabsSec:AddToggle({Title = "Hide Red Tab Line", Content = "Removes ChooseFrame line", Default = true, Callback = function(on) _SHX_ForDescendants(function(o) if o.Name == "ChooseFrame" then o.Visible = not on end end) end})
-
-    local ItemsSec = SettingsTab:AddSection("Sections / Items", false)
-    ItemsSec:AddSlider({Title = "Item Transparency", Content = "Cards, buttons, toggles, sliders", Increment = 0.01, Min = 0.75, Max = 1, Default = 0.935, Callback = _SHX_SetItemTransparency})
-    ItemsSec:AddSlider({Title = "Item Roundness", Content = "Cards inside sections", Increment = 1, Min = 0, Max = 18, Default = 8, Callback = function(v) _SHX_ForDescendants(function(o) if o:IsA("Frame") and (o.Name == "Button" or o.Name == "Toggle" or o.Name == "Slider" or o.Name == "Dropdown" or o.Name == "Input" or o.Name == "Paragraph" or o.Name == "Seperator") then _SHX_ApplyCorner(o, v) end end) end})
-    ItemsSec:AddSlider({Title = "Section Roundness", Content = "Section headers", Increment = 1, Min = 0, Max = 18, Default = 8, Callback = function(v) _SHX_ForDescendants(function(o) if o.Name == "SectionReal" then _SHX_ApplyCorner(o, v) end end) end})
-
-    local SliderSec = SettingsTab:AddSection("Sliders", true)
-    SliderSec:AddDropdown({Title = "Slider Style", Content = "Classic SHX style with fixes", Multi = false, Options = {"Classic", "Wide", "Long", "Round", "Big Dot"}, Default = {"Classic"}, Callback = function(v) _SHX_StyleSlider(type(v)=="table" and v[1] or v) end})
-    SliderSec:AddSlider({Title = "Slider Dot Offset", Content = "Move slider dot further right", Increment = 1, Min = -8, Max = 12, Default = 0, Callback = _SHX_MoveSliderDot})
-    SliderSec:AddSlider({Title = "Slider Input Roundness", Content = "Value box corners", Increment = 1, Min = 0, Max = 12, Default = 6, Callback = function(v) _SHX_ForDescendants(function(o) if o.Name == "SliderInput" then _SHX_ApplyCorner(o, v) end end) end})
-    SliderSec:AddDropdown({Title = "Slider Input Color", Content = "Number input box color", Multi = false, Options = ColorList, Default = {"Red"}, Callback = function(v) local c = _SHX_GetColor(type(v)=="table" and v[1] or v); _SHX_ForDescendants(function(o) if o.Name == "SliderInput" and o:IsA("Frame") then o.BackgroundColor3 = c end end) end})
-
-    local ButtonsSec = SettingsTab:AddSection("Buttons / Close", false)
-    ButtonsSec:AddSlider({Title = "Minus Size", Content = "Make '-' bigger or smaller", Increment = 1, Min = 16, Max = 36, Default = 24, Callback = _SHX_SetMinButtonSize})
-    ButtonsSec:AddSlider({Title = "Top Buttons Roundness", Content = "X and - buttons", Increment = 1, Min = 0, Max = 15, Default = 8, Callback = function(v) _SHX_ApplyCorner(Close, v); _SHX_ApplyCorner(Min, v) end})
-    ButtonsSec:AddButton({Title = "White Warning Text", Content = "Makes Yes/No and warning labels white", Callback = _SHX_SetCloseWarningWhite})
-    ButtonsSec:AddDropdown({Title = "Close Button Color", Content = "Only X text color", Multi = false, Options = ColorList, Default = {"White"}, Callback = function(v) Close.TextColor3 = _SHX_GetColor(type(v)=="table" and v[1] or v) end})
-    ButtonsSec:AddDropdown({Title = "Minus Button Color", Content = "Only - text color", Multi = false, Options = ColorList, Default = {"White"}, Callback = function(v) Min.TextColor3 = _SHX_GetColor(type(v)=="table" and v[1] or v) end})
-
-    local AnimSec = SettingsTab:AddSection("Animations", false)
-    AnimSec:AddSlider({Title = "UI Scale", Content = "Resize whole window", Increment = 0.01, Min = 0.75, Max = 1.25, Default = 1, Callback = function(v)
-      _SHX_EditState.Scale = v
-      DropShadow.Size = UDim2.new(SizeUi.X.Scale, math.floor(SizeUi.X.Offset * v), SizeUi.Y.Scale, math.floor(SizeUi.Y.Offset * v))
-    end})
-    AnimSec:AddButton({Title = "Pulse Window", Content = "Small smooth pulse animation", Callback = function()
-      local old = DropShadow.Size
-      TweenService:Create(DropShadow, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = old + UDim2.fromOffset(8, 8)}):Play()
-      task.wait(0.15)
-      TweenService:Create(DropShadow, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = old}):Play()
-    end})
-
-    local InfoSec = SettingsTab:AddSection("Info", false)
-    InfoSec:AddParagraph({Title = "Library Editor", Content = "This tab edits the library visuals only: window, colors, sliders, text, corners, tabs, buttons, and warning text."})
-    InfoSec:AddParagraph({Title = "Safe Color Mode", Content = "Title color changes only the title text. It does not repaint the whole interface red."})
-
-    if not _SHX_RGBConnection then
-      _SHX_RGBConnection = RunService.RenderStepped:Connect(function()
-        if _SHX_EditState.RGBTitle then
-          local c = Color3.fromHSV((tick() * 0.12) % 1, 1, 1)
-          _SHX_SetTitleColor(c)
-        end
-        if _SHX_EditState.RGBAccent then
-          local c = Color3.fromHSV((tick() * 0.10) % 1, 1, 1)
-          _SHX_SetAccent(c, false)
-        end
-      end)
-    end
-
-    return SettingsTab
-  end
-
-  function Tabs:AddWindowSettingsTab()
-    return Tabs:AddLibraryEditorTab()
-  end
-
-  pcall(function()
-    Tabs:AddLibraryEditorTab()
+    AutoResizeTabs()
   end)
 
   return Tabs
