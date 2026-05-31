@@ -23,67 +23,6 @@ local Custom = {} do
     return _instance
   end
 
-
-
-  --// Red corner highlight helper (only corners, no black overlay)
-  function Custom:AddCornerGlow(Parent, Config)
-    Config = Config or {}
-    if not Parent then return nil end
-
-    local Color = Config.Color or Custom.ColorRGB or Color3.fromRGB(255, 40, 40)
-    local Length = Config.Length or 14
-    local Thick = Config.Thickness or 2
-    local Offset = Config.Offset or 1
-    local Transparency = Config.Transparency or 0.05
-    local BaseZ = Parent.ZIndex or 1
-    local Z = Config.ZIndex or (BaseZ + 2)
-
-    local Old = Parent:FindFirstChild("RedCornerGlow")
-    if Old then Old:Destroy() end
-
-    local Holder = Instance.new("Frame")
-    Holder.Name = "RedCornerGlow"
-    Holder.BackgroundTransparency = 1
-    Holder.BorderSizePixel = 0
-    Holder.Size = UDim2.new(1, 0, 1, 0)
-    Holder.Position = UDim2.new(0, 0, 0, 0)
-    Holder.ZIndex = Z
-    Holder.Active = false
-    Holder.Parent = Parent
-
-    local function Line(Name, Pos, Size)
-      local F = Instance.new("Frame")
-      F.Name = Name
-      F.BackgroundColor3 = Color
-      F.BackgroundTransparency = Transparency
-      F.BorderSizePixel = 0
-      F.Position = Pos
-      F.Size = Size
-      F.ZIndex = Z
-      F.Active = false
-      F.Parent = Holder
-
-      local Corner = Instance.new("UICorner")
-      Corner.CornerRadius = UDim.new(0, Thick)
-      Corner.Parent = F
-      return F
-    end
-
-    Line("LT_H", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
-    Line("LT_V", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
-
-    Line("RT_H", UDim2.new(1, -Length - Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
-    Line("RT_V", UDim2.new(1, -Thick - Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
-
-    Line("LB_H", UDim2.new(0, Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
-    Line("LB_V", UDim2.new(0, Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
-
-    Line("RB_H", UDim2.new(1, -Length - Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
-    Line("RB_V", UDim2.new(1, -Thick - Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
-
-    return Holder
-  end
-
   function Custom:EnabledAFK()
     Player.Idled:Connect(function()
       VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
@@ -521,8 +460,6 @@ function Speed_Library:CreateWindow(Config)
     Thickness = 1.6
   }, Main)
 
-  Custom:AddCornerGlow(Main, {Length = 18, Thickness = 2, Offset = 2, Transparency = 0.03})
-
   local Top = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
     BackgroundTransparency = 0.9990000128746033,
@@ -583,10 +520,10 @@ function Speed_Library:CreateWindow(Config)
   }, Top)
 
   local Min = Custom:Create("TextButton", {
-    Font = Enum.Font.Gotham,
+    Font = Enum.Font.GothamMedium,
     Text = "-", 
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 30,
+    TextSize = 32,
     AnchorPoint = Vector2.new(1, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
     BackgroundTransparency = 0.9990000128746033,
@@ -992,8 +929,6 @@ function Speed_Library:CreateWindow(Config)
     Transparency = 0.25,
     Parent = DropdownSelect
   })
-
-  Custom:AddCornerGlow(DropdownSelect, {Length = 13, Thickness = 2, Offset = 2, Transparency = 0.02})
 
   local DropdownSelectReal = Custom:Create("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -2103,8 +2038,6 @@ function Speed_Library:CreateWindow(Config)
           Transparency = 0.25
         }, Dropdown)
 
-        Custom:AddCornerGlow(Dropdown, {Length = 12, Thickness = 2, Offset = 2, Transparency = 0.02})
-
         local DropdownButton = Custom:Create("TextButton", {
           Font = Enum.Font.SourceSans,
           Text = "",
@@ -2194,8 +2127,6 @@ function Speed_Library:CreateWindow(Config)
           Thickness = 1.2,
           Transparency = 0.35
         }, SelectOptionsFrame)
-
-        Custom:AddCornerGlow(SelectOptionsFrame, {Length = 10, Thickness = 2, Offset = 2, Transparency = 0.02})
 
         DropdownButton.Activated:Connect(function()
           if not MoreBlur.Visible then
