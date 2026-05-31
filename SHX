@@ -24,6 +24,62 @@ local Custom = {} do
   end
 
   function Custom:EnabledAFK()
+
+
+--// Red corner highlight helper (only corners, not full red fill)
+local function AddCornerGlow(Parent, Config)
+  Config = Config or {}
+  local Color = Config.Color or Custom.ColorRGB or Color3.fromRGB(255, 40, 40)
+  local Length = Config.Length or 14
+  local Thick = Config.Thickness or 2
+  local Offset = Config.Offset or 1
+  local Transparency = Config.Transparency or 0.05
+  local Z = Config.ZIndex or ((Parent and Parent.ZIndex) or 1) + 2
+
+  local Holder = Instance.new("Frame")
+  Holder.Name = "RedCornerGlow"
+  Holder.BackgroundTransparency = 1
+  Holder.BorderSizePixel = 0
+  Holder.Size = UDim2.new(1, 0, 1, 0)
+  Holder.Position = UDim2.new(0, 0, 0, 0)
+  Holder.ZIndex = Z
+  Holder.Parent = Parent
+
+  local function line(name, pos, size)
+    local f = Instance.new("Frame")
+    f.Name = name
+    f.BackgroundColor3 = Color
+    f.BackgroundTransparency = Transparency
+    f.BorderSizePixel = 0
+    f.Position = pos
+    f.Size = size
+    f.ZIndex = Z
+    f.Parent = Holder
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, Thick)
+    c.Parent = f
+    return f
+  end
+
+  -- left top
+  line("LT_H", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
+  line("LT_V", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
+
+  -- right top
+  line("RT_H", UDim2.new(1, -Length - Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
+  line("RT_V", UDim2.new(1, -Thick - Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
+
+  -- left bottom
+  line("LB_H", UDim2.new(0, Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
+  line("LB_V", UDim2.new(0, Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
+
+  -- right bottom
+  line("RB_H", UDim2.new(1, -Length - Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
+  line("RB_V", UDim2.new(1, -Thick - Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
+
+  return Holder
+end
+
     Player.Idled:Connect(function()
       VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
       task.wait(1)
@@ -460,6 +516,8 @@ function Speed_Library:CreateWindow(Config)
     Thickness = 1.6
   }, Main)
 
+  AddCornerGlow(Main, {Length = 18, Thickness = 2, Offset = 2, Transparency = 0.03})
+
   local Top = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
     BackgroundTransparency = 0.9990000128746033,
@@ -520,10 +578,10 @@ function Speed_Library:CreateWindow(Config)
   }, Top)
 
   local Min = Custom:Create("TextButton", {
-    Font = Enum.Font.GothamMedium,
+    Font = Enum.Font.Gotham,
     Text = "-", 
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 32,
+    TextSize = 30,
     AnchorPoint = Vector2.new(1, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
     BackgroundTransparency = 0.9990000128746033,
@@ -929,6 +987,8 @@ function Speed_Library:CreateWindow(Config)
     Transparency = 0.25,
     Parent = DropdownSelect
   })
+
+  AddCornerGlow(DropdownSelect, {Length = 13, Thickness = 2, Offset = 2, Transparency = 0.02})
 
   local DropdownSelectReal = Custom:Create("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -2038,6 +2098,8 @@ function Speed_Library:CreateWindow(Config)
           Transparency = 0.25
         }, Dropdown)
 
+        AddCornerGlow(Dropdown, {Length = 12, Thickness = 2, Offset = 2, Transparency = 0.02})
+
         local DropdownButton = Custom:Create("TextButton", {
           Font = Enum.Font.SourceSans,
           Text = "",
@@ -2127,6 +2189,8 @@ function Speed_Library:CreateWindow(Config)
           Thickness = 1.2,
           Transparency = 0.35
         }, SelectOptionsFrame)
+
+        AddCornerGlow(SelectOptionsFrame, {Length = 10, Thickness = 2, Offset = 2, Transparency = 0.02})
 
         DropdownButton.Activated:Connect(function()
           if not MoreBlur.Visible then
