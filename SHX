@@ -657,6 +657,10 @@ function Speed_Library:CreateWindow(Config)
   DropShadowHolder.Size = UDim2.new(0, 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X, 0, 350)
 	MakeDraggable(Top, DropShadowHolder)
 
+  local WindowScale = Custom:Create("UIScale", {
+    Scale = 1
+  }, DropShadowHolder)
+
 
   -- /// Blur
 
@@ -866,6 +870,8 @@ function Speed_Library:CreateWindow(Config)
     if CountTab == 0 then
       LayersPageLayout:JumpToIndex(0)
       NameTab.Text = _Name
+  
+      -- Red tab selection line removed.
     end
 
     TabButton.Activated:Connect(function()
@@ -2191,192 +2197,146 @@ function Speed_Library:CreateWindow(Config)
   end
 
   -- /// Built-in Window Settings Tab
-  local function Clamp(Number, Min, Max)
-    Number = tonumber(Number) or Min
-    return math.clamp(Number, Min, Max)
-  end
-
-  local ThemeSettings = {
-    Red = 250,
-    Green = 7,
-    Blue = 7,
-    WindowTransparency = 10,
-    ShadowTransparency = 50,
-    StrokeTransparency = 0,
-    ItemsTransparency = 94,
-  }
-
-  local function ApplyWindowTheme()
-    local AccentColor = Color3.fromRGB(
-      Clamp(ThemeSettings.Red, 0, 255),
-      Clamp(ThemeSettings.Green, 0, 255),
-      Clamp(ThemeSettings.Blue, 0, 255)
-    )
-
-    Custom.ColorRGB = AccentColor
-    Main.BackgroundColor3 = AccentColor
-    Main.BackgroundTransparency = Clamp(ThemeSettings.WindowTransparency, 0, 100) / 100
-    DropShadow.ImageColor3 = AccentColor
-    DropShadow.ImageTransparency = Clamp(ThemeSettings.ShadowTransparency, 0, 100) / 100
-    TextLabel1.TextColor3 = AccentColor
-
-    local MainStroke = Main:FindFirstChildOfClass("UIStroke")
-    if MainStroke then
-      MainStroke.Color = AccentColor
-      MainStroke.Transparency = Clamp(ThemeSettings.StrokeTransparency, 0, 100) / 100
-    end
-
-    for _, Obj in pairs(SpeedHubXGui:GetDescendants()) do
-      if Obj:IsA("UIStroke") then
-        Obj.Color = AccentColor
-      elseif Obj:IsA("UIGradient") then
-        Obj.Color = ColorSequence.new{
-          ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-          ColorSequenceKeypoint.new(0.5, AccentColor),
-          ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
-        }
-      elseif Obj:IsA("Frame") then
-        if Obj.Name == "SectionReal" or Obj.Name == "Button" or Obj.Name == "Toggle" or Obj.Name == "Slider" or Obj.Name == "Input" or Obj.Name == "Dropdown" or Obj.Name == "Paragraph" then
-          Obj.BackgroundTransparency = Clamp(ThemeSettings.ItemsTransparency, 0, 100) / 100
-        end
-      end
-    end
-  end
-
-  local SettingsTab = Tabs:CreateTab({
+  -- Changes only the main window look. It does NOT change Custom.ColorRGB, tab accent colors, toggles, sliders, or the original interface theme.
+  local WindowSettingsTab = Tabs:CreateTab({
     Name = "Window",
     Icon = "rbxassetid://6031280882"
   })
 
-  local ThemeSection = SettingsTab:AddSection("Window Settings", true)
+  local WindowSection = WindowSettingsTab:AddSection("Window Settings", true)
+  local WindowColor = Color3.fromRGB(15, 15, 15)
 
-  ThemeSection:AddParagraph({
-    Title = "Настройка окна",
-    Content = "Здесь можно менять цвет окна, прозрачность, тень, обводку и прозрачность элементов."
-  })
+  local function ApplyWindowColor()
+    Main.BackgroundColor3 = WindowColor
+  end
 
-  ThemeSection:AddSlider({
-    Title = "Red",
-    Content = "Красный канал цвета окна",
-    Min = 0,
-    Max = 255,
-    Default = ThemeSettings.Red,
-    Callback = function(Value)
-      ThemeSettings.Red = Value
-      ApplyWindowTheme()
-    end
-  })
-
-  ThemeSection:AddSlider({
-    Title = "Green",
-    Content = "Зелёный канал цвета окна",
-    Min = 0,
-    Max = 255,
-    Default = ThemeSettings.Green,
-    Callback = function(Value)
-      ThemeSettings.Green = Value
-      ApplyWindowTheme()
-    end
-  })
-
-  ThemeSection:AddSlider({
-    Title = "Blue",
-    Content = "Синий канал цвета окна",
-    Min = 0,
-    Max = 255,
-    Default = ThemeSettings.Blue,
-    Callback = function(Value)
-      ThemeSettings.Blue = Value
-      ApplyWindowTheme()
-    end
-  })
-
-  ThemeSection:AddSlider({
+  WindowSection:AddSlider({
     Title = "Window Transparency",
-    Content = "0 = видно полностью, 100 = максимально прозрачно",
+    Content = "Only main window transparency",
+    Increment = 1,
     Min = 0,
     Max = 95,
-    Default = ThemeSettings.WindowTransparency,
+    Default = 10,
     Callback = function(Value)
-      ThemeSettings.WindowTransparency = Value
-      ApplyWindowTheme()
+      Main.BackgroundTransparency = math.clamp(Value / 100, 0, 0.95)
     end
   })
 
-  ThemeSection:AddSlider({
-    Title = "Items Transparency",
-    Content = "Прозрачность кнопок, слайдеров, секций и других элементов",
-    Min = 0,
-    Max = 99,
-    Default = ThemeSettings.ItemsTransparency,
-    Callback = function(Value)
-      ThemeSettings.ItemsTransparency = Value
-      ApplyWindowTheme()
-    end
-  })
-
-  ThemeSection:AddSlider({
+  WindowSection:AddSlider({
     Title = "Shadow Transparency",
-    Content = "Прозрачность тени вокруг окна",
+    Content = "Window shadow visibility",
+    Increment = 1,
     Min = 0,
     Max = 100,
-    Default = ThemeSettings.ShadowTransparency,
+    Default = 50,
     Callback = function(Value)
-      ThemeSettings.ShadowTransparency = Value
-      ApplyWindowTheme()
+      DropShadow.ImageTransparency = math.clamp(Value / 100, 0, 1)
     end
   })
 
-  ThemeSection:AddSlider({
-    Title = "Stroke Transparency",
-    Content = "Прозрачность обводки окна",
+  WindowSection:AddSlider({
+    Title = "Border Transparency",
+    Content = "Main window stroke transparency",
+    Increment = 1,
     Min = 0,
     Max = 100,
-    Default = ThemeSettings.StrokeTransparency,
+    Default = 0,
     Callback = function(Value)
-      ThemeSettings.StrokeTransparency = Value
-      ApplyWindowTheme()
+      local Stroke = Main:FindFirstChildOfClass("UIStroke")
+      if Stroke then
+        Stroke.Transparency = math.clamp(Value / 100, 0, 1)
+      end
     end
   })
 
-  ThemeSection:AddButton({
-    Title = "Preset: Red Dark",
-    Content = "Быстро вернуть красно-тёмный стиль",
+  WindowSection:AddSlider({
+    Title = "Corner Radius",
+    Content = "Roundness of the main window",
+    Increment = 1,
+    Min = 0,
+    Max = 24,
+    Default = 8,
+    Callback = function(Value)
+      local Corner = Main:FindFirstChildOfClass("UICorner")
+      if Corner then
+        Corner.CornerRadius = UDim.new(0, Value)
+      end
+    end
+  })
+
+  WindowSection:AddSlider({
+    Title = "UI Scale",
+    Content = "Resize the whole window",
+    Increment = 1,
+    Min = 80,
+    Max = 120,
+    Default = 100,
+    Callback = function(Value)
+      WindowScale.Scale = math.clamp(Value / 100, 0.8, 1.2)
+    end
+  })
+
+  WindowSection:AddSlider({
+    Title = "Window Red",
+    Content = "Main window red color only",
+    Increment = 1,
+    Min = 0,
+    Max = 255,
+    Default = 15,
+    Callback = function(Value)
+      WindowColor = Color3.fromRGB(Value, math.floor(WindowColor.G * 255), math.floor(WindowColor.B * 255))
+      ApplyWindowColor()
+    end
+  })
+
+  WindowSection:AddSlider({
+    Title = "Window Green",
+    Content = "Main window green color only",
+    Increment = 1,
+    Min = 0,
+    Max = 255,
+    Default = 15,
+    Callback = function(Value)
+      WindowColor = Color3.fromRGB(math.floor(WindowColor.R * 255), Value, math.floor(WindowColor.B * 255))
+      ApplyWindowColor()
+    end
+  })
+
+  WindowSection:AddSlider({
+    Title = "Window Blue",
+    Content = "Main window blue color only",
+    Increment = 1,
+    Min = 0,
+    Max = 255,
+    Default = 15,
+    Callback = function(Value)
+      WindowColor = Color3.fromRGB(math.floor(WindowColor.R * 255), math.floor(WindowColor.G * 255), Value)
+      ApplyWindowColor()
+    end
+  })
+
+  WindowSection:AddButton({
+    Title = "Reset Window",
+    Content = "Restore original window look",
     Callback = function()
-      ThemeSettings.Red = 250
-      ThemeSettings.Green = 7
-      ThemeSettings.Blue = 7
-      ThemeSettings.WindowTransparency = 10
-      ThemeSettings.ItemsTransparency = 94
-      ThemeSettings.ShadowTransparency = 50
-      ThemeSettings.StrokeTransparency = 0
-      ApplyWindowTheme()
+      WindowColor = Color3.fromRGB(15, 15, 15)
+      Main.BackgroundColor3 = WindowColor
+      Main.BackgroundTransparency = 0.1
+      DropShadow.ImageTransparency = 0.5
+      WindowScale.Scale = 1
+
+      local Stroke = Main:FindFirstChildOfClass("UIStroke")
+      if Stroke then
+        Stroke.Color = Color3.fromRGB(50, 50, 50)
+        Stroke.Transparency = 0
+      end
+
+      local Corner = Main:FindFirstChildOfClass("UICorner")
+      if Corner then
+        Corner.CornerRadius = UDim.new(0, 8)
+      end
     end
   })
-
-  ThemeSection:AddButton({
-    Title = "Preset: Purple",
-    Content = "Фиолетовый стиль окна",
-    Callback = function()
-      ThemeSettings.Red = 160
-      ThemeSettings.Green = 70
-      ThemeSettings.Blue = 255
-      ApplyWindowTheme()
-    end
-  })
-
-  ThemeSection:AddButton({
-    Title = "Preset: Blue",
-    Content = "Синий стиль окна",
-    Callback = function()
-      ThemeSettings.Red = 60
-      ThemeSettings.Green = 140
-      ThemeSettings.Blue = 255
-      ApplyWindowTheme()
-    end
-  })
-
-  ApplyWindowTheme()
 
   return Tabs
 end
