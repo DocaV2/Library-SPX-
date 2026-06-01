@@ -500,6 +500,10 @@ function Speed_Library:CreateWindow(Config)
     Name = "DropShadow"
   }, DropShadowHolder)
 
+  Custom:Create("UICorner", {
+    CornerRadius = UDim.new(0, 20)
+  }, DropShadow)
+
   local Main = Custom:Create("Frame", {
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Color3.fromRGB(15, 15, 15),
@@ -508,70 +512,97 @@ function Speed_Library:CreateWindow(Config)
     BorderSizePixel = 0,
     Position = UDim2.new(0.5, 0, 0.5, 0),
     Size = SizeUi,
-    Name = "Main"
+    Name = "Main",
+    ClipsDescendants = true
   }, DropShadow)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 16)
+    CornerRadius = UDim.new(0, 20)
   }, Main)
 
-  --// Advanced separator glow line between top bar and content
+  --// Premium separator line between top bar and content
+  local MainSeparatorHolder = Custom:Create("Frame", {
+    Name = "MainSeparatorHolder",
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ClipsDescendants = true,
+    Position = UDim2.new(0.5, 0, 0, 39),
+    Size = UDim2.new(1, -34, 0, 12),
+    ZIndex = 10
+  }, Main)
+
   local MainSeparatorGlow = Custom:Create("Frame", {
     Name = "MainSeparatorGlow",
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Custom.ColorRGB,
-    BackgroundTransparency = 0.82,
+    BackgroundTransparency = 0.86,
     BorderSizePixel = 0,
-    ClipsDescendants = true,
-    Position = UDim2.new(0.5, 0, 0, 38),
-    Size = UDim2.new(1, -22, 0, 12),
-    ZIndex = 5
-  }, Main)
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(1, 0, 0, 8),
+    ZIndex = 10
+  }, MainSeparatorHolder)
 
   Custom:Create("UICorner", {
     CornerRadius = UDim.new(1, 0)
   }, MainSeparatorGlow)
 
-  local MainSeparatorLine = Custom:Create("Frame", {
-    Name = "MainSeparatorLine",
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 15)),
+      ColorSequenceKeypoint.new(0.25, Color3.fromRGB(85, 10, 18)),
+      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 35, 55)),
+      ColorSequenceKeypoint.new(0.75, Color3.fromRGB(85, 10, 18)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
+    },
+    Transparency = NumberSequence.new{
+      NumberSequenceKeypoint.new(0, 1),
+      NumberSequenceKeypoint.new(0.18, 0.68),
+      NumberSequenceKeypoint.new(0.5, 0.12),
+      NumberSequenceKeypoint.new(0.82, 0.68),
+      NumberSequenceKeypoint.new(1, 1)
+    }
+  }, MainSeparatorGlow)
+
+  local MainSeparatorCore = Custom:Create("Frame", {
+    Name = "MainSeparatorCore",
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Custom.ColorRGB,
-    BackgroundTransparency = 0,
+    BackgroundTransparency = 0.08,
     BorderSizePixel = 0,
-    ClipsDescendants = true,
-    Position = UDim2.new(0.5, 0, 0, 38),
-    Size = UDim2.new(1, -34, 0, 2),
-    ZIndex = 7
-  }, Main)
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(1, -10, 0, 1),
+    ZIndex = 12
+  }, MainSeparatorHolder)
 
   Custom:Create("UICorner", {
     CornerRadius = UDim.new(1, 0)
-  }, MainSeparatorLine)
+  }, MainSeparatorCore)
 
   Custom:Create("UIGradient", {
     Color = ColorSequence.new{
       ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 15)),
-      ColorSequenceKeypoint.new(0.18, Color3.fromRGB(120, 18, 28)),
-      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 40, 58)),
-      ColorSequenceKeypoint.new(0.82, Color3.fromRGB(120, 18, 28)),
+      ColorSequenceKeypoint.new(0.2, Color3.fromRGB(180, 20, 34)),
+      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 75, 90)),
+      ColorSequenceKeypoint.new(0.8, Color3.fromRGB(180, 20, 34)),
       ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
     }
-  }, MainSeparatorLine)
+  }, MainSeparatorCore)
 
-  local MainSeparatorSweep = Custom:Create("Frame", {
-    Name = "MainSeparatorSweep",
+  local MainSeparatorCenterGlow = Custom:Create("Frame", {
+    Name = "MainSeparatorCenterGlow",
     AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-    BackgroundTransparency = 0.25,
+    BackgroundColor3 = Color3.fromRGB(255, 75, 90),
+    BackgroundTransparency = 0.58,
     BorderSizePixel = 0,
-    Position = UDim2.new(-0.15, 0, 0.5, 0),
-    Size = UDim2.new(0, 82, 1, 3),
-    ZIndex = 8
-  }, MainSeparatorLine)
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(0, 94, 0, 5),
+    ZIndex = 11
+  }, MainSeparatorHolder)
 
   Custom:Create("UICorner", {
     CornerRadius = UDim.new(1, 0)
-  }, MainSeparatorSweep)
+  }, MainSeparatorCenterGlow)
 
   Custom:Create("UIGradient", {
     Transparency = NumberSequence.new{
@@ -579,15 +610,40 @@ function Speed_Library:CreateWindow(Config)
       NumberSequenceKeypoint.new(0.5, 0),
       NumberSequenceKeypoint.new(1, 1)
     }
-  }, MainSeparatorSweep)
+  }, MainSeparatorCenterGlow)
+
+  local MainSeparatorSpark = Custom:Create("Frame", {
+    Name = "MainSeparatorSpark",
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 0.12,
+    BorderSizePixel = 0,
+    Position = UDim2.new(-0.12, 0, 0.5, 0),
+    Size = UDim2.new(0, 54, 0, 6),
+    ZIndex = 13
+  }, MainSeparatorHolder)
+
+  Custom:Create("UICorner", {
+    CornerRadius = UDim.new(1, 0)
+  }, MainSeparatorSpark)
+
+  Custom:Create("UIGradient", {
+    Transparency = NumberSequence.new{
+      NumberSequenceKeypoint.new(0, 1),
+      NumberSequenceKeypoint.new(0.42, 0.28),
+      NumberSequenceKeypoint.new(0.5, 0),
+      NumberSequenceKeypoint.new(0.58, 0.28),
+      NumberSequenceKeypoint.new(1, 1)
+    }
+  }, MainSeparatorSpark)
 
   task.spawn(function()
-    while MainSeparatorSweep and MainSeparatorSweep.Parent and Main and Main.Parent do
-      MainSeparatorSweep.Position = UDim2.new(-0.18, 0, 0.5, 0)
-      TweenService:Create(MainSeparatorSweep, TweenInfo.new(1.55, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-        Position = UDim2.new(1.18, 0, 0.5, 0)
+    while MainSeparatorSpark and MainSeparatorSpark.Parent and Main and Main.Parent do
+      MainSeparatorSpark.Position = UDim2.new(-0.12, 0, 0.5, 0)
+      TweenService:Create(MainSeparatorSpark, TweenInfo.new(1.35, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+        Position = UDim2.new(1.12, 0, 0.5, 0)
       }):Play()
-      task.wait(2.15)
+      task.wait(2.4)
     end
   end)
 
@@ -601,12 +657,12 @@ function Speed_Library:CreateWindow(Config)
     ZIndex = 1
   }, Main)
 
-  for i = 1, 18 do
-    local BallSize = math.random(3, 8)
+  for i = 1, 16 do
+    local BallSize = math.random(2, 6)
     local Ball = Custom:Create("Frame", {
       Name = "FloatingBall",
       BackgroundColor3 = Custom.ColorRGB,
-      BackgroundTransparency = math.random(55, 78) / 100,
+      BackgroundTransparency = math.random(62, 84) / 100,
       BorderSizePixel = 0,
       Position = UDim2.new(math.random(5, 95) / 100, 0, math.random(8, 92) / 100, 0),
       Size = UDim2.new(0, BallSize, 0, BallSize),
@@ -621,7 +677,7 @@ function Speed_Library:CreateWindow(Config)
       while Ball and Ball.Parent and Main and Main.Parent do
         TweenService:Create(Ball, TweenInfo.new(math.random(4, 9), Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
           Position = UDim2.new(math.random(5, 95) / 100, 0, math.random(8, 92) / 100, 0),
-          BackgroundTransparency = math.random(50, 82) / 100
+          BackgroundTransparency = math.random(58, 86) / 100
         }):Play()
         task.wait(math.random(4, 9))
       end
@@ -715,7 +771,7 @@ function Speed_Library:CreateWindow(Config)
   }, Main)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 8)
+    CornerRadius = UDim.new(0, 14)
   }, LayersTab)
 
 
@@ -861,13 +917,22 @@ function Speed_Library:CreateWindow(Config)
   }, ConfirmOverlay)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 16)
+    CornerRadius = UDim.new(0, 20)
+  }, ConfirmFrame)
+
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(26, 22, 24)),
+      ColorSequenceKeypoint.new(0.45, Color3.fromRGB(18, 18, 21)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 12))
+    },
+    Rotation = 90
   }, ConfirmFrame)
 
   Custom:Create("UIStroke", {
     Color = Custom.ColorRGB,
-    Thickness = 1.6,
-    Transparency = 0.08
+    Thickness = 1.3,
+    Transparency = 0.18
   }, ConfirmFrame)
 
   local ConfirmTopGlow = Custom:Create("Frame", {
@@ -934,7 +999,7 @@ function Speed_Library:CreateWindow(Config)
     Position = UDim2.new(0, 66, 0, 45),
     Size = UDim2.new(1, -84, 0, 42),
     Font = Enum.Font.Gotham,
-    Text = "All enabled toggles and running library functions will be turned off.",
+    Text = "This will turn off enabled toggles and close the library safely.",
     TextColor3 = Color3.fromRGB(185, 185, 192),
     TextSize = 13,
     TextWrapped = true,
@@ -990,7 +1055,7 @@ function Speed_Library:CreateWindow(Config)
       BackgroundTransparency = 0.38
     }):Play()
     TweenService:Create(ConfirmFrame, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-      Size = UDim2.new(0, 372, 0, 150),
+      Size = UDim2.new(0, 390, 0, 154),
       Position = UDim2.new(0.5, 0, 0.5, 0)
     }):Play()
 
@@ -1035,17 +1100,21 @@ function Speed_Library:CreateWindow(Config)
     TweenService:Create(ConfirmOverlay, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
       BackgroundTransparency = 1
     }):Play()
-    TweenService:Create(DropShadowHolder, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+    local CloseShrinkSize = UDim2.new(0, math.max(40, math.floor(Main.AbsoluteSize.X * 0.92)), 0, math.max(40, math.floor(Main.AbsoluteSize.Y * 0.92)))
+
+    TweenService:Create(DropShadowHolder, TweenInfo.new(0.36, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
       Position = EndPosition
     }):Play()
-    TweenService:Create(Main, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-      BackgroundTransparency = 1
+    TweenService:Create(Main, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+      BackgroundTransparency = 1,
+      Size = CloseShrinkSize
     }):Play()
-    TweenService:Create(DropShadow, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-      ImageTransparency = 1
+    TweenService:Create(DropShadow, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+      ImageTransparency = 1,
+      Size = CloseShrinkSize
     }):Play()
 
-    task.wait(0.33)
+    task.wait(0.36)
     if SpeedHubXGui then SpeedHubXGui:Destroy() end
   end
 
@@ -1073,20 +1142,27 @@ function Speed_Library:CreateWindow(Config)
   DropShadowHolder.Size = UDim2.new(0, AutoWindowWidth + 10, 0, BaseWindowHeight + 35)
 
   local WindowOpenPosition = DropShadowHolder.Position
-  DropShadowHolder.Position = UDim2.new(WindowOpenPosition.X.Scale, WindowOpenPosition.X.Offset, WindowOpenPosition.Y.Scale, WindowOpenPosition.Y.Offset - 70)
+  local WindowStartPosition = UDim2.new(WindowOpenPosition.X.Scale, WindowOpenPosition.X.Offset, WindowOpenPosition.Y.Scale, WindowOpenPosition.Y.Offset - 85)
+  local OpenStartSize = UDim2.new(0, math.floor(AutoWindowWidth * 0.94), 0, math.floor(BaseWindowHeight * 0.94))
+
+  DropShadowHolder.Position = WindowStartPosition
   Main.BackgroundTransparency = 1
   DropShadow.ImageTransparency = 1
+  Main.Size = OpenStartSize
+  DropShadow.Size = OpenStartSize
 
   task.defer(function()
     if DropShadowHolder and DropShadowHolder.Parent then
-      TweenService:Create(DropShadowHolder, TweenInfo.new(0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+      TweenService:Create(DropShadowHolder, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Position = WindowOpenPosition
       }):Play()
-      TweenService:Create(Main, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        BackgroundTransparency = 0.05
+      TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.05,
+        Size = FinalWindowSize
       }):Play()
-      TweenService:Create(DropShadow, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        ImageTransparency = 0.42
+      TweenService:Create(DropShadow, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        ImageTransparency = 0.42,
+        Size = FinalWindowSize
       }):Play()
     end
   end)
@@ -1255,7 +1331,7 @@ function Speed_Library:CreateWindow(Config)
 		})
 
     Custom:Create("UICorner", {
-      CornerRadius = UDim.new(0, 8),
+      CornerRadius = UDim.new(0, 10),
       Parent = Tab
     })
 
@@ -1370,7 +1446,7 @@ function Speed_Library:CreateWindow(Config)
       }, Section)
   
       Custom:Create("UICorner", {
-        CornerRadius = UDim.new(0, 8)
+        CornerRadius = UDim.new(0, 12)
       }, SectionReal)
   
       local SectionButton = Custom:Create("TextButton", {
@@ -1687,7 +1763,7 @@ function Speed_Library:CreateWindow(Config)
 				}, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 8)
+          CornerRadius = UDim.new(0, 12)
         }, Button)
 
         ApplyHover(Button, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
@@ -1811,7 +1887,7 @@ function Speed_Library:CreateWindow(Config)
 				}, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 8)
+          CornerRadius = UDim.new(0, 12)
         }, Toggle)
 
         ApplyHover(Toggle, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
@@ -1976,7 +2052,7 @@ function Speed_Library:CreateWindow(Config)
 				}, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 8),
+          CornerRadius = UDim.new(0, 12),
         }, Slider)
 
         ApplyHover(Slider, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
@@ -2199,7 +2275,7 @@ function Speed_Library:CreateWindow(Config)
         }, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 8),
+          CornerRadius = UDim.new(0, 12),
         }, Input)
 
         local InputTitle = Custom:Create("TextLabel", {
