@@ -15,6 +15,17 @@ local Custom = {} do
       _instance[i] = v
     end
 
+    --// Doca V1 default polish
+    if Name == "UICorner" and Properties.CornerRadius == nil then
+      _instance.CornerRadius = UDim.new(0, 14)
+    end
+
+    if Name == "TextLabel" or Name == "TextButton" or Name == "TextBox" then
+      pcall(function()
+        _instance.TextTruncate = Enum.TextTruncate.None
+      end)
+    end
+
     if Parent then
       _instance.Parent = Parent
     end
@@ -72,7 +83,7 @@ local function OpenClose()
 
   local UICorner = Custom:Create("UICorner", {
     Name = "MainCorner",
-    CornerRadius = UDim.new(0, 9),
+    CornerRadius = UDim.new(0, 14),
   }, Close_ImageButton)
 
   local dragging, dragStart, startPos = false, nil, nil
@@ -207,6 +218,35 @@ end
 local Speed_Library, Notification = {}, {}
 
 Speed_Library.Unloaded = false
+Speed_Library._toggles = {}
+Speed_Library._unloadCallbacks = {}
+
+function Speed_Library:OnUnload(Callback)
+  if type(Callback) == "function" then
+    table.insert(self._unloadCallbacks, Callback)
+  end
+end
+
+function Speed_Library:IsUnloaded()
+  return self.Unloaded == true
+end
+
+function Speed_Library:_RunUnload()
+  if self.Unloaded then return end
+  self.Unloaded = true
+
+  for _, ToggleObject in ipairs(self._toggles) do
+    pcall(function()
+      if ToggleObject and ToggleObject.Set and ToggleObject.Value ~= false then
+        ToggleObject:Set(false)
+      end
+    end)
+  end
+
+  for _, Callback in ipairs(self._unloadCallbacks) do
+    pcall(Callback)
+  end
+end
 
 function Speed_Library:SetNotification(Config)
   local Title = Config[1] or Config.Title or ""
@@ -270,7 +310,7 @@ function Speed_Library:SetNotification(Config)
   }, NotificationFrame)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 8)
+    CornerRadius = UDim.new(0, 14)
   }, NotificationFrameReal)
 
   local DropShadowHolder = Custom:Create("Frame", {
@@ -331,7 +371,7 @@ function Speed_Library:SetNotification(Config)
 
   Custom:Create("UICorner", {
     Parent = Top,
-    CornerRadius = UDim.new(0, 5)
+    CornerRadius = UDim.new(0, 10)
   })
 
   local TextLabel1 = Custom:Create("TextLabel", {
@@ -472,42 +512,36 @@ function Speed_Library:CreateWindow(Config)
   }, DropShadow)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 10)
+    CornerRadius = UDim.new(0, 16)
   }, Main)
 
-  --// Beautiful separator glow line between title bar and main content
+  --// Advanced separator glow line between top bar and content
   local MainSeparatorGlow = Custom:Create("Frame", {
     Name = "MainSeparatorGlow",
-    AnchorPoint = Vector2.new(0.5, 0),
+    AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Custom.ColorRGB,
-    BackgroundTransparency = 0.78,
+    BackgroundTransparency = 0.82,
     BorderSizePixel = 0,
-    Position = UDim2.new(0.5, 0, 0, 35),
-    Size = UDim2.new(1, -24, 0, 9),
-    ZIndex = 4
+    ClipsDescendants = true,
+    Position = UDim2.new(0.5, 0, 0, 38),
+    Size = UDim2.new(1, -22, 0, 12),
+    ZIndex = 5
   }, Main)
 
   Custom:Create("UICorner", {
     CornerRadius = UDim.new(1, 0)
   }, MainSeparatorGlow)
 
-  Custom:Create("UIGradient", {
-    Transparency = NumberSequence.new{
-      NumberSequenceKeypoint.new(0, 1),
-      NumberSequenceKeypoint.new(0.5, 0.25),
-      NumberSequenceKeypoint.new(1, 1)
-    }
-  }, MainSeparatorGlow)
-
   local MainSeparatorLine = Custom:Create("Frame", {
     Name = "MainSeparatorLine",
-    AnchorPoint = Vector2.new(0.5, 0),
+    AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Custom.ColorRGB,
-    BackgroundTransparency = 0.08,
+    BackgroundTransparency = 0,
     BorderSizePixel = 0,
+    ClipsDescendants = true,
     Position = UDim2.new(0.5, 0, 0, 38),
-    Size = UDim2.new(1, -24, 0, 2),
-    ZIndex = 5
+    Size = UDim2.new(1, -34, 0, 2),
+    ZIndex = 7
   }, Main)
 
   Custom:Create("UICorner", {
@@ -517,53 +551,43 @@ function Speed_Library:CreateWindow(Config)
   Custom:Create("UIGradient", {
     Color = ColorSequence.new{
       ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 15)),
-      ColorSequenceKeypoint.new(0.18, Color3.fromRGB(120, 10, 18)),
-      ColorSequenceKeypoint.new(0.5, Custom.ColorRGB),
-      ColorSequenceKeypoint.new(0.82, Color3.fromRGB(120, 10, 18)),
+      ColorSequenceKeypoint.new(0.18, Color3.fromRGB(120, 18, 28)),
+      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 40, 58)),
+      ColorSequenceKeypoint.new(0.82, Color3.fromRGB(120, 18, 28)),
       ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
     }
   }, MainSeparatorLine)
 
-  local MainSeparatorShine = Custom:Create("Frame", {
-    Name = "MainSeparatorShine",
+  local MainSeparatorSweep = Custom:Create("Frame", {
+    Name = "MainSeparatorSweep",
     AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(255, 85, 95),
-    BackgroundTransparency = 0.12,
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 0.25,
     BorderSizePixel = 0,
-    Position = UDim2.new(0.5, 0, 0, 39),
-    Size = UDim2.new(0, 42, 0, 2),
-    ZIndex = 6
-  }, Main)
+    Position = UDim2.new(-0.15, 0, 0.5, 0),
+    Size = UDim2.new(0, 82, 1, 3),
+    ZIndex = 8
+  }, MainSeparatorLine)
 
   Custom:Create("UICorner", {
     CornerRadius = UDim.new(1, 0)
-  }, MainSeparatorShine)
+  }, MainSeparatorSweep)
+
+  Custom:Create("UIGradient", {
+    Transparency = NumberSequence.new{
+      NumberSequenceKeypoint.new(0, 1),
+      NumberSequenceKeypoint.new(0.5, 0),
+      NumberSequenceKeypoint.new(1, 1)
+    }
+  }, MainSeparatorSweep)
 
   task.spawn(function()
-    while MainSeparatorShine and MainSeparatorShine.Parent and Main and Main.Parent do
-      MainSeparatorShine.Position = UDim2.new(0, 24, 0, 39)
-      MainSeparatorShine.BackgroundTransparency = 0.6
-
-      TweenService:Create(
-        MainSeparatorShine,
-        TweenInfo.new(1.35, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-        {
-          Position = UDim2.new(1, -24, 0, 39),
-          BackgroundTransparency = 0.12
-        }
-      ):Play()
-
-      task.wait(1.35)
-
-      TweenService:Create(
-        MainSeparatorShine,
-        TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-        {
-          BackgroundTransparency = 1
-        }
-      ):Play()
-
-      task.wait(2.1)
+    while MainSeparatorSweep and MainSeparatorSweep.Parent and Main and Main.Parent do
+      MainSeparatorSweep.Position = UDim2.new(-0.18, 0, 0.5, 0)
+      TweenService:Create(MainSeparatorSweep, TweenInfo.new(1.55, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+        Position = UDim2.new(1.18, 0, 0.5, 0)
+      }):Play()
+      task.wait(2.15)
     end
   end)
 
@@ -604,10 +628,6 @@ function Speed_Library:CreateWindow(Config)
     end)
   end
 
-  TweenService:Create(DropShadowHolder, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-    Size = UDim2.new(0, 465, 0, 360)
-  }):Play()
-
   local Top = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
     BackgroundTransparency = 0.9990000128746033,
@@ -628,7 +648,8 @@ function Speed_Library:CreateWindow(Config)
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     BorderSizePixel = 0,
     Size = UDim2.new(1, -100, 1, 0),
-    Position = UDim2.new(0, 10, 0, 0)
+    Position = UDim2.new(0, 10, 0, 0),
+    TextWrapped = false
   }, Top)
 
   Custom:Create("UICorner", {}, Top)
@@ -644,7 +665,8 @@ function Speed_Library:CreateWindow(Config)
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     BorderSizePixel = 0,
     Size = UDim2.new(1, -(TextLabel.TextBounds.X + 104), 1, 0),
-    Position = UDim2.new(0, TextLabel.TextBounds.X + 15, 0, 0)
+    Position = UDim2.new(0, TextLabel.TextBounds.X + 15, 0, 0),
+    TextWrapped = false
   }, Top)
 
   Custom:Create("UIStroke", {
@@ -693,7 +715,7 @@ function Speed_Library:CreateWindow(Config)
   }, Main)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 2)
+    CornerRadius = UDim.new(0, 8)
   }, LayersTab)
 
 
@@ -708,8 +730,21 @@ function Speed_Library:CreateWindow(Config)
   }, Main)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 2)
+    CornerRadius = UDim.new(0, 12)
   }, Layers)
+
+  local ContentSoftPanel = Custom:Create("Frame", {
+    Name = "ContentSoftPanel",
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 0.975,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(1, 4, 1, 4),
+    ZIndex = 0
+  }, Layers)
+
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 12)}, ContentSoftPanel)
 
   local NameTab = Custom:Create("TextLabel", {
     Font = Enum.Font.GothamBold,
@@ -795,122 +830,223 @@ function Speed_Library:CreateWindow(Config)
 		if Open_Close.Visible then Open_Close.Visible = false end
 	end)
 
-  --// Close confirmation popup
+  --// Premium close confirmation popup
   local ConfirmOverlay = Custom:Create("TextButton", {
     Name = "ConfirmOverlay",
     Text = "",
     AutoButtonColor = false,
+    Active = true,
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-    BackgroundTransparency = 0.45,
+    BackgroundTransparency = 1,
     BorderSizePixel = 0,
     Size = UDim2.new(1, 0, 1, 0),
     Visible = false,
-    ZIndex = 90
+    ZIndex = 900
   }, Main)
+
+  pcall(function()
+    ConfirmOverlay.Modal = true
+  end)
 
   local ConfirmFrame = Custom:Create("Frame", {
     Name = "ConfirmFrame",
     AnchorPoint = Vector2.new(0.5, 0.5),
-    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Position = UDim2.new(0.5, 0, 0.5, 18),
     Size = UDim2.new(0, 0, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(18, 18, 20),
+    BackgroundColor3 = Color3.fromRGB(18, 18, 21),
     BackgroundTransparency = 0,
     BorderSizePixel = 0,
     ClipsDescendants = true,
-    ZIndex = 91
+    ZIndex = 910
   }, ConfirmOverlay)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 10)
+    CornerRadius = UDim.new(0, 16)
   }, ConfirmFrame)
 
   Custom:Create("UIStroke", {
     Color = Custom.ColorRGB,
-    Thickness = 1.4,
-    Transparency = 0.15
+    Thickness = 1.6,
+    Transparency = 0.08
   }, ConfirmFrame)
+
+  local ConfirmTopGlow = Custom:Create("Frame", {
+    Name = "ConfirmTopGlow",
+    AnchorPoint = Vector2.new(0.5, 0),
+    BackgroundColor3 = Custom.ColorRGB,
+    BackgroundTransparency = 0.08,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0.5, 0, 0, 0),
+    Size = UDim2.new(1, -26, 0, 3),
+    ZIndex = 912
+  }, ConfirmFrame)
+
+  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, ConfirmTopGlow)
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(18, 18, 21)),
+      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 55, 70)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(18, 18, 21))
+    }
+  }, ConfirmTopGlow)
+
+  local ConfirmIcon = Custom:Create("Frame", {
+    Name = "ConfirmIcon",
+    BackgroundColor3 = Custom.ColorRGB,
+    BackgroundTransparency = 0.85,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 18, 0, 18),
+    Size = UDim2.new(0, 36, 0, 36),
+    ZIndex = 912
+  }, ConfirmFrame)
+
+  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, ConfirmIcon)
+  Custom:Create("UIStroke", {Color = Custom.ColorRGB, Thickness = 1.2, Transparency = 0.25}, ConfirmIcon)
+
+  local ConfirmIconText = Custom:Create("TextLabel", {
+    Name = "ConfirmIconText",
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Font = Enum.Font.GothamBold,
+    Text = "!",
+    TextColor3 = Custom.ColorRGB,
+    TextSize = 21,
+    ZIndex = 913
+  }, ConfirmIcon)
 
   local ConfirmTitle = Custom:Create("TextLabel", {
     Name = "ConfirmTitle",
     BackgroundTransparency = 1,
-    Position = UDim2.new(0, 16, 0, 14),
-    Size = UDim2.new(1, -32, 0, 22),
+    Position = UDim2.new(0, 66, 0, 18),
+    Size = UDim2.new(1, -84, 0, 24),
     Font = Enum.Font.GothamBold,
     Text = "Close Library?",
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 17,
+    TextSize = 18,
+    TextWrapped = true,
     TextXAlignment = Enum.TextXAlignment.Left,
-    ZIndex = 92
+    ZIndex = 912
   }, ConfirmFrame)
 
   local ConfirmText = Custom:Create("TextLabel", {
     Name = "ConfirmText",
     BackgroundTransparency = 1,
-    Position = UDim2.new(0, 16, 0, 43),
-    Size = UDim2.new(1, -32, 0, 38),
+    Position = UDim2.new(0, 66, 0, 45),
+    Size = UDim2.new(1, -84, 0, 42),
     Font = Enum.Font.Gotham,
-    Text = "Are you sure you want to close Doca V1?",
-    TextColor3 = Color3.fromRGB(175, 175, 180),
+    Text = "All enabled toggles and running library functions will be turned off.",
+    TextColor3 = Color3.fromRGB(185, 185, 192),
     TextSize = 13,
     TextWrapped = true,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextYAlignment = Enum.TextYAlignment.Top,
-    ZIndex = 92
+    ZIndex = 912
   }, ConfirmFrame)
 
   local NoButton = Custom:Create("TextButton", {
     Name = "NoButton",
-    Position = UDim2.new(0, 16, 1, -48),
-    Size = UDim2.new(0.5, -22, 0, 34),
-    BackgroundColor3 = Color3.fromRGB(36, 36, 40),
+    AutoButtonColor = false,
+    Position = UDim2.new(0, 18, 1, -52),
+    Size = UDim2.new(0.5, -24, 0, 36),
+    BackgroundColor3 = Color3.fromRGB(38, 38, 43),
     BorderSizePixel = 0,
     Font = Enum.Font.GothamBold,
     Text = "No",
     TextColor3 = Color3.fromRGB(255, 255, 255),
     TextSize = 14,
-    ZIndex = 92
+    ZIndex = 912
   }, ConfirmFrame)
 
   local YesButton = Custom:Create("TextButton", {
     Name = "YesButton",
+    AutoButtonColor = false,
     AnchorPoint = Vector2.new(1, 0),
-    Position = UDim2.new(1, -16, 1, -48),
-    Size = UDim2.new(0.5, -22, 0, 34),
+    Position = UDim2.new(1, -18, 1, -52),
+    Size = UDim2.new(0.5, -24, 0, 36),
     BackgroundColor3 = Custom.ColorRGB,
     BorderSizePixel = 0,
     Font = Enum.Font.GothamBold,
-    Text = "Yes",
+    Text = "Yes, close",
     TextColor3 = Color3.fromRGB(255, 255, 255),
     TextSize = 14,
-    ZIndex = 92
+    ZIndex = 912
   }, ConfirmFrame)
 
-  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 7)}, NoButton)
-  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 7)}, YesButton)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 10)}, NoButton)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 10)}, YesButton)
+  ApplyHover(NoButton, 0, 0, Color3.fromRGB(38, 38, 43), Color3.fromRGB(58, 58, 64))
+  ApplyHover(YesButton, 0, 0, Custom.ColorRGB, Color3.fromRGB(255, 60, 78))
 
   local ConfirmBusy = false
   local function ShowConfirm()
     if ConfirmBusy then return end
     ConfirmBusy = true
     ConfirmOverlay.Visible = true
+    ConfirmOverlay.BackgroundTransparency = 1
     ConfirmFrame.Size = UDim2.new(0, 0, 0, 0)
-    TweenService:Create(ConfirmFrame, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-      Size = UDim2.new(0, 330, 0, 130)
+    ConfirmFrame.Position = UDim2.new(0.5, 0, 0.5, 22)
+
+    TweenService:Create(ConfirmOverlay, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+      BackgroundTransparency = 0.38
     }):Play()
-    task.wait(0.25)
+    TweenService:Create(ConfirmFrame, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+      Size = UDim2.new(0, 372, 0, 150),
+      Position = UDim2.new(0.5, 0, 0.5, 0)
+    }):Play()
+
+    task.wait(0.28)
     ConfirmBusy = false
   end
 
   local function HideConfirm()
     if ConfirmBusy then return end
     ConfirmBusy = true
-    local tween = TweenService:Create(ConfirmFrame, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-      Size = UDim2.new(0, 0, 0, 0)
-    })
-    tween:Play()
+
+    TweenService:Create(ConfirmOverlay, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      BackgroundTransparency = 1
+    }):Play()
+    TweenService:Create(ConfirmFrame, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      Size = UDim2.new(0, 0, 0, 0),
+      Position = UDim2.new(0.5, 0, 0.5, -18)
+    }):Play()
+
     task.wait(0.16)
     ConfirmOverlay.Visible = false
     ConfirmBusy = false
+  end
+
+  local function CloseLibraryAnimated()
+    if ConfirmBusy then return end
+    ConfirmBusy = true
+
+    Speed_Library:_RunUnload()
+
+    local EndPosition = UDim2.new(
+      DropShadowHolder.Position.X.Scale,
+      DropShadowHolder.Position.X.Offset,
+      DropShadowHolder.Position.Y.Scale,
+      DropShadowHolder.Position.Y.Offset - 70
+    )
+
+    TweenService:Create(ConfirmFrame, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      Size = UDim2.new(0, 0, 0, 0),
+      Position = UDim2.new(0.5, 0, 0.5, -20)
+    }):Play()
+    TweenService:Create(ConfirmOverlay, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      BackgroundTransparency = 1
+    }):Play()
+    TweenService:Create(DropShadowHolder, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+      Position = EndPosition
+    }):Play()
+    TweenService:Create(Main, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      BackgroundTransparency = 1
+    }):Play()
+    TweenService:Create(DropShadow, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      ImageTransparency = 1
+    }):Play()
+
+    task.wait(0.33)
+    if SpeedHubXGui then SpeedHubXGui:Destroy() end
   end
 
   Close.Activated:Connect(function()
@@ -923,21 +1059,38 @@ function Speed_Library:CreateWindow(Config)
     HideConfirm()
   end)
 
-  ConfirmOverlay.Activated:Connect(function()
-    HideConfirm()
-  end)
-
-  ConfirmFrame.InputBegan:Connect(function(input)
-    -- keeps the overlay click from being the main way to interact with the popup
-  end)
-
   YesButton.Activated:Connect(function()
     CircleClick(YesButton, Player:GetMouse().X, Player:GetMouse().Y)
-    if SpeedHubXGui then SpeedHubXGui:Destroy() end
-    if not Speed_Library.Unloaded then Speed_Library.Unloaded = true end
+    CloseLibraryAnimated()
   end)
 
-  DropShadowHolder.Size = UDim2.new(0, 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X, 0, 350)
+  local BaseWindowWidth = (SizeUi.X.Offset > 0 and SizeUi.X.Offset or 550)
+  local BaseWindowHeight = (SizeUi.Y.Offset > 0 and SizeUi.Y.Offset or 315)
+  local AutoWindowWidth = math.max(BaseWindowWidth, 150 + TextLabel.TextBounds.X + TextLabel1.TextBounds.X + TabWidth)
+  local FinalWindowSize = UDim2.new(0, AutoWindowWidth, 0, BaseWindowHeight)
+  DropShadow.Size = FinalWindowSize
+  Main.Size = FinalWindowSize
+  DropShadowHolder.Size = UDim2.new(0, AutoWindowWidth + 10, 0, BaseWindowHeight + 35)
+
+  local WindowOpenPosition = DropShadowHolder.Position
+  DropShadowHolder.Position = UDim2.new(WindowOpenPosition.X.Scale, WindowOpenPosition.X.Offset, WindowOpenPosition.Y.Scale, WindowOpenPosition.Y.Offset - 70)
+  Main.BackgroundTransparency = 1
+  DropShadow.ImageTransparency = 1
+
+  task.defer(function()
+    if DropShadowHolder and DropShadowHolder.Parent then
+      TweenService:Create(DropShadowHolder, TweenInfo.new(0.42, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = WindowOpenPosition
+      }):Play()
+      TweenService:Create(Main, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.05
+      }):Play()
+      TweenService:Create(DropShadow, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        ImageTransparency = 0.42
+      }):Play()
+    end
+  end)
+
 	MakeDraggable(Top, DropShadowHolder)
 
 
@@ -1022,7 +1175,7 @@ function Speed_Library:CreateWindow(Config)
   end)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 3),
+    CornerRadius = UDim.new(0, 8),
     Parent = DropdownSelect
   })
 
@@ -1102,7 +1255,7 @@ function Speed_Library:CreateWindow(Config)
 		})
 
     Custom:Create("UICorner", {
-      CornerRadius = UDim.new(0, 4),
+      CornerRadius = UDim.new(0, 8),
       Parent = Tab
     })
 
@@ -1122,20 +1275,34 @@ function Speed_Library:CreateWindow(Config)
       Name = "TabButton",
     }, Tab)
 
-    Custom:Create("TextLabel", {
+    local TabNameLabel = Custom:Create("TextLabel", {
       Font = Enum.Font.GothamBold,
       Text = _Name,
       TextColor3 = Color3.fromRGB(255, 255, 255),
       TextSize = 13,
+      TextWrapped = true,
       TextXAlignment = Enum.TextXAlignment.Left,
+      TextYAlignment = Enum.TextYAlignment.Center,
       BackgroundColor3 = Color3.fromRGB(255, 255, 255),
       BackgroundTransparency = 0.999,
       BorderColor3 = Color3.fromRGB(0, 0, 0),
       BorderSizePixel = 0,
-      Size = UDim2.new(1, 0, 1, 0),
+      Size = UDim2.new(1, -34, 1, 0),
       Position = UDim2.new(0, 30, 0, 0),
       Name = "TabName",
     }, Tab)
+
+    local function UpdateTabNameSize()
+      local TabNameWidth = math.max(TabNameLabel.AbsoluteSize.X, 1)
+      local Lines = math.max(1, math.ceil(TabNameLabel.TextBounds.X / TabNameWidth))
+      local Height = math.max(30, 12 + (13 * Lines))
+      Tab.Size = UDim2.new(1, 0, 0, Height)
+      TabNameLabel.Size = UDim2.new(1, -34, 0, Height)
+      UpdateSize()
+    end
+
+    task.defer(UpdateTabNameSize)
+    TabNameLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateTabNameSize)
 
     Custom:Create("ImageLabel", {
       Image = Icon,
@@ -1203,7 +1370,7 @@ function Speed_Library:CreateWindow(Config)
       }, Section)
   
       Custom:Create("UICorner", {
-        CornerRadius = UDim.new(0, 4)
+        CornerRadius = UDim.new(0, 8)
       }, SectionReal)
   
       local SectionButton = Custom:Create("TextButton", {
@@ -1283,7 +1450,7 @@ function Speed_Library:CreateWindow(Config)
       }, Section)
   
       Custom:Create("UICorner", {
-        CornerRadius = UDim.new(0, 2)
+        CornerRadius = UDim.new(0, 8)
       }, SectionAdd)
     
       Custom:Create("UIListLayout", {
@@ -1363,7 +1530,7 @@ function Speed_Library:CreateWindow(Config)
         }, SectionAdd)
       
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4),
+          CornerRadius = UDim.new(0, 8),
         }, Paragraph)
 
         local ParagraphTitle = Custom:Create("TextLabel", {
@@ -1373,6 +1540,7 @@ function Speed_Library:CreateWindow(Config)
           TextSize = 13,
           TextXAlignment = Enum.TextXAlignment.Left,
           TextYAlignment = Enum.TextYAlignment.Top,
+          TextWrapped = true,
           BackgroundColor3 = Color3.fromRGB(255, 255, 255),
           BackgroundTransparency = 0.999,
           BorderSizePixel = 0,
@@ -1455,7 +1623,7 @@ function Speed_Library:CreateWindow(Config)
         }, Seperator)
         
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 6),
+          CornerRadius = UDim.new(0, 10),
         }, Seperator)
         
         local Gradient = Custom:Create("UIGradient", {
@@ -1488,7 +1656,7 @@ function Speed_Library:CreateWindow(Config)
           Name = "Line",
         }, SectionAdd)
     
-        Custom:Create("UICorner", {CornerRadius = UDim.new(0, 3)}, Line)
+        Custom:Create("UICorner", {CornerRadius = UDim.new(0, 8)}, Line)
     
         Custom:Create("UIGradient", {
           Color = ColorSequence.new{
@@ -1519,12 +1687,12 @@ function Speed_Library:CreateWindow(Config)
 				}, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4)
+          CornerRadius = UDim.new(0, 8)
         }, Button)
 
         ApplyHover(Button, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
 
-        Custom:Create("TextLabel", {
+        local ButtonTitle = Custom:Create("TextLabel", {
 					Name = "ButtonTitle",
 					Font = Enum.Font.GothamBold,
 					Text = Title,
@@ -1532,6 +1700,7 @@ function Speed_Library:CreateWindow(Config)
 					TextSize = 13,
 					TextXAlignment = Enum.TextXAlignment.Left,
 					TextYAlignment = Enum.TextYAlignment.Top,
+					TextWrapped = true,
 					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 					BackgroundTransparency = 0.999,
 					BorderSizePixel = 0,
@@ -1556,19 +1725,28 @@ function Speed_Library:CreateWindow(Config)
 				}, Button)
 
         local function UpdateButtonSize()
-          local _Height = 12 + (12 * (ButtonContent.TextBounds.X // ButtonContent.AbsoluteSize.X))
-          ButtonContent.Size = UDim2.new(1, -100, 0, _Height)
-          
-          Button.Size = UDim2.new(1, 0, 0, ButtonContent.AbsoluteSize.Y + 33)
+          local TitleWidth = math.max(ButtonTitle.AbsoluteSize.X, 1)
+          local ContentWidth = math.max(ButtonContent.AbsoluteSize.X, 1)
+          local TitleLines = math.max(1, math.ceil(ButtonTitle.TextBounds.X / TitleWidth))
+          local ContentLines = math.max(1, math.ceil(ButtonContent.TextBounds.X / ContentWidth))
+
+          ButtonTitle.Size = UDim2.new(1, -100, 0, 13 * TitleLines)
+          ButtonContent.Position = UDim2.new(0, 10, 0, 10 + (13 * TitleLines) + 3)
+          ButtonContent.Size = UDim2.new(1, -100, 0, 12 * ContentLines)
+          Button.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
         end
       
+        ButtonTitle.TextWrapped = true
         ButtonContent.TextWrapped = true
         UpdateButtonSize()
       
-        ButtonContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-          ButtonContent.TextWrapped = false
+        ButtonTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateButtonSize()
-          ButtonContent.TextWrapped = true
+          UpdateSizeSection()
+        end)
+
+        ButtonContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+          UpdateButtonSize()
           UpdateSizeSection()
         end)
 
@@ -1633,7 +1811,7 @@ function Speed_Library:CreateWindow(Config)
 				}, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4)
+          CornerRadius = UDim.new(0, 8)
         }, Toggle)
 
         ApplyHover(Toggle, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
@@ -1646,6 +1824,7 @@ function Speed_Library:CreateWindow(Config)
 					TextColor3 = Color3.fromRGB(231, 231, 231),
 					TextXAlignment = Enum.TextXAlignment.Left,
 					TextYAlignment = Enum.TextYAlignment.Top,
+					TextWrapped = true,
 					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 					BackgroundTransparency = 0.999,
 					BorderSizePixel = 0,
@@ -1670,16 +1849,27 @@ function Speed_Library:CreateWindow(Config)
 				}, Toggle)
 				
         local function UpdateToggleSize()
-          ToggleContent.TextWrapped = false
-          local Ratio = ToggleContent.TextBounds.X / ToggleContent.AbsoluteSize.X
+          local TitleWidth = math.max(ToggleTitle.AbsoluteSize.X, 1)
+          local ContentWidth = math.max(ToggleContent.AbsoluteSize.X, 1)
+          local TitleLines = math.max(1, math.ceil(ToggleTitle.TextBounds.X / TitleWidth))
+          local ContentLines = math.max(1, math.ceil(ToggleContent.TextBounds.X / ContentWidth))
 
-          ToggleContent.Size = UDim2.new(1, -100, 0, 12 + (12 * math.ceil(Ratio)))
-          Toggle.Size = UDim2.new(1, 0, 0, ToggleContent.AbsoluteSize.Y + 33)
+          ToggleTitle.Size = UDim2.new(1, -100, 0, 13 * TitleLines)
+          ToggleContent.Position = UDim2.new(0, 10, 0, 10 + (13 * TitleLines) + 3)
+          ToggleContent.Size = UDim2.new(1, -100, 0, 12 * ContentLines)
+          Toggle.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
           ToggleContent.TextWrapped = true
         end
       
+        ToggleTitle.TextWrapped = true
+        ToggleContent.TextWrapped = true
         UpdateToggleSize()
       
+        ToggleTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+          UpdateToggleSize()
+          UpdateSizeSection()
+        end)
+
         ToggleContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateToggleSize()
           UpdateSizeSection()
@@ -1709,7 +1899,7 @@ function Speed_Library:CreateWindow(Config)
 				}, Toggle)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4)
+          CornerRadius = UDim.new(0, 8)
         }, FeatureFrame2)
       
         local UIStroke8 = Custom:Create("UIStroke", {
@@ -1727,7 +1917,7 @@ function Speed_Library:CreateWindow(Config)
 				}, FeatureFrame2)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 15)
+          CornerRadius = UDim.new(0, 14)
         }, ToggleCircle)
 
         local function ToggleAnimation(isOn)          
@@ -1753,10 +1943,12 @@ function Speed_Library:CreateWindow(Config)
         end)
       
         function Funcs_Toggle:Set(Value)
+          Funcs_Toggle.Value = Value
           Callback(Value)
           ToggleAnimation(Value)
         end
         Funcs_Toggle:Set(Funcs_Toggle.Value)
+        table.insert(Speed_Library._toggles, Funcs_Toggle)
 
         ItemCount += 1
 				return Funcs_Toggle
@@ -1784,18 +1976,19 @@ function Speed_Library:CreateWindow(Config)
 				}, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4),
+          CornerRadius = UDim.new(0, 8),
         }, Slider)
 
         ApplyHover(Slider, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
 
-        Custom:Create("TextLabel", {
+        local SliderTitle = Custom:Create("TextLabel", {
 					Font = Enum.Font.GothamBold,
 					Text = Title,
 					TextColor3 = Color3.fromRGB(230, 230, 230),
 					TextSize = 13,
 					TextXAlignment = Enum.TextXAlignment.Left,
 					TextYAlignment = Enum.TextYAlignment.Top,
+					TextWrapped = true,
 					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 					BackgroundTransparency = 0.9990000128746033,
 					BorderColor3 = Color3.fromRGB(0, 0, 0),
@@ -1823,12 +2016,24 @@ function Speed_Library:CreateWindow(Config)
 				}, Slider)
 
         local function UpdateSliderSize()
-          SliderContent.TextWrapped = false
-          SliderContent.Size = UDim2.new(1, -180, 0, 12 + (12 * math.floor(SliderContent.TextBounds.X / SliderContent.AbsoluteSize.X)))
-          Slider.Size = UDim2.new(1, 0, 0, SliderContent.AbsoluteSize.Y + 33)
+          local TitleWidth = math.max(SliderTitle.AbsoluteSize.X, 1)
+          local ContentWidth = math.max(SliderContent.AbsoluteSize.X, 1)
+          local TitleLines = math.max(1, math.ceil(SliderTitle.TextBounds.X / TitleWidth))
+          local ContentLines = math.max(1, math.ceil(SliderContent.TextBounds.X / ContentWidth))
+
+          SliderTitle.Size = UDim2.new(1, -180, 0, 13 * TitleLines)
+          SliderContent.Position = UDim2.new(0, 10, 0, 10 + (13 * TitleLines) + 3)
+          SliderContent.Size = UDim2.new(1, -180, 0, 12 * ContentLines)
+          Slider.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
           SliderContent.TextWrapped = true
         end
 
+        SliderTitle.TextWrapped = true
+        SliderContent.TextWrapped = true
+        SliderTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+          UpdateSliderSize()
+          UpdateSizeSection()
+        end)
         SliderContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateSliderSize()
           UpdateSizeSection()
@@ -1846,7 +2051,7 @@ function Speed_Library:CreateWindow(Config)
 				}, Slider)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 2),
+          CornerRadius = UDim.new(0, 8),
         }, SliderInput)
 
          
@@ -1994,7 +2199,7 @@ function Speed_Library:CreateWindow(Config)
         }, SectionAdd)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4),
+          CornerRadius = UDim.new(0, 8),
         }, Input)
 
         local InputTitle = Custom:Create("TextLabel", {
@@ -2004,6 +2209,7 @@ function Speed_Library:CreateWindow(Config)
           TextSize = 13,
           TextXAlignment = Enum.TextXAlignment.Left,
           TextYAlignment = Enum.TextYAlignment.Top,
+          TextWrapped = true,
           BackgroundColor3 = Color3.fromRGB(255, 255, 255),
           BackgroundTransparency = 0.999,
           BorderColor3 = Color3.fromRGB(0, 0, 0),
@@ -2033,19 +2239,27 @@ function Speed_Library:CreateWindow(Config)
         })
 
         local function UpdateInputSize()
-          local Ratio = InputContent.TextBounds.X / InputContent.AbsoluteSize.X
-          local Calculated = 12 + (12 * math.floor(Ratio))
+          local TitleWidth = math.max(InputTitle.AbsoluteSize.X, 1)
+          local ContentWidth = math.max(InputContent.AbsoluteSize.X, 1)
+          local TitleLines = math.max(1, math.ceil(InputTitle.TextBounds.X / TitleWidth))
+          local ContentLines = math.max(1, math.ceil(InputContent.TextBounds.X / ContentWidth))
 
-          InputContent.Size = UDim2.new(1, -180, 0, Calculated)
-          Input.Size = UDim2.new(1, 0, 0, InputContent.AbsoluteSize.Y + 33)
+          InputTitle.Size = UDim2.new(1, -180, 0, 13 * TitleLines)
+          InputContent.Position = UDim2.new(0, 10, 0, 10 + (13 * TitleLines) + 3)
+          InputContent.Size = UDim2.new(1, -180, 0, 12 * ContentLines)
+          Input.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
         end
       
+        InputTitle.TextWrapped = true
+        InputContent.TextWrapped = true
         UpdateInputSize()
       
-        InputContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-          InputContent.TextWrapped = false
+        InputTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateInputSize()
-          InputContent.TextWrapped = true
+          UpdateSizeSection()
+        end)
+        InputContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+          UpdateInputSize()
           UpdateSizeSection()
         end)
 
@@ -2063,7 +2277,7 @@ function Speed_Library:CreateWindow(Config)
     
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4)
+          CornerRadius = UDim.new(0, 8)
         }, InputFrame)
 
         local InputTextBox = Custom:Create("TextBox", {
@@ -2135,7 +2349,7 @@ function Speed_Library:CreateWindow(Config)
         }, Dropdown)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4)
+          CornerRadius = UDim.new(0, 8)
         }, Dropdown)
 
         local DropdownTitle = Custom:Create("TextLabel", {
@@ -2173,19 +2387,28 @@ function Speed_Library:CreateWindow(Config)
           Name = "DropdownContent",
           Parent = Dropdown
         })
-        
-				DropdownContent.Size = UDim2.new(1, -180, 0, 12 + (12 * (DropdownContent.TextBounds.X // DropdownContent.AbsoluteSize.X)))
-				DropdownContent.TextWrapped = true
-				Dropdown.Size = UDim2.new(1, 0, 0, DropdownContent.AbsoluteSize.Y + 33)
-        
-        DropdownContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-          DropdownContent.TextWrapped = false
-            
-					DropdownContent.Size = UDim2.new(1, -180, 0, 12 + (12 * (DropdownContent.TextBounds.X // DropdownContent.AbsoluteSize.X)))
-					Dropdown.Size = UDim2.new(1, 0, 0, DropdownContent.AbsoluteSize.Y + 33)
-            
-          DropdownContent.TextWrapped = true
+        local function UpdateDropdownSize()
+          local TitleWidth = math.max(DropdownTitle.AbsoluteSize.X, 1)
+          local ContentWidth = math.max(DropdownContent.AbsoluteSize.X, 1)
+          local TitleLines = math.max(1, math.ceil(DropdownTitle.TextBounds.X / TitleWidth))
+          local ContentLines = math.max(1, math.ceil(DropdownContent.TextBounds.X / ContentWidth))
 
+          DropdownTitle.Size = UDim2.new(1, -180, 0, 13 * TitleLines)
+          DropdownContent.Position = UDim2.new(0, 10, 0, 10 + (13 * TitleLines) + 3)
+          DropdownContent.Size = UDim2.new(1, -180, 0, 12 * ContentLines)
+          Dropdown.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
+        end
+
+        DropdownTitle.TextWrapped = true
+        DropdownContent.TextWrapped = true
+        UpdateDropdownSize()
+        
+        DropdownTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+          UpdateDropdownSize()
+          UpdateSizeSection()
+        end)
+        DropdownContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+          UpdateDropdownSize()
           UpdateSizeSection()
         end)
 
@@ -2202,7 +2425,7 @@ function Speed_Library:CreateWindow(Config)
         }, Dropdown)
 
         Custom:Create("UICorner", {
-          CornerRadius = UDim.new(0, 4)
+          CornerRadius = UDim.new(0, 8)
         }, SelectOptionsFrame)
 
         DropdownButton.Activated:Connect(function()
@@ -2349,7 +2572,7 @@ function Speed_Library:CreateWindow(Config)
           }, ScrollSelect)
   
           Custom:Create("UICorner", {
-            CornerRadius = UDim.new(0, 3)
+            CornerRadius = UDim.new(0, 8)
           }, Option)
   
           local OptionButton = Custom:Create("TextButton", {
