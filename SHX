@@ -631,6 +631,22 @@ function Speed_Library:CreateWindow(Config)
     Name = "NameTab"
   }, Layers)
 
+  -- decorative line near the current tab name
+  local NameTabLine = Custom:Create("Frame", {
+    BackgroundColor3 = Custom.ColorRGB,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 0, 0, 31),
+    Size = UDim2.new(0, 70, 0, 2),
+    Name = "NameTabLine"
+  }, Layers)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 6)}, NameTabLine)
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Custom.ColorRGB),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 35))
+    }
+  }, NameTabLine)
+
   local LayersReal = Custom:Create("Frame", {
     AnchorPoint = Vector2.new(0, 1),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1260,7 +1276,10 @@ function Speed_Library:CreateWindow(Config)
           end
         end
         
-        ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
+        ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, OffsetY + 24)
+        ScrolLayers.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        ScrolLayers.ScrollingEnabled = true
+        ScrolLayers.Active = true
       end
     
       local function UpdateSizeSection()
@@ -2094,10 +2113,11 @@ function Speed_Library:CreateWindow(Config)
           CornerRadius = UDim.new(0, 8)
         }, Dropdown)
 
+        -- clean style: no red glow/stroke around dropdown card
         Custom:Create("UIStroke", {
-          Color = Custom.ColorRGB,
-          Thickness = 1.3,
-          Transparency = 0.25
+          Color = Color3.fromRGB(0, 0, 0),
+          Thickness = 0,
+          Transparency = 1
         }, Dropdown)
 
 
@@ -2185,10 +2205,11 @@ function Speed_Library:CreateWindow(Config)
           CornerRadius = UDim.new(0, 8)
         }, SelectOptionsFrame)
 
+        -- clean style: no red glow/stroke around dropdown selected-value box
         Custom:Create("UIStroke", {
-          Color = Custom.ColorRGB,
-          Thickness = 1.2,
-          Transparency = 0.35
+          Color = Color3.fromRGB(0, 0, 0),
+          Thickness = 0,
+          Transparency = 1
         }, SelectOptionsFrame)
 
 
@@ -2520,7 +2541,7 @@ function Speed_Library:CreateWindow(Config)
           v.Color = Color
         end
       elseif v:IsA("Frame") then
-        if v.Name == "SliderInput" or v.Name == "SliderDraggable" or v.Name == "SliderCircle" or v.Name == "ChooseFrame" then
+        if v.Name == "SliderInput" or v.Name == "SliderDraggable" or v.Name == "SliderCircle" or v.Name == "ChooseFrame" or v.Name == "NameTabLine" then
           v.BackgroundColor3 = Color
         end
       elseif v:IsA("ImageLabel") then
@@ -2576,7 +2597,10 @@ function Speed_Library:CreateWindow(Config)
       elseif v:IsA("UIStroke") then
           local parentName = v.Parent and v.Parent.Name or ""
           if parentName ~= "Main" and parentName ~= "DropShadow" then
-            if parentName == "SliderInput" or parentName == "CloseConfirmFrame" then
+            if parentName == "Dropdown" or parentName == "DropdownSelect" or parentName == "SelectOptionsFrame" or parentName == "FeatureFrame2" or parentName == "SliderCircle" then
+              v.Transparency = 1
+              v.Thickness = 0
+            elseif parentName == "SliderInput" or parentName == "CloseConfirmFrame" then
               v.Color = Color
             end
           end
@@ -2867,17 +2891,26 @@ function Speed_Library:CreateWindow(Config)
       for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
         if v.Name == "RedCornerGlow" then
           v:Destroy()
-        elseif v:IsA("ScrollingFrame") and v.Name == "ScrolLayers" then
+        elseif v:IsA("ScrollingFrame") then
+          -- Force every page/dropdown list to scroll correctly, especially the Lib Settings tab.
           v.Active = true
           v.ScrollingEnabled = true
           v.ScrollingDirection = Enum.ScrollingDirection.Y
           v.AutomaticCanvasSize = Enum.AutomaticSize.Y
-          v.CanvasSize = UDim2.new(0, 0, 0, 0)
-          v.ScrollBarThickness = 4
-          v.ScrollBarImageColor3 = Custom.ColorRGB
+          local Layout = v:FindFirstChildOfClass("UIListLayout")
+          if Layout then
+            v.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 24)
+          else
+            v.CanvasSize = UDim2.new(0, 0, 0, 0)
+          end
+          if v.Name == "ScrolLayers" then
+            v.ScrollBarThickness = 4
+            v.ScrollBarImageColor3 = Custom.ColorRGB
+          end
         elseif v:IsA("UIStroke") then
           local pn = v.Parent and v.Parent.Name or ""
-          if pn == "Dropdown" or pn == "DropdownSelect" or pn == "SelectOptionsFrame" or pn == "FeatureFrame2" or pn == "SliderCircle" then
+          -- Remove all corner/glow outlines from dropdowns, toggles, slider circles, etc.
+          if pn == "Dropdown" or pn == "DropdownSelect" or pn == "SelectOptionsFrame" or pn == "FeatureFrame2" or pn == "SliderCircle" or pn == "Toggle" or pn == "Button" or pn == "Slider" then
             v.Transparency = 1
             v.Thickness = 0
           end
@@ -3072,6 +3105,10 @@ function Speed_Library:CreateWindow(Config)
     -- Only light fixes are applied once after the UI is fully created.
     task.defer(function()
       AutoResizeTabs()
+      FixAllScrollingAndHighlights()
+      task.wait(0.15)
+      FixAllScrollingAndHighlights()
+      task.wait(0.35)
       FixAllScrollingAndHighlights()
     end)
   end
