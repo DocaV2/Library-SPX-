@@ -25,63 +25,13 @@ local Custom = {} do
 
 
 
-  --// Red corner highlight helper (only corners, no black overlay)
+  --// Corner glow disabled: removes all red corner highlights safely
   function Custom:AddCornerGlow(Parent, Config)
-    Config = Config or {}
-    if not Parent then return nil end
-
-    local Color = Config.Color or Custom.ColorRGB or Color3.fromRGB(255, 40, 40)
-    local Length = Config.Length or 14
-    local Thick = Config.Thickness or 2
-    local Offset = Config.Offset or 1
-    local Transparency = Config.Transparency or 0.05
-    local BaseZ = Parent.ZIndex or 1
-    local Z = Config.ZIndex or (BaseZ + 2)
-
-    local Old = Parent:FindFirstChild("RedCornerGlow")
-    if Old then Old:Destroy() end
-
-    local Holder = Instance.new("Frame")
-    Holder.Name = "RedCornerGlow"
-    Holder.BackgroundTransparency = 1
-    Holder.BorderSizePixel = 0
-    Holder.Size = UDim2.new(1, 0, 1, 0)
-    Holder.Position = UDim2.new(0, 0, 0, 0)
-    Holder.ZIndex = Z
-    Holder.Active = false
-    Holder.Parent = Parent
-
-    local function Line(Name, Pos, Size)
-      local F = Instance.new("Frame")
-      F.Name = Name
-      F.BackgroundColor3 = Color
-      F.BackgroundTransparency = Transparency
-      F.BorderSizePixel = 0
-      F.Position = Pos
-      F.Size = Size
-      F.ZIndex = Z
-      F.Active = false
-      F.Parent = Holder
-
-      local Corner = Instance.new("UICorner")
-      Corner.CornerRadius = UDim.new(0, Thick)
-      Corner.Parent = F
-      return F
+    if Parent then
+      local Old = Parent:FindFirstChild("RedCornerGlow")
+      if Old then Old:Destroy() end
     end
-
-    Line("LT_H", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
-    Line("LT_V", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
-
-    Line("RT_H", UDim2.new(1, -Length - Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
-    Line("RT_V", UDim2.new(1, -Thick - Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
-
-    Line("LB_H", UDim2.new(0, Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
-    Line("LB_V", UDim2.new(0, Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
-
-    Line("RB_H", UDim2.new(1, -Length - Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
-    Line("RB_V", UDim2.new(1, -Thick - Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
-
-    return Holder
+    return nil
   end
 
   function Custom:EnabledAFK()
@@ -1720,8 +1670,8 @@ function Speed_Library:CreateWindow(Config)
       
         local UIStroke8 = Custom:Create("UIStroke", {
           Color = Color3.fromRGB(255, 255, 255),
-          Thickness = 2,
-          Transparency = 0.9
+          Thickness = 0,
+          Transparency = 1
         }, FeatureFrame2)
 
         local ToggleCircle = Custom:Create("Frame", {
@@ -1739,8 +1689,8 @@ function Speed_Library:CreateWindow(Config)
         local function ToggleAnimation(isOn)          
           local TitleColor = isOn and Custom.ColorRGB or Color3.fromRGB(230, 230, 230)
           local CirclePosition = isOn and UDim2.new(0, 15, 0, 0) or UDim2.new(0, 0, 0, 0)
-          local StrokeColor = isOn and Custom.ColorRGB or Color3.fromRGB(255, 255, 255)
-          local StrokeTransparency = isOn and 0 or 0.9
+          local StrokeColor = Color3.fromRGB(255, 255, 255)
+          local StrokeTransparency = 1
           local FrameColor = isOn and Custom.ColorRGB or Color3.fromRGB(255, 255, 255)
           local FrameTransparency = isOn and 0 or 0.92
 
@@ -1856,7 +1806,7 @@ function Speed_Library:CreateWindow(Config)
          
 				local TextBox = Custom:Create("TextBox", {
 					Font = Enum.Font.GothamBold,
-					Text = "90",
+					Text = tostring(Default),
 					TextColor3 = Color3.fromRGB(255, 255, 255),
 					TextSize = 13,
 					TextWrapped = true,
@@ -1898,7 +1848,7 @@ function Speed_Library:CreateWindow(Config)
 					BackgroundColor3 = Custom.ColorRGB,
 					BorderColor3 = Color3.fromRGB(0, 0, 0),
 					BorderSizePixel = 0,
-					Position = UDim2.new(1, 8, 0.5, 0),
+					Position = UDim2.new(1, 10, 0.5, 0),
 					Size = UDim2.new(0, 10, 0, 10),
 					Name = "SliderCircle",
 				}, SliderDraggable)
@@ -1912,19 +1862,35 @@ function Speed_Library:CreateWindow(Config)
         local Dragging = false
 
         local function Round(Number, Factor)
-          local Result = math.floor(Number / Factor + (math.sign(Number) * 0.5)) * Factor
-          if Result < 0 then 
-            Result = Result + Factor 
+          Number = tonumber(Number) or Min
+          Factor = tonumber(Factor) or 1
+          if Factor <= 0 then Factor = 1 end
+          return math.floor((Number / Factor) + 0.5) * Factor
+        end
+
+        local function FormatSliderNumber(Value)
+          Value = tonumber(Value) or 0
+          if Increment < 1 then
+            local Decimals = 0
+            local IncText = tostring(Increment)
+            local Dot = string.find(IncText, "%.")
+            if Dot then Decimals = math.clamp(#IncText - Dot, 1, 4) end
+            return string.format("%0." .. Decimals .. "f", Value)
           end
-          return Result
+          return tostring(math.floor(Value + 0.5))
         end
         
         function Funcs_Slider:Set(Value)
-          Value = math.clamp(Round(Value, Increment), Min, Max)
+          Value = math.clamp(Round(tonumber(Value) or Min, Increment), Min, Max)
           Funcs_Slider.Value = Value
-          TextBox.Text = tostring(Value)
+          TextBox.Text = FormatSliderNumber(Value)
+
+          local Percent = 0
+          if Max ~= Min then
+            Percent = math.clamp((Value - Min) / (Max - Min), 0, 1)
+          end
             
-          TweenService:Create(SliderDraggable, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.fromScale((Value - Min) / (Max - Min), 1) }):Play()
+          TweenService:Create(SliderDraggable, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.fromScale(Percent, 1) }):Play()
         end
         
         SliderFrame.InputBegan:Connect(function(Input)
@@ -1954,23 +1920,21 @@ function Speed_Library:CreateWindow(Config)
         end)
         
         TextBox:GetPropertyChangedSignal("Text"):Connect(function()
-          local Valid = TextBox.Text:gsub("[^%d]", "")
-          if Valid ~= "" then
-            local ValidNumber = math.min(tonumber(Valid), Max)
-            TextBox.Text = tostring(ValidNumber)
-          else
-            TextBox.Text = "0"
+          local Clean = TextBox.Text:gsub("[^%d%.%-]", "")
+          if Clean ~= TextBox.Text then
+            TextBox.Text = Clean
+            TextBox.CursorPosition = #Clean + 1
           end
         end)
         
         TextBox.FocusLost:Connect(function()
-          if TextBox.Text ~= "" then
-            Funcs_Slider:Set(tonumber(TextBox.Text))
-            Callback(Funcs_Slider.Value)
+          local Number = tonumber(TextBox.Text)
+          if Number then
+            Funcs_Slider:Set(Number)
           else
-            Funcs_Slider:Set(0)
-            Callback(Funcs_Slider.Value)
+            Funcs_Slider:Set(Funcs_Slider.Value or Default)
           end
+          Callback(Funcs_Slider.Value)
         end)
         
         Funcs_Slider:Set(tonumber(Default))
@@ -2551,7 +2515,7 @@ function Speed_Library:CreateWindow(Config)
     for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
       if v:IsA("UIStroke") then
         local ParentName = v.Parent and v.Parent.Name or ""
-        if ParentName == "Dropdown" or ParentName == "SelectOptionsFrame" or ParentName == "DropdownSelect" or ParentName == "SliderInput" or ParentName == "CloseConfirmFrame" then
+        if ParentName == "SliderInput" or ParentName == "CloseConfirmFrame" then
           v.Color = Color
         end
       elseif v:IsA("Frame") then
@@ -2611,7 +2575,7 @@ function Speed_Library:CreateWindow(Config)
       elseif v:IsA("UIStroke") then
           local parentName = v.Parent and v.Parent.Name or ""
           if parentName ~= "Main" and parentName ~= "DropShadow" then
-            if parentName == "Dropdown" or parentName == "DropdownSelect" or parentName == "SelectOptionsFrame" or parentName == "SliderInput" or parentName == "CloseConfirmFrame" or parentName == "FeatureFrame2" then
+            if parentName == "SliderInput" or parentName == "CloseConfirmFrame" then
               v.Color = Color
             end
           end
@@ -2669,16 +2633,9 @@ function Speed_Library:CreateWindow(Config)
   end
 
   local function SetGlowEnabled(Value)
-    Beauty.SoftGlow = Value and true or false
-    local Transparency = Beauty.SoftGlow and 0.02 or 1
+    Beauty.SoftGlow = false
     for _, Holder in ipairs(SpeedHubXGui:GetDescendants()) do
-      if Holder.Name == "RedCornerGlow" then
-        for _, Line in ipairs(Holder:GetChildren()) do
-          if Line:IsA("Frame") then
-            TweenService:Create(Line, TweenInfo.new(0.2), {BackgroundTransparency = Transparency}):Play()
-          end
-        end
-      end
+      if Holder.Name == "RedCornerGlow" then Holder:Destroy() end
     end
   end
 
@@ -2905,6 +2862,30 @@ function Speed_Library:CreateWindow(Config)
       Name = "Lib Settings",
       Icon = "rbxassetid://125609963478878"
     })
+    local function FixAllScrollingAndHighlights()
+      for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+        if v.Name == "RedCornerGlow" then
+          v:Destroy()
+        elseif v:IsA("ScrollingFrame") and v.Name == "ScrolLayers" then
+          v.Active = true
+          v.ScrollingEnabled = true
+          v.ScrollingDirection = Enum.ScrollingDirection.Y
+          v.AutomaticCanvasSize = Enum.AutomaticSize.Y
+          v.CanvasSize = UDim2.new(0, 0, 0, 0)
+          v.ScrollBarThickness = 4
+          v.ScrollBarImageColor3 = Custom.ColorRGB
+        elseif v:IsA("UIStroke") then
+          local pn = v.Parent and v.Parent.Name or ""
+          if pn == "Dropdown" or pn == "DropdownSelect" or pn == "SelectOptionsFrame" or pn == "FeatureFrame2" or pn == "SliderCircle" then
+            v.Transparency = 1
+            v.Thickness = 0
+          end
+        end
+      end
+    end
+
+    task.defer(FixAllScrollingAndHighlights)
+
 
     local ThemeSection = SettingsTab:AddSection("Theme", true)
     ThemeSection:AddDropdown({
@@ -3088,6 +3069,11 @@ function Speed_Library:CreateWindow(Config)
 
     ApplyPremiumStyle()
     AutoResizeTabs()
+    FixAllScrollingAndHighlights()
+
+    SpeedHubXGui.DescendantAdded:Connect(function()
+      task.defer(FixAllScrollingAndHighlights)
+    end)
   end
 
   return Tabs
