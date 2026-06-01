@@ -463,7 +463,7 @@ function Speed_Library:CreateWindow(Config)
   local Main = Custom:Create("Frame", {
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-    BackgroundTransparency = 0.1,
+    BackgroundTransparency = 0.05,
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     BorderSizePixel = 0,
     Position = UDim2.new(0.5, 0, 0.5, 0),
@@ -475,36 +475,11 @@ function Speed_Library:CreateWindow(Config)
     CornerRadius = UDim.new(0, 10)
   }, Main)
 
-  local MainGradient = Custom:Create("UIGradient", {
-    Color = ColorSequence.new{
-      ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 10, 13)),
-      ColorSequenceKeypoint.new(0.45, Color3.fromRGB(35, 4, 7)),
-      ColorSequenceKeypoint.new(1, Color3.fromRGB(13, 13, 17))
-    },
-    Rotation = 35
-  }, Main)
-
   local MainStroke = Custom:Create("UIStroke", {
     Color = Custom.ColorRGB,
     Thickness = 1.9,
     Transparency = 0.08
   }, Main)
-
-  local PremiumGlow = Custom:Create("ImageLabel", {
-    Image = "rbxassetid://5028857472",
-    ImageColor3 = Custom.ColorRGB,
-    ImageTransparency = 0.55,
-    ScaleType = Enum.ScaleType.Slice,
-    SliceCenter = Rect.new(24, 24, 276, 276),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundTransparency = 1,
-    BorderSizePixel = 0,
-    Position = UDim2.new(0.5, 0, 0.5, 0),
-    Size = UDim2.new(1, 45, 1, 45),
-    ZIndex = 0,
-    Name = "PremiumGlow"
-  }, Main)
-
 
   TweenService:Create(DropShadowHolder, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
     Size = UDim2.new(0, 465, 0, 360)
@@ -697,11 +672,147 @@ function Speed_Library:CreateWindow(Config)
 		if Open_Close.Visible then Open_Close.Visible = false end
 	end)
 
+  --// Close confirmation popup
+  local ConfirmOverlay = Custom:Create("TextButton", {
+    Name = "ConfirmOverlay",
+    Text = "",
+    AutoButtonColor = false,
+    BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+    BackgroundTransparency = 0.45,
+    BorderSizePixel = 0,
+    Size = UDim2.new(1, 0, 1, 0),
+    Visible = false,
+    ZIndex = 90
+  }, Main)
+
+  local ConfirmFrame = Custom:Create("Frame", {
+    Name = "ConfirmFrame",
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(0, 0, 0, 0),
+    BackgroundColor3 = Color3.fromRGB(18, 18, 20),
+    BackgroundTransparency = 0,
+    BorderSizePixel = 0,
+    ClipsDescendants = true,
+    ZIndex = 91
+  }, ConfirmOverlay)
+
+  Custom:Create("UICorner", {
+    CornerRadius = UDim.new(0, 10)
+  }, ConfirmFrame)
+
+  Custom:Create("UIStroke", {
+    Color = Custom.ColorRGB,
+    Thickness = 1.4,
+    Transparency = 0.15
+  }, ConfirmFrame)
+
+  local ConfirmTitle = Custom:Create("TextLabel", {
+    Name = "ConfirmTitle",
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 16, 0, 14),
+    Size = UDim2.new(1, -32, 0, 22),
+    Font = Enum.Font.GothamBold,
+    Text = "Закрыть библиотеку?",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextSize = 17,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 92
+  }, ConfirmFrame)
+
+  local ConfirmText = Custom:Create("TextLabel", {
+    Name = "ConfirmText",
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 16, 0, 43),
+    Size = UDim2.new(1, -32, 0, 38),
+    Font = Enum.Font.Gotham,
+    Text = "Ты точно хочешь закрыть Doca V1?",
+    TextColor3 = Color3.fromRGB(175, 175, 180),
+    TextSize = 13,
+    TextWrapped = true,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    TextYAlignment = Enum.TextYAlignment.Top,
+    ZIndex = 92
+  }, ConfirmFrame)
+
+  local NoButton = Custom:Create("TextButton", {
+    Name = "NoButton",
+    Position = UDim2.new(0, 16, 1, -48),
+    Size = UDim2.new(0.5, -22, 0, 34),
+    BackgroundColor3 = Color3.fromRGB(36, 36, 40),
+    BorderSizePixel = 0,
+    Font = Enum.Font.GothamBold,
+    Text = "Нет",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextSize = 14,
+    ZIndex = 92
+  }, ConfirmFrame)
+
+  local YesButton = Custom:Create("TextButton", {
+    Name = "YesButton",
+    AnchorPoint = Vector2.new(1, 0),
+    Position = UDim2.new(1, -16, 1, -48),
+    Size = UDim2.new(0.5, -22, 0, 34),
+    BackgroundColor3 = Custom.ColorRGB,
+    BorderSizePixel = 0,
+    Font = Enum.Font.GothamBold,
+    Text = "Да",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextSize = 14,
+    ZIndex = 92
+  }, ConfirmFrame)
+
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 7)}, NoButton)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 7)}, YesButton)
+
+  local ConfirmBusy = false
+  local function ShowConfirm()
+    if ConfirmBusy then return end
+    ConfirmBusy = true
+    ConfirmOverlay.Visible = true
+    ConfirmFrame.Size = UDim2.new(0, 0, 0, 0)
+    TweenService:Create(ConfirmFrame, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+      Size = UDim2.new(0, 330, 0, 130)
+    }):Play()
+    task.wait(0.25)
+    ConfirmBusy = false
+  end
+
+  local function HideConfirm()
+    if ConfirmBusy then return end
+    ConfirmBusy = true
+    local tween = TweenService:Create(ConfirmFrame, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      Size = UDim2.new(0, 0, 0, 0)
+    })
+    tween:Play()
+    task.wait(0.16)
+    ConfirmOverlay.Visible = false
+    ConfirmBusy = false
+  end
+
   Close.Activated:Connect(function()
-		CircleClick(Close, Player:GetMouse().X, Player:GetMouse().Y)
+    CircleClick(Close, Player:GetMouse().X, Player:GetMouse().Y)
+    ShowConfirm()
+  end)
+
+  NoButton.Activated:Connect(function()
+    CircleClick(NoButton, Player:GetMouse().X, Player:GetMouse().Y)
+    HideConfirm()
+  end)
+
+  ConfirmOverlay.Activated:Connect(function()
+    HideConfirm()
+  end)
+
+  ConfirmFrame.InputBegan:Connect(function(input)
+    -- keeps the overlay click from being the main way to interact with the popup
+  end)
+
+  YesButton.Activated:Connect(function()
+    CircleClick(YesButton, Player:GetMouse().X, Player:GetMouse().Y)
     if SpeedHubXGui then SpeedHubXGui:Destroy() end
-		if not Speed_Library.Unloaded then Speed_Library.Unloaded = true end
-	end)
+    if not Speed_Library.Unloaded then Speed_Library.Unloaded = true end
+  end)
 
   DropShadowHolder.Size = UDim2.new(0, 115 + TextLabel.TextBounds.X + 1 + TextLabel1.TextBounds.X, 0, 350)
 	MakeDraggable(Top, DropShadowHolder)
