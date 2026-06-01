@@ -6,7 +6,7 @@ local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 
 local Custom = {} do
-  Custom.ColorRGB = Color3.fromRGB(95, 255, 70)
+  Custom.ColorRGB = Color3.fromRGB(250, 7, 7)
 
   function Custom:Create(Name, Properties, Parent)
     local _instance = Instance.new(Name)
@@ -607,7 +607,6 @@ function Speed_Library:CreateWindow(Config)
     CanvasSize = UDim2.new(0, 0, 2.10000002, 0),
     ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
     ScrollBarThickness = 0,
-    ScrollBarImageTransparency = 1,
     Active = true,
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
     BackgroundTransparency = 0.9990000128746033,
@@ -791,7 +790,6 @@ function Speed_Library:CreateWindow(Config)
     local ScrolLayers = Custom:Create("ScrollingFrame", {
 			ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80),
 			ScrollBarThickness = 0,
-    ScrollBarImageTransparency = 1,
 			Active = true,
 			LayoutOrder = CountTab,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1015,6 +1013,24 @@ function Speed_Library:CreateWindow(Config)
         Name = "SectionTitle"
       }, SectionReal)
   
+      local SectionDecideFrame = Custom:Create("Frame", {
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        BorderSizePixel = 0,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, 33),
+        Size = UDim2.new(0, 0, 0, 2),
+        Name = "SectionDecideFrame"
+      }, Section)
+      Custom:Create("UICorner", {}, SectionDecideFrame)
+      Custom:Create("UIGradient", {
+        Color = ColorSequence.new{
+          ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+          ColorSequenceKeypoint.new(0.5, Custom.ColorRGB),
+          ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+        }
+      }, SectionDecideFrame)
+  
       local SectionAdd = Custom:Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0),
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1062,6 +1078,7 @@ function Speed_Library:CreateWindow(Config)
           TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 90}):Play()
           TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)}):Play()
           TweenService:Create(SectionAdd, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)}):Play()
+          TweenService:Create(SectionDecideFrame, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, 2)}):Play()
             
           task.wait(0.5)
           UpdateSizeScroll()
@@ -1074,6 +1091,7 @@ function Speed_Library:CreateWindow(Config)
         if OpenSection then
           TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 0}):Play()
           TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, 30)}):Play()
+          TweenService:Create(SectionDecideFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 0, 0, 2)}):Play()
     
           OpenSection = false
           task.wait(0.1)
@@ -1994,7 +2012,6 @@ function Speed_Library:CreateWindow(Config)
           CanvasSize = UDim2.new(0, 0, 0, 0),
           ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
           ScrollBarThickness = 0,
-    ScrollBarImageTransparency = 1,
           Active = true,
           LayoutOrder = CountDropdown,
           BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -2019,8 +2036,8 @@ function Speed_Library:CreateWindow(Config)
           TextSize = 12,
           BackgroundColor3 = Color3.fromRGB(0, 0, 0),
           BackgroundTransparency = 0.9,
-          BorderColor3 = Color3.fromRGB(45, 45, 45),
-          BorderSizePixel = 0,
+          BorderColor3 = Color3.fromRGB(255, 0, 0),
+          BorderSizePixel = 1,
           Size = UDim2.new(1, 0, 0, 20),
           Name = "SearchBar"
         }, ScrollSelect)
