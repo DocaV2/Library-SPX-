@@ -1062,8 +1062,11 @@ function Speed_Library:CreateWindow(Config)
     local Icon = Config[2] or Config.Icon or ""
     
     local ScrolLayers = Custom:Create("ScrollingFrame", {
-			ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80),
-			ScrollBarThickness = 0,
+			CanvasSize = UDim2.new(0, 0, 0, 0),
+			AutomaticCanvasSize = Enum.AutomaticSize.Y,
+			ScrollingDirection = Enum.ScrollingDirection.Y,
+			ScrollBarImageColor3 = Custom.ColorRGB,
+			ScrollBarThickness = 4,
 			Active = true,
 			LayoutOrder = CountTab,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -2499,9 +2502,12 @@ function Speed_Library:CreateWindow(Config)
     Particles = false,
     Glass = false,
     SoftGlow = false,
+    WowAnimation = false,
     ParticleFolder = nil,
     ParticleConnection = nil,
-    TitleConnection = nil
+    TitleConnection = nil,
+    WowConnection = nil,
+    WowFolder = nil
   }
 
   local ThemeColors = {
@@ -2595,7 +2601,14 @@ function Speed_Library:CreateWindow(Config)
           if n == "FeatureImg" or n == "WarningIcon" or n == "OptionImg" or n == "Close_ImageButton" then
             pcall(function() v.ImageColor3 = Color end)
           end
-        elseif v:IsA("UIStroke") then
+        elseif v:IsA("ScrollingFrame") then
+        if v.Name == "ScrolLayers" then
+          v.ScrollBarImageColor3 = Color
+          v.ScrollBarThickness = 4
+          v.AutomaticCanvasSize = Enum.AutomaticSize.Y
+          v.ScrollingDirection = Enum.ScrollingDirection.Y
+        end
+      elseif v:IsA("UIStroke") then
           local parentName = v.Parent and v.Parent.Name or ""
           if parentName ~= "Main" and parentName ~= "DropShadow" then
             if parentName == "Dropdown" or parentName == "DropdownSelect" or parentName == "SelectOptionsFrame" or parentName == "SliderInput" or parentName == "CloseConfirmFrame" or parentName == "FeatureFrame2" then
@@ -2740,10 +2753,88 @@ function Speed_Library:CreateWindow(Config)
     end)
   end
 
+  local function SetWowAnimation(Value)
+    Beauty.WowAnimation = Value and true or false
+
+    if Beauty.WowConnection then
+      Beauty.WowConnection:Disconnect()
+      Beauty.WowConnection = nil
+    end
+
+    if Beauty.WowFolder then
+      Beauty.WowFolder:Destroy()
+      Beauty.WowFolder = nil
+    end
+
+    local OldStroke = Main:FindFirstChild("PremiumPulseStroke")
+    if OldStroke then OldStroke:Destroy() end
+
+    if not Beauty.WowAnimation then
+      local MainStroke = Main:FindFirstChildOfClass("UIStroke")
+      if MainStroke then
+        MainStroke.Color = Color3.fromRGB(50, 50, 50)
+        MainStroke.Thickness = 1.6
+        MainStroke.Transparency = 0
+      end
+      return
+    end
+
+    Beauty.WowFolder = Instance.new("Folder")
+    Beauty.WowFolder.Name = "PremiumWowEffects"
+    Beauty.WowFolder.Parent = Main
+
+    local TopShine = Instance.new("Frame")
+    TopShine.Name = "TopShineLine"
+    TopShine.BackgroundColor3 = Beauty.Accent
+    TopShine.BorderSizePixel = 0
+    TopShine.Position = UDim2.new(0, 10, 0, 38)
+    TopShine.Size = UDim2.new(1, -20, 0, 2)
+    TopShine.BackgroundTransparency = 0.1
+    TopShine.ZIndex = 10
+    TopShine.Parent = Beauty.WowFolder
+    SetCornerRadius(TopShine, 10)
+
+    local TopGradient = Instance.new("UIGradient")
+    TopGradient.Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
+      ColorSequenceKeypoint.new(0.5, Beauty.Accent),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+    }
+    TopGradient.Transparency = NumberSequence.new{
+      NumberSequenceKeypoint.new(0, 0.85),
+      NumberSequenceKeypoint.new(0.5, 0),
+      NumberSequenceKeypoint.new(1, 0.85)
+    }
+    TopGradient.Parent = TopShine
+
+    local PremiumStroke = Instance.new("UIStroke")
+    PremiumStroke.Name = "PremiumPulseStroke"
+    PremiumStroke.Color = Beauty.Accent
+    PremiumStroke.Thickness = 1.4
+    PremiumStroke.Transparency = 0.28
+    PremiumStroke.Parent = Main
+
+    Beauty.WowConnection = RunService.RenderStepped:Connect(function()
+      if not Beauty.WowFolder or not Beauty.WowFolder.Parent then return end
+      local T = tick()
+      local Pulse = 0.18 + (math.sin(T * 2.4) + 1) * 0.12
+      PremiumStroke.Color = Beauty.Accent
+      PremiumStroke.Transparency = Pulse
+      TopShine.BackgroundColor3 = Beauty.Accent
+      TopGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
+        ColorSequenceKeypoint.new(0.5, Beauty.Accent),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+      }
+      TopGradient.Offset = Vector2.new(math.sin(T * 1.6) * 0.8, 0)
+    end)
+  end
+
   local function ApplyPremiumStyle()
     ApplyRoundness(14)
     ApplyGlass(false)
     SetGlowEnabled(false)
+    SetWowAnimation(true)
     ApplyAccent(Beauty.Accent)
 
     for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
@@ -2797,6 +2888,7 @@ function Speed_Library:CreateWindow(Config)
   local function ResetLibraryStyle()
     SetTitleRGB(false)
     SetParticles(false)
+    SetWowAnimation(false)
     ApplyUIScale(1)
     ApplyRoundness(14)
     ApplyCardTransparency(0.935)
@@ -2892,6 +2984,15 @@ function Speed_Library:CreateWindow(Config)
       Default = false,
       Callback = function(Value)
         SetParticles(Value)
+      end
+    })
+
+    EffectsSection:AddToggle({
+      Title = "Premium Shine",
+      Content = "Animated top shine line and soft pulsing window border",
+      Default = true,
+      Callback = function(Value)
+        SetWowAnimation(Value)
       end
     })
 
