@@ -1239,24 +1239,37 @@ function Speed_Library:CreateWindow(Config)
         Name = "SectionTitle"
       }, SectionReal)
   
-      local SectionDecideFrame = Custom:Create("Frame", {
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.new(0.5, 0, 0, 33),
-        Size = UDim2.new(0, 0, 0, 2),
-        Name = "SectionDecideFrame"
-      }, Section)
-      Custom:Create("UICorner", {}, SectionDecideFrame)
-      Custom:Create("UIGradient", {
-        Color = ColorSequence.new{
-          ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-          ColorSequenceKeypoint.new(0.5, Custom.ColorRGB),
-          ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
-        }
-      }, SectionDecideFrame)
-  
+      --// Clean premium section design: no bottom red line, only soft hover/card animation
+      local SectionStroke = Custom:Create("UIStroke", {
+        Color = Color3.fromRGB(255, 255, 255),
+        Thickness = 1,
+        Transparency = 0.92,
+      }, SectionReal)
+
+      SectionReal.MouseEnter:Connect(function()
+        TweenService:Create(SectionReal, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+          BackgroundTransparency = 0.89
+        }):Play()
+        TweenService:Create(SectionStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+          Transparency = 0.76
+        }):Play()
+        TweenService:Create(SectionTitle, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+          TextColor3 = Color3.fromRGB(255, 255, 255)
+        }):Play()
+      end)
+
+      SectionReal.MouseLeave:Connect(function()
+        TweenService:Create(SectionReal, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+          BackgroundTransparency = 0.935
+        }):Play()
+        TweenService:Create(SectionStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+          Transparency = 0.92
+        }):Play()
+        TweenService:Create(SectionTitle, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+          TextColor3 = Color3.fromRGB(230, 230, 230)
+        }):Play()
+      end)
+
       local SectionAdd = Custom:Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0),
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1304,10 +1317,9 @@ function Speed_Library:CreateWindow(Config)
             end
           end
     
-          TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 90}):Play()
-          TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)}):Play()
-          TweenService:Create(SectionAdd, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)}):Play()
-          TweenService:Create(SectionDecideFrame, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, 2)}):Play()
+          TweenService:Create(FeatureFrame, TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Rotation = 90}):Play()
+          TweenService:Create(Section, TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)}):Play()
+          TweenService:Create(SectionAdd, TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)}):Play()
             
           task.wait(0.5)
           UpdateSizeScroll()
@@ -1318,9 +1330,8 @@ function Speed_Library:CreateWindow(Config)
         CircleClick(SectionButton, Player:GetMouse().X, Player:GetMouse().Y)
         
         if OpenSection then
-          TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 0}):Play()
-          TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, 30)}):Play()
-          TweenService:Create(SectionDecideFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 0, 0, 2)}):Play()
+          TweenService:Create(FeatureFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Rotation = 0}):Play()
+          TweenService:Create(Section, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(1, 1, 0, 30)}):Play()
     
           OpenSection = false
           task.wait(0.1)
@@ -2591,7 +2602,7 @@ function Speed_Library:CreateWindow(Config)
           end
         elseif v:IsA("Frame") then
           local n = v.Name
-          if n == "SliderInput" or n == "SliderDraggable" or n == "SliderCircle" or n == "FeatureFrame2" or n == "SectionDecideFrame" or n == "TopTitleLine" then
+          if n == "SliderInput" or n == "SliderDraggable" or n == "SliderCircle" or n == "FeatureFrame2" or n == "TopTitleLine" then
             v.BackgroundColor3 = Color
           end
         elseif v:IsA("ImageLabel") or v:IsA("ImageButton") then
