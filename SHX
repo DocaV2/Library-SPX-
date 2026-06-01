@@ -1809,6 +1809,7 @@ function Speed_Library:CreateWindow(Config)
 					Text = tostring(Default),
 					TextColor3 = Color3.fromRGB(255, 255, 255),
 					TextSize = 13,
+          TextTransparency = 0,
 					TextWrapped = true,
 					BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 					BackgroundTransparency = 0.9990000128746033,
@@ -2971,7 +2972,7 @@ function Speed_Library:CreateWindow(Config)
     EffectsSection:AddToggle({
       Title = "Premium Shine",
       Content = "Animated top shine line and soft pulsing window border",
-      Default = true,
+      Default = false,
       Callback = function(Value)
         SetWowAnimation(Value)
       end
@@ -3067,12 +3068,11 @@ function Speed_Library:CreateWindow(Config)
       Content = "No red tab line, white close warning text, fixed slider input, bigger thin minus, auto tab width, UI scale, compact mode, text size and card transparency."
     })
 
-    ApplyPremiumStyle()
-    AutoResizeTabs()
-    FixAllScrollingAndHighlights()
-
-    SpeedHubXGui.DescendantAdded:Connect(function()
-      task.defer(FixAllScrollingAndHighlights)
+    -- Fast startup: do not run heavy premium effects automatically.
+    -- Only light fixes are applied once after the UI is fully created.
+    task.defer(function()
+      AutoResizeTabs()
+      FixAllScrollingAndHighlights()
     end)
   end
 
