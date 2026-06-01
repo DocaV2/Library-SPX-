@@ -552,7 +552,6 @@ function Speed_Library:CreateWindow(Config)
     Thickness = 1.6
   }, Main)
 
-  Custom:AddCornerGlow(Main, {Length = 18, Thickness = 2, Offset = 2, Transparency = 0.03})
 
   local Top = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -1024,7 +1023,6 @@ function Speed_Library:CreateWindow(Config)
     Parent = DropdownSelect
   })
 
-  Custom:AddCornerGlow(DropdownSelect, {Length = 13, Thickness = 2, Offset = 2, Transparency = 0.02})
 
   local DropdownSelectReal = Custom:Create("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -2134,7 +2132,6 @@ function Speed_Library:CreateWindow(Config)
           Transparency = 0.25
         }, Dropdown)
 
-        Custom:AddCornerGlow(Dropdown, {Length = 12, Thickness = 2, Offset = 2, Transparency = 0.02})
 
         local DropdownButton = Custom:Create("TextButton", {
           Font = Enum.Font.SourceSans,
@@ -2226,7 +2223,6 @@ function Speed_Library:CreateWindow(Config)
           Transparency = 0.35
         }, SelectOptionsFrame)
 
-        Custom:AddCornerGlow(SelectOptionsFrame, {Length = 10, Thickness = 2, Offset = 2, Transparency = 0.02})
 
         DropdownButton.Activated:Connect(function()
           if not MoreBlur.Visible then
@@ -2502,7 +2498,7 @@ function Speed_Library:CreateWindow(Config)
     TitleRGB = false,
     Particles = false,
     Glass = false,
-    SoftGlow = true,
+    SoftGlow = false,
     ParticleFolder = nil,
     ParticleConnection = nil,
     TitleConnection = nil
@@ -2701,7 +2697,7 @@ function Speed_Library:CreateWindow(Config)
   local function ApplyPremiumStyle()
     ApplyRoundness(14)
     ApplyGlass(false)
-    SetGlowEnabled(true)
+    SetGlowEnabled(false)
     ApplyAccent(Beauty.Accent)
 
     for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
@@ -2712,6 +2708,58 @@ function Speed_Library:CreateWindow(Config)
       end
     end
   end
+  local function ApplyCompactMode(Value)
+    local Padding = Value and 1 or 3
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if v:IsA("UIListLayout") then
+        v.Padding = UDim.new(0, Padding)
+      end
+    end
+  end
+
+  local function ApplyTextSize(Size)
+    Size = math.clamp(tonumber(Size) or 13, 10, 18)
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+        if v.Name ~= "NameTab" then
+          v.TextSize = math.clamp(Size, 10, 18)
+        end
+      end
+    end
+  end
+
+  local function ApplyUIScale(Value)
+    Value = math.clamp(tonumber(Value) or 1, 0.75, 1.35)
+    local Scale = DropShadowHolder:FindFirstChild("LibraryUIScale")
+    if not Scale then
+      Scale = Instance.new("UIScale")
+      Scale.Name = "LibraryUIScale"
+      Scale.Parent = DropShadowHolder
+    end
+    TweenService:Create(Scale, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Scale = Value}):Play()
+  end
+
+  local function ApplyCardTransparency(Value)
+    Value = math.clamp(tonumber(Value) or 0.935, 0.86, 0.98)
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if v:IsA("Frame") and (v.Name == "Button" or v.Name == "Toggle" or v.Name == "Slider" or v.Name == "Dropdown" or v.Name == "Paragraph" or v.Name == "SectionReal" or v.Name == "Seperator") then
+        TweenService:Create(v, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = Value}):Play()
+      end
+    end
+  end
+
+  local function ResetLibraryStyle()
+    SetTitleRGB(false)
+    SetParticles(false)
+    ApplyUIScale(1)
+    ApplyRoundness(14)
+    ApplyCardTransparency(0.935)
+    ApplyGlass(false)
+    ApplyCompactMode(false)
+    ApplyAccent(ThemeColors.Crimson)
+    AutoResizeTabs()
+  end
+
 
   --// Built-in beauty/settings tab
   task.defer(function()
@@ -2742,14 +2790,6 @@ function Speed_Library:CreateWindow(Config)
       end
     })
 
-    ThemeSection:AddToggle({
-      Title = "Corner Glow",
-      Content = "Red/colored corner highlights for window and dropdowns",
-      Default = true,
-      Callback = function(Value)
-        SetGlowEnabled(Value)
-      end
-    })
 
     local WindowSection = SettingsTab:AddSection("Window", true)
     WindowSection:AddSlider({
@@ -2826,10 +2866,65 @@ function Speed_Library:CreateWindow(Config)
       end
     })
 
+    local LayoutSection = SettingsTab:AddSection("Layout", true)
+    LayoutSection:AddSlider({
+      Title = "UI Scale",
+      Content = "Changes the whole library size without resizing tabs manually",
+      Increment = 0.01,
+      Min = 0.75,
+      Max = 1.35,
+      Default = 1,
+      Callback = function(Value)
+        ApplyUIScale(Value)
+      end
+    })
+
+    LayoutSection:AddToggle({
+      Title = "Compact Mode",
+      Content = "Makes sections closer together so more functions fit on screen",
+      Default = false,
+      Callback = function(Value)
+        ApplyCompactMode(Value)
+      end
+    })
+
+    LayoutSection:AddSlider({
+      Title = "Text Size",
+      Content = "Changes most library text size",
+      Increment = 1,
+      Min = 10,
+      Max = 18,
+      Default = 13,
+      Callback = function(Value)
+        ApplyTextSize(Value)
+      end
+    })
+
+    local CardsSection = SettingsTab:AddSection("Cards", true)
+    CardsSection:AddSlider({
+      Title = "Card Transparency",
+      Content = "Controls transparency for buttons, toggles, sliders and dropdown cards",
+      Increment = 0.01,
+      Min = 0.86,
+      Max = 0.98,
+      Default = 0.935,
+      Callback = function(Value)
+        ApplyCardTransparency(Value)
+      end
+    })
+
+    CardsSection:AddButton({
+      Title = "Reset Style",
+      Content = "Returns the library style to a clean default look",
+      Callback = function()
+        ResetLibraryStyle()
+      end
+    })
+
     local CleanSection = SettingsTab:AddSection("Clean Fixes", true)
     CleanSection:AddParagraph({
       Title = "Included",
-      Content = "No red tab line, white close warning text, fixed slider input, bigger thin minus, dropdown/window corner glow and auto tab width."
+      Content = "No red tab line, white close warning text, fixed slider input, bigger thin minus, auto tab width, UI scale, compact mode, text size and card transparency."
     })
 
     ApplyPremiumStyle()
