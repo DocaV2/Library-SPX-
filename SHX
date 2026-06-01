@@ -23,6 +23,67 @@ local Custom = {} do
     return _instance
   end
 
+
+
+  --// Red corner highlight helper (only corners, no black overlay)
+  function Custom:AddCornerGlow(Parent, Config)
+    Config = Config or {}
+    if not Parent then return nil end
+
+    local Color = Config.Color or Custom.ColorRGB or Color3.fromRGB(255, 40, 40)
+    local Length = Config.Length or 14
+    local Thick = Config.Thickness or 2
+    local Offset = Config.Offset or 1
+    local Transparency = Config.Transparency or 0.05
+    local BaseZ = Parent.ZIndex or 1
+    local Z = Config.ZIndex or (BaseZ + 2)
+
+    local Old = Parent:FindFirstChild("RedCornerGlow")
+    if Old then Old:Destroy() end
+
+    local Holder = Instance.new("Frame")
+    Holder.Name = "RedCornerGlow"
+    Holder.BackgroundTransparency = 1
+    Holder.BorderSizePixel = 0
+    Holder.Size = UDim2.new(1, 0, 1, 0)
+    Holder.Position = UDim2.new(0, 0, 0, 0)
+    Holder.ZIndex = Z
+    Holder.Active = false
+    Holder.Parent = Parent
+
+    local function Line(Name, Pos, Size)
+      local F = Instance.new("Frame")
+      F.Name = Name
+      F.BackgroundColor3 = Color
+      F.BackgroundTransparency = Transparency
+      F.BorderSizePixel = 0
+      F.Position = Pos
+      F.Size = Size
+      F.ZIndex = Z
+      F.Active = false
+      F.Parent = Holder
+
+      local Corner = Instance.new("UICorner")
+      Corner.CornerRadius = UDim.new(0, Thick)
+      Corner.Parent = F
+      return F
+    end
+
+    Line("LT_H", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
+    Line("LT_V", UDim2.new(0, Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
+
+    Line("RT_H", UDim2.new(1, -Length - Offset, 0, Offset), UDim2.new(0, Length, 0, Thick))
+    Line("RT_V", UDim2.new(1, -Thick - Offset, 0, Offset), UDim2.new(0, Thick, 0, Length))
+
+    Line("LB_H", UDim2.new(0, Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
+    Line("LB_V", UDim2.new(0, Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
+
+    Line("RB_H", UDim2.new(1, -Length - Offset, 1, -Thick - Offset), UDim2.new(0, Length, 0, Thick))
+    Line("RB_V", UDim2.new(1, -Thick - Offset, 1, -Length - Offset), UDim2.new(0, Thick, 0, Length))
+
+    return Holder
+  end
+
   function Custom:EnabledAFK()
     Player.Idled:Connect(function()
       VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
@@ -56,10 +117,41 @@ end
 
 Custom:EnabledAFK()
 
+--// SAFE GUI PARENT FIX
+--// Убирает ошибки gethui/cloneref/nil при запуске и помогает обфускации без лишних проблем.
+local CoreGui = game:GetService("CoreGui")
+local function GetGuiParent()
+  if RunService:IsStudio() then
+    return Player:WaitForChild("PlayerGui")
+  end
+
+  local okHui, hui = pcall(function()
+    if typeof(gethui) == "function" then
+      return gethui()
+    end
+  end)
+  if okHui and hui then
+    return hui
+  end
+
+  local okClone, cloned = pcall(function()
+    if typeof(cloneref) == "function" then
+      return cloneref(CoreGui)
+    end
+    return CoreGui
+  end)
+
+  if okClone and cloned then
+    return cloned
+  end
+
+  return CoreGui
+end
+
 local function OpenClose()
   local ScreenGui = Custom:Create("ScreenGui", {
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-  }, RunService:IsStudio() and Player.PlayerGui or (gethui() or cloneref(game:GetService("CoreGui")) or game:GetService("CoreGui")))
+  }, GetGuiParent())
 
   local Close_ImageButton = Custom:Create("ImageButton", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -143,7 +235,7 @@ function CircleClick(Button, X, Y)
 		Button.ClipsDescendants = true
 		
 		local Circle = Instance.new("ImageLabel")
-		Circle.Image = "rbxassetid://106471194043211"
+		Circle.Image = ""
 		Circle.ImageColor3 = Color3.fromRGB(80, 80, 80)
 		Circle.ImageTransparency = 0.8999999761581421
 		Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -191,7 +283,7 @@ function Speed_Library:SetNotification(Config)
 
   local NotificationGui = Custom:Create("ScreenGui", {
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-  }, RunService:IsStudio() and Player.PlayerGui or (gethui() or cloneref(game:GetService("CoreGui")) or game:GetService("CoreGui")))
+  }, GetGuiParent())
 
   local NotificationLayout = Custom:Create("Frame", {
     AnchorPoint = Vector2.new(1, 1),
@@ -414,7 +506,7 @@ function Speed_Library:CreateWindow(Config)
 
   local SpeedHubXGui = Custom:Create("ScreenGui", {
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-  }, RunService:IsStudio() and Player.PlayerGui or (gethui() or cloneref(game:GetService("CoreGui")) or game:GetService("CoreGui")))
+  }, GetGuiParent())
 
   local DropShadowHolder = Custom:Create("Frame", {
     BackgroundTransparency = 1,
@@ -459,6 +551,8 @@ function Speed_Library:CreateWindow(Config)
     Color = Color3.fromRGB(50, 50, 50),
     Thickness = 1.6
   }, Main)
+
+  Custom:AddCornerGlow(Main, {Length = 18, Thickness = 2, Offset = 2, Transparency = 0.03})
 
   local Top = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -520,10 +614,10 @@ function Speed_Library:CreateWindow(Config)
   }, Top)
 
   local Min = Custom:Create("TextButton", {
-    Font = Enum.Font.GothamMedium,
+    Font = Enum.Font.Gotham,
     Text = "-", 
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 32,
+    TextSize = 30,
     AnchorPoint = Vector2.new(1, 0.5),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
     BackgroundTransparency = 0.9990000128746033,
@@ -929,6 +1023,8 @@ function Speed_Library:CreateWindow(Config)
     Transparency = 0.25,
     Parent = DropdownSelect
   })
+
+  Custom:AddCornerGlow(DropdownSelect, {Length = 13, Thickness = 2, Offset = 2, Transparency = 0.02})
 
   local DropdownSelectReal = Custom:Create("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -2038,6 +2134,8 @@ function Speed_Library:CreateWindow(Config)
           Transparency = 0.25
         }, Dropdown)
 
+        Custom:AddCornerGlow(Dropdown, {Length = 12, Thickness = 2, Offset = 2, Transparency = 0.02})
+
         local DropdownButton = Custom:Create("TextButton", {
           Font = Enum.Font.SourceSans,
           Text = "",
@@ -2127,6 +2225,8 @@ function Speed_Library:CreateWindow(Config)
           Thickness = 1.2,
           Transparency = 0.35
         }, SelectOptionsFrame)
+
+        Custom:AddCornerGlow(SelectOptionsFrame, {Length = 10, Thickness = 2, Offset = 2, Transparency = 0.02})
 
         DropdownButton.Activated:Connect(function()
           if not MoreBlur.Visible then
@@ -2396,17 +2496,319 @@ function Speed_Library:CreateWindow(Config)
   end
 
 
-  --// Built-in clean settings tab
+  --// Extra beauty engine for built-in editor
+  local Beauty = {
+    Accent = Custom.ColorRGB,
+    TitleRGB = false,
+    Particles = false,
+    Glass = false,
+    SoftGlow = true,
+    ParticleFolder = nil,
+    ParticleConnection = nil,
+    TitleConnection = nil
+  }
+
+  local ThemeColors = {
+    Crimson = Color3.fromRGB(250, 7, 7),
+    Cherry = Color3.fromRGB(255, 35, 55),
+    Ruby = Color3.fromRGB(210, 20, 45),
+    Rose = Color3.fromRGB(255, 70, 120),
+    Orange = Color3.fromRGB(255, 120, 25),
+    Gold = Color3.fromRGB(255, 190, 55),
+    Lime = Color3.fromRGB(135, 255, 55),
+    Emerald = Color3.fromRGB(0, 235, 155),
+    Mint = Color3.fromRGB(80, 255, 200),
+    Cyan = Color3.fromRGB(0, 220, 255),
+    Sky = Color3.fromRGB(70, 160, 255),
+    Blue = Color3.fromRGB(70, 95, 255),
+    Violet = Color3.fromRGB(150, 85, 255),
+    Purple = Color3.fromRGB(190, 75, 255),
+    Pink = Color3.fromRGB(255, 70, 190),
+    White = Color3.fromRGB(255, 255, 255)
+  }
+
+  local function SetCornerRadius(Object, Radius)
+    if not Object then return end
+    local Corner = Object:FindFirstChildOfClass("UICorner")
+    if not Corner then
+      Corner = Instance.new("UICorner")
+      Corner.Parent = Object
+    end
+    Corner.CornerRadius = UDim.new(0, Radius)
+  end
+
+  local function ApplyAccent(Color)
+    Beauty.Accent = Color
+    Custom.ColorRGB = Color
+    if TextLabel1 then
+      TextLabel1.TextColor3 = Color
+      local Stroke = TextLabel1:FindFirstChildOfClass("UIStroke")
+      if Stroke then Stroke.Color = Color end
+    end
+
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if v:IsA("UIStroke") then
+        local ParentName = v.Parent and v.Parent.Name or ""
+        if ParentName == "Dropdown" or ParentName == "SelectOptionsFrame" or ParentName == "DropdownSelect" or ParentName == "SliderInput" or ParentName == "CloseConfirmFrame" then
+          v.Color = Color
+        end
+      elseif v:IsA("Frame") then
+        if v.Name == "SliderInput" or v.Name == "SliderDraggable" or v.Name == "SliderCircle" or v.Name == "ChooseFrame" then
+          v.BackgroundColor3 = Color
+        end
+      elseif v:IsA("ImageLabel") then
+        if v.Name == "WarningIcon" or v.Name == "OptionImg" then
+          v.ImageColor3 = Color
+        end
+      end
+    end
+
+    for _, Holder in ipairs(SpeedHubXGui:GetDescendants()) do
+      if Holder.Name == "RedCornerGlow" then
+        for _, Line in ipairs(Holder:GetChildren()) do
+          if Line:IsA("Frame") then
+            Line.BackgroundColor3 = Color
+          end
+        end
+      end
+    end
+  end
+
+  local function ApplyRoundness(Radius)
+    Radius = math.clamp(tonumber(Radius) or 10, 0, 24)
+    SetCornerRadius(Main, Radius)
+    SetCornerRadius(DropShadow, Radius)
+    SetCornerRadius(LayersTab, math.clamp(Radius - 3, 4, 20))
+    SetCornerRadius(Layers, math.clamp(Radius - 3, 4, 20))
+    SetCornerRadius(DropdownSelect, math.clamp(Radius - 4, 4, 18))
+
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if v:IsA("Frame") then
+        if v.Name == "Button" or v.Name == "Toggle" or v.Name == "Slider" or v.Name == "Dropdown" or v.Name == "Paragraph" or v.Name == "SectionReal" or v.Name == "SelectOptionsFrame" or v.Name == "SliderInput" then
+          SetCornerRadius(v, math.clamp(Radius - 6, 4, 16))
+        end
+      elseif v:IsA("TextButton") then
+        if v.Name == "YesButton" or v.Name == "NoButton" then
+          SetCornerRadius(v, math.clamp(Radius - 4, 6, 18))
+        end
+      end
+    end
+  end
+
+  local function ApplyGlass(Value)
+    Beauty.Glass = Value and true or false
+    local MainTransparency = Beauty.Glass and 0.18 or 0.1
+    local CardTransparency = Beauty.Glass and 0.9 or 0.935
+
+    TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+      BackgroundTransparency = MainTransparency
+    }):Play()
+
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if v:IsA("Frame") and (v.Name == "Button" or v.Name == "Toggle" or v.Name == "Slider" or v.Name == "Dropdown" or v.Name == "Paragraph" or v.Name == "SectionReal") then
+        TweenService:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+          BackgroundTransparency = CardTransparency
+        }):Play()
+      end
+    end
+  end
+
+  local function SetGlowEnabled(Value)
+    Beauty.SoftGlow = Value and true or false
+    local Transparency = Beauty.SoftGlow and 0.02 or 1
+    for _, Holder in ipairs(SpeedHubXGui:GetDescendants()) do
+      if Holder.Name == "RedCornerGlow" then
+        for _, Line in ipairs(Holder:GetChildren()) do
+          if Line:IsA("Frame") then
+            TweenService:Create(Line, TweenInfo.new(0.2), {BackgroundTransparency = Transparency}):Play()
+          end
+        end
+      end
+    end
+  end
+
+  local function SetTitleRGB(Value)
+    Beauty.TitleRGB = Value and true or false
+    if Beauty.TitleConnection then
+      Beauty.TitleConnection:Disconnect()
+      Beauty.TitleConnection = nil
+    end
+
+    if Beauty.TitleRGB then
+      Beauty.TitleConnection = RunService.RenderStepped:Connect(function()
+        local Color = Color3.fromHSV((tick() * 0.18) % 1, 1, 1)
+        if TextLabel1 then
+          TextLabel1.TextColor3 = Color
+          local Stroke = TextLabel1:FindFirstChildOfClass("UIStroke")
+          if Stroke then Stroke.Color = Color end
+        end
+      end)
+    else
+      ApplyAccent(Beauty.Accent)
+    end
+  end
+
+  local function SetParticles(Value)
+    Beauty.Particles = Value and true or false
+
+    if Beauty.ParticleConnection then
+      Beauty.ParticleConnection:Disconnect()
+      Beauty.ParticleConnection = nil
+    end
+    if Beauty.ParticleFolder then
+      Beauty.ParticleFolder:Destroy()
+      Beauty.ParticleFolder = nil
+    end
+    if not Beauty.Particles then return end
+
+    Beauty.ParticleFolder = Instance.new("Folder")
+    Beauty.ParticleFolder.Name = "BeautyParticles"
+    Beauty.ParticleFolder.Parent = Main
+
+    local Particles = {}
+    for i = 1, 16 do
+      local Dot = Instance.new("Frame")
+      Dot.Name = "Particle"
+      Dot.BackgroundColor3 = Beauty.Accent
+      Dot.BackgroundTransparency = 0.72
+      Dot.BorderSizePixel = 0
+      Dot.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
+      Dot.Position = UDim2.new(math.random(), 0, math.random(), 0)
+      Dot.ZIndex = (Main.ZIndex or 1) + 1
+      Dot.Parent = Beauty.ParticleFolder
+      SetCornerRadius(Dot, 50)
+      Particles[i] = {
+        Object = Dot,
+        Speed = math.random(8, 18) / 10000,
+        Offset = math.random()
+      }
+    end
+
+    Beauty.ParticleConnection = RunService.RenderStepped:Connect(function()
+      if not Beauty.ParticleFolder or not Beauty.ParticleFolder.Parent then return end
+      for _, Particle in ipairs(Particles) do
+        local Dot = Particle.Object
+        if Dot and Dot.Parent then
+          local X = (Dot.Position.X.Scale + Particle.Speed) % 1
+          local Y = 0.5 + math.sin(tick() * 0.7 + Particle.Offset * 6.28) * 0.42
+          Dot.Position = UDim2.new(X, 0, Y, 0)
+          Dot.BackgroundColor3 = Beauty.Accent
+        end
+      end
+    end)
+  end
+
+  local function ApplyPremiumStyle()
+    ApplyRoundness(14)
+    ApplyGlass(false)
+    SetGlowEnabled(true)
+    ApplyAccent(Beauty.Accent)
+
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+        if v.Font == Enum.Font.SourceSans then
+          v.Font = Enum.Font.GothamBold
+        end
+      end
+    end
+  end
+
+  --// Built-in beauty/settings tab
   task.defer(function()
     local SettingsTab = Tabs:CreateTab({
-      Name = "Library Settings",
+      Name = "Library Style",
       Icon = "rbxassetid://125609963478878"
+    })
+
+    local ThemeSection = SettingsTab:AddSection("Theme", true)
+    ThemeSection:AddDropdown({
+      Title = "Accent Color",
+      Content = "Changes only UI accents, glows, sliders and dropdown highlights",
+      Multi = false,
+      Options = {"Crimson", "Cherry", "Ruby", "Rose", "Orange", "Gold", "Lime", "Emerald", "Mint", "Cyan", "Sky", "Blue", "Violet", "Purple", "Pink", "White"},
+      Default = {"Crimson"},
+      Callback = function(Value)
+        local Pick = typeof(Value) == "table" and Value[1] or Value
+        ApplyAccent(ThemeColors[Pick] or ThemeColors.Crimson)
+      end
+    })
+
+    ThemeSection:AddToggle({
+      Title = "RGB Title",
+      Content = "Animated rainbow color only for the title description text",
+      Default = false,
+      Callback = function(Value)
+        SetTitleRGB(Value)
+      end
+    })
+
+    ThemeSection:AddToggle({
+      Title = "Corner Glow",
+      Content = "Red/colored corner highlights for window and dropdowns",
+      Default = true,
+      Callback = function(Value)
+        SetGlowEnabled(Value)
+      end
+    })
+
+    local WindowSection = SettingsTab:AddSection("Window", true)
+    WindowSection:AddSlider({
+      Title = "Corner Radius",
+      Content = "Makes the main window and cards rounder",
+      Increment = 1,
+      Min = 4,
+      Max = 24,
+      Default = 14,
+      Callback = function(Value)
+        ApplyRoundness(Value)
+      end
+    })
+
+    WindowSection:AddSlider({
+      Title = "Window Transparency",
+      Content = "Controls only the main window transparency",
+      Increment = 0.01,
+      Min = 0,
+      Max = 0.45,
+      Default = 0.1,
+      Callback = function(Value)
+        TweenService:Create(Main, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+          BackgroundTransparency = Value
+        }):Play()
+      end
+    })
+
+    WindowSection:AddToggle({
+      Title = "Glass Cards",
+      Content = "Softer transparent card style for buttons, toggles, sliders and dropdowns",
+      Default = false,
+      Callback = function(Value)
+        ApplyGlass(Value)
+      end
+    })
+
+    local EffectsSection = SettingsTab:AddSection("Effects", true)
+    EffectsSection:AddToggle({
+      Title = "Soft Particles",
+      Content = "Small animated particles inside the window background",
+      Default = false,
+      Callback = function(Value)
+        SetParticles(Value)
+      end
+    })
+
+    EffectsSection:AddButton({
+      Title = "Apply Premium Style",
+      Content = "Applies rounded corners, accents, glow and clean fonts",
+      Callback = function()
+        ApplyPremiumStyle()
+      end
     })
 
     local TabSection = SettingsTab:AddSection("Tabs", true)
     TabSection:AddButton({
-      Title = "Refresh Auto Tab Width",
-      Content = "Automatically fits the tab frame to long tab names",
+      Title = "Auto Fit Tabs",
+      Content = "Automatically resizes the tab frame for long tab names",
       Callback = function()
         AutoResizeTabs()
       end
@@ -2414,7 +2816,7 @@ function Speed_Library:CreateWindow(Config)
 
     TabSection:AddSlider({
       Title = "Tab Frame Width",
-      Content = "Manual width for long tab names",
+      Content = "Manual width for longer tab names",
       Increment = 5,
       Min = 100,
       Max = 260,
@@ -2424,12 +2826,13 @@ function Speed_Library:CreateWindow(Config)
       end
     })
 
-    local InfoSection = SettingsTab:AddSection("Clean UI", true)
-    InfoSection:AddParagraph({
-      Title = "Removed",
-      Content = "Window size controls and red tab line were removed. Close warning uses white text."
+    local CleanSection = SettingsTab:AddSection("Clean Fixes", true)
+    CleanSection:AddParagraph({
+      Title = "Included",
+      Content = "No red tab line, white close warning text, fixed slider input, bigger thin minus, dropdown/window corner glow and auto tab width."
     })
 
+    ApplyPremiumStyle()
     AutoResizeTabs()
   end)
 
