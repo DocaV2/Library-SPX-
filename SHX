@@ -505,38 +505,6 @@ function Speed_Library:CreateWindow(Config)
     Name = "PremiumGlow"
   }, Main)
 
-  local TopNeonLine = Custom:Create("Frame", {
-    BackgroundColor3 = Custom.ColorRGB,
-    BorderSizePixel = 0,
-    Position = UDim2.new(0, 12, 0, 38),
-    Size = UDim2.new(1, -24, 0, 2),
-    Name = "TopNeonLine"
-  }, Main)
-
-  Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 3)
-  }, TopNeonLine)
-
-  Custom:Create("UIGradient", {
-    Color = ColorSequence.new{
-      ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-      ColorSequenceKeypoint.new(0.5, Custom.ColorRGB),
-      ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
-    }
-  }, TopNeonLine)
-
-  task.spawn(function()
-    while Main and Main.Parent and not Speed_Library.Unloaded do
-      for hue = 0, 1, 0.01 do
-        if not Main or not Main.Parent or Speed_Library.Unloaded then break end
-        local color = Color3.fromHSV(hue, 0.9, 1)
-        MainStroke.Color = color
-        PremiumGlow.ImageColor3 = color
-        MainGradient.Rotation = (MainGradient.Rotation + 1) % 360
-        task.wait(0.035)
-      end
-    end
-  end)
 
   TweenService:Create(DropShadowHolder, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
     Size = UDim2.new(0, 465, 0, 360)
@@ -630,16 +598,6 @@ function Speed_Library:CreateWindow(Config)
     CornerRadius = UDim.new(0, 2)
   }, LayersTab)
 
-  Custom:Create("Frame", {
-    AnchorPoint = Vector2.new(0.5, 0),
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-    BackgroundTransparency = 0.85,
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
-    BorderSizePixel = 0,
-    Position = UDim2.new(0.5, 0, 0, 38),
-    Size = UDim2.new(1, 0, 0, 1),
-    Name = "DecideFrame"
-  }, Main)
 
   local Layers = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -959,61 +917,23 @@ function Speed_Library:CreateWindow(Config)
     if CountTab == 0 then
       LayersPageLayout:JumpToIndex(0)
       NameTab.Text = _Name
-  
-      local ChooseFrame = Custom:Create("Frame", {
-        BackgroundColor3 = Custom.ColorRGB,
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        Position = UDim2.new(0, 2, 0, 9),
-        Size = UDim2.new(0, 1, 0, 12),
-        Name = "ChooseFrame",
-      }, Tab)
-  
-      Custom:Create("UIStroke", {
-        Color = Custom.ColorRGB,
-        Thickness = 1.6,
-      }, ChooseFrame)
-  
-      Custom:Create("UICorner", {}, ChooseFrame)
     end
 
     TabButton.Activated:Connect(function()
       CircleClick(TabButton, Player:GetMouse().X, Player:GetMouse().Y)
-      local FrameChoose = nil
 
-      for _, s in pairs(ScrollTab:GetChildren()) do
-        for _, v in pairs(s:GetChildren()) do
-          if v.Name == "ChooseFrame" then
-            FrameChoose = v
-            break
-          end
-        end
-
-        if FrameChoose then break end
-      end
-  
-      if FrameChoose and Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
+      if Tab.LayoutOrder ~= LayersPageLayout.CurrentPage.LayoutOrder then
         for _, TabFrame in pairs(ScrollTab:GetChildren()) do
           if TabFrame.Name == "Tab" then
             TweenService:Create(TabFrame, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.999}):Play()
           end
         end
-  
-        local _TabT = TweenService:Create(Tab, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.92})
-        local _FTween = TweenService:Create(FrameChoose, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { Position = UDim2.new(0, 2, 0, 9 + (33 * Tab.LayoutOrder)) })
 
-        _TabT:Play()
-        _FTween:Play()
-  
+        TweenService:Create(Tab, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.92}):Play()
         LayersPageLayout:JumpToIndex(Tab.LayoutOrder)
-  
+
         task.wait(0.05)
         NameTab.Text = _Name
-  
-        TweenService:Create(FrameChoose, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 1, 0, 20)}):Play()
-  
-        task.wait(0.2)
-        TweenService:Create(FrameChoose, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 1, 0, 12)}):Play()
       end
     end)
 
@@ -1107,22 +1027,13 @@ function Speed_Library:CreateWindow(Config)
       }, SectionReal)
   
       local SectionDecideFrame = Custom:Create("Frame", {
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        BackgroundTransparency = 1,
         BorderSizePixel = 0,
         AnchorPoint = Vector2.new(0.5, 0),
         Position = UDim2.new(0.5, 0, 0, 33),
-        Size = UDim2.new(0, 0, 0, 2),
+        Size = UDim2.new(0, 0, 0, 0),
         Name = "SectionDecideFrame"
       }, Section)
-      Custom:Create("UICorner", {}, SectionDecideFrame)
-      Custom:Create("UIGradient", {
-        Color = ColorSequence.new{
-          ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-          ColorSequenceKeypoint.new(0.5, Custom.ColorRGB),
-          ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
-        }
-      }, SectionDecideFrame)
   
       local SectionAdd = Custom:Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0),
@@ -2238,22 +2149,17 @@ function Speed_Library:CreateWindow(Config)
           }, Option)
   
           local ChooseFrame = Custom:Create("Frame", {
-            AnchorPoint = Vector2.new(0, 0.5),
-            BackgroundColor3 = Custom.ColorRGB,
-            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
             BorderSizePixel = 0,
-            Position = UDim2.new(0, 2, 0.5, 0),
+            Position = UDim2.new(0, 0, 0, 0),
             Size = UDim2.new(0, 0, 0, 0),
             Name = "ChooseFrame"
           }, Option)
-  
+
           Custom:Create("UIStroke", {
-            Color = Custom.ColorRGB,
-            Thickness = 1.6,
-            Transparency = 0.999
+            Transparency = 1,
+            Thickness = 0
           }, ChooseFrame)
-  
-          Custom:Create("UICorner", {}, ChooseFrame)
   
           OptionButton.Activated:Connect(function()
 
