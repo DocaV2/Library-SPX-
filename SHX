@@ -2570,6 +2570,52 @@ function Speed_Library:CreateWindow(Config)
     end
   end
 
+  local function ApplyLibraryColor(Color)
+    Color = Color or Beauty.Accent
+    ApplyAccent(Color)
+
+    local function isMainFrame(obj)
+      return obj == Main or obj == DropShadow or obj == DropShadowHolder or obj.Name == "Main" or obj.Name == "DropShadow" or obj.Name == "DropShadowHolder"
+    end
+
+    for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
+      if not isMainFrame(v) then
+        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+          -- Change only accent-like texts, not all white labels.
+          if v.TextColor3 == Custom.ColorRGB or v.TextColor3.R > 0.75 and v.TextColor3.G < 0.25 and v.TextColor3.B < 0.25 then
+            v.TextColor3 = Color
+          end
+        elseif v:IsA("Frame") then
+          local n = v.Name
+          if n == "SliderInput" or n == "SliderDraggable" or n == "SliderCircle" or n == "FeatureFrame2" or n == "SectionDecideFrame" then
+            v.BackgroundColor3 = Color
+          end
+        elseif v:IsA("ImageLabel") or v:IsA("ImageButton") then
+          local n = v.Name
+          if n == "FeatureImg" or n == "WarningIcon" or n == "OptionImg" or n == "Close_ImageButton" then
+            pcall(function() v.ImageColor3 = Color end)
+          end
+        elseif v:IsA("UIStroke") then
+          local parentName = v.Parent and v.Parent.Name or ""
+          if parentName ~= "Main" and parentName ~= "DropShadow" then
+            if parentName == "Dropdown" or parentName == "DropdownSelect" or parentName == "SelectOptionsFrame" or parentName == "SliderInput" or parentName == "CloseConfirmFrame" or parentName == "FeatureFrame2" then
+              v.Color = Color
+            end
+          end
+        elseif v:IsA("UIGradient") then
+          local parentName = v.Parent and v.Parent.Name or ""
+          if parentName ~= "Main" and parentName ~= "DropShadow" then
+            v.Color = ColorSequence.new{
+              ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)),
+              ColorSequenceKeypoint.new(0.5, Color),
+              ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))
+            }
+          end
+        end
+      end
+    end
+  end
+
   local function ApplyRoundness(Radius)
     Radius = math.clamp(tonumber(Radius) or 10, 0, 24)
     SetCornerRadius(Main, Radius)
@@ -2762,9 +2808,9 @@ function Speed_Library:CreateWindow(Config)
 
 
   --// Built-in beauty/settings tab
-  task.defer(function()
+  do
     local SettingsTab = Tabs:CreateTab({
-      Name = "Library Style",
+      Name = "Lib Settings",
       Icon = "rbxassetid://125609963478878"
     })
 
@@ -2778,6 +2824,18 @@ function Speed_Library:CreateWindow(Config)
       Callback = function(Value)
         local Pick = typeof(Value) == "table" and Value[1] or Value
         ApplyAccent(ThemeColors[Pick] or ThemeColors.Crimson)
+      end
+    })
+
+    ThemeSection:AddDropdown({
+      Title = "Library Color",
+      Content = "Changes accents, sliders, dropdowns and highlights, but keeps the main window frame dark",
+      Multi = false,
+      Options = {"Crimson", "Cherry", "Ruby", "Rose", "Orange", "Gold", "Lime", "Emerald", "Mint", "Cyan", "Sky", "Blue", "Violet", "Purple", "Pink", "White"},
+      Default = {"Crimson"},
+      Callback = function(Value)
+        local Pick = typeof(Value) == "table" and Value[1] or Value
+        ApplyLibraryColor(ThemeColors[Pick] or ThemeColors.Crimson)
       end
     })
 
@@ -2929,7 +2987,7 @@ function Speed_Library:CreateWindow(Config)
 
     ApplyPremiumStyle()
     AutoResizeTabs()
-  end)
+  end
 
   return Tabs
 end
