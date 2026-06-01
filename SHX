@@ -177,6 +177,33 @@ function CircleClick(Button, X, Y)
 	end)
 end
 
+local function ApplyHover(FrameObject, NormalTransparency, HoverTransparency, NormalColor, HoverColor)
+  if not FrameObject then return end
+
+  NormalTransparency = NormalTransparency or FrameObject.BackgroundTransparency
+  HoverTransparency = HoverTransparency or math.max(0, NormalTransparency - 0.035)
+  NormalColor = NormalColor or FrameObject.BackgroundColor3
+  HoverColor = HoverColor or Color3.fromRGB(255, 55, 70)
+
+  FrameObject.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+      TweenService:Create(FrameObject, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = HoverTransparency,
+        BackgroundColor3 = HoverColor
+      }):Play()
+    end
+  end)
+
+  FrameObject.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+      TweenService:Create(FrameObject, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = NormalTransparency,
+        BackgroundColor3 = NormalColor
+      }):Play()
+    end
+  end)
+end
+
 local Speed_Library, Notification = {}, {}
 
 Speed_Library.Unloaded = false
@@ -256,7 +283,7 @@ function Speed_Library:SetNotification(Config)
   })
 
   local DropShadow = Custom:Create("ImageLabel", {
-    Image = "",
+    Image = "rbxassetid://5028857472",
     ImageColor3 = Color3.fromRGB(0, 0, 0),
     ImageTransparency = 0.5,
     ScaleType = Enum.ScaleType.Slice,
@@ -419,7 +446,7 @@ function Speed_Library:CreateWindow(Config)
   }, SpeedHubXGui)
 
   local DropShadow = Custom:Create("ImageLabel", {
-    Image = "",
+    Image = "rbxassetid://5028857472",
     ImageColor3 = Color3.fromRGB(15, 15, 15),
     ImageTransparency = 0.5,
     ScaleType = Enum.ScaleType.Slice,
@@ -444,12 +471,76 @@ function Speed_Library:CreateWindow(Config)
     Name = "Main"
   }, DropShadow)
 
-  Custom:Create("UICorner", {}, Main)
-
-  Custom:Create("UIStroke", {
-    Color = Color3.fromRGB(50, 50, 50),
-    Thickness = 1.6
+  Custom:Create("UICorner", {
+    CornerRadius = UDim.new(0, 10)
   }, Main)
+
+  local MainGradient = Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 10, 13)),
+      ColorSequenceKeypoint.new(0.45, Color3.fromRGB(35, 4, 7)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(13, 13, 17))
+    },
+    Rotation = 35
+  }, Main)
+
+  local MainStroke = Custom:Create("UIStroke", {
+    Color = Custom.ColorRGB,
+    Thickness = 1.9,
+    Transparency = 0.08
+  }, Main)
+
+  local PremiumGlow = Custom:Create("ImageLabel", {
+    Image = "rbxassetid://5028857472",
+    ImageColor3 = Custom.ColorRGB,
+    ImageTransparency = 0.55,
+    ScaleType = Enum.ScaleType.Slice,
+    SliceCenter = Rect.new(24, 24, 276, 276),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(1, 45, 1, 45),
+    ZIndex = 0,
+    Name = "PremiumGlow"
+  }, Main)
+
+  local TopNeonLine = Custom:Create("Frame", {
+    BackgroundColor3 = Custom.ColorRGB,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 12, 0, 38),
+    Size = UDim2.new(1, -24, 0, 2),
+    Name = "TopNeonLine"
+  }, Main)
+
+  Custom:Create("UICorner", {
+    CornerRadius = UDim.new(0, 3)
+  }, TopNeonLine)
+
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+      ColorSequenceKeypoint.new(0.5, Custom.ColorRGB),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+    }
+  }, TopNeonLine)
+
+  task.spawn(function()
+    while Main and Main.Parent and not Speed_Library.Unloaded do
+      for hue = 0, 1, 0.01 do
+        if not Main or not Main.Parent or Speed_Library.Unloaded then break end
+        local color = Color3.fromHSV(hue, 0.9, 1)
+        MainStroke.Color = color
+        PremiumGlow.ImageColor3 = color
+        MainGradient.Rotation = (MainGradient.Rotation + 1) % 360
+        task.wait(0.035)
+      end
+    end
+  end)
+
+  TweenService:Create(DropShadowHolder, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0, 465, 0, 360)
+  }):Play()
 
   local Top = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -682,7 +773,7 @@ function Speed_Library:CreateWindow(Config)
   }, MoreBlur)
 
   local DropShadow1 = Custom:Create("ImageLabel", {
-    Image = "",
+    Image = "rbxassetid://5028857472",
     ImageColor3 = Color3.fromRGB(0, 0, 0),
     ImageTransparency = 0.5,
     ScaleType = Enum.ScaleType.Slice,
@@ -822,6 +913,8 @@ function Speed_Library:CreateWindow(Config)
       CornerRadius = UDim.new(0, 4),
       Parent = Tab
     })
+
+    ApplyHover(Tab, CountTab == 0 and 0.92 or 0.999, 0.88, Color3.fromRGB(255, 255, 255), Color3.fromRGB(55, 15, 18))
 
     local TabButton = Custom:Create("TextButton", {
       Font = Enum.Font.GothamBold,
@@ -1284,6 +1377,8 @@ function Speed_Library:CreateWindow(Config)
           CornerRadius = UDim.new(0, 4)
         }, Button)
 
+        ApplyHover(Button, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
+
         Custom:Create("TextLabel", {
 					Name = "ButtonTitle",
 					Font = Enum.Font.GothamBold,
@@ -1395,6 +1490,8 @@ function Speed_Library:CreateWindow(Config)
         Custom:Create("UICorner", {
           CornerRadius = UDim.new(0, 4)
         }, Toggle)
+
+        ApplyHover(Toggle, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
 
         local ToggleTitle = Custom:Create("TextLabel", {
 					Name = "ToggleTitle",
@@ -1544,6 +1641,8 @@ function Speed_Library:CreateWindow(Config)
         Custom:Create("UICorner", {
           CornerRadius = UDim.new(0, 4),
         }, Slider)
+
+        ApplyHover(Slider, 0.935, 0.895, Color3.fromRGB(255, 255, 255), Color3.fromRGB(65, 12, 16))
 
         Custom:Create("TextLabel", {
 					Font = Enum.Font.GothamBold,
