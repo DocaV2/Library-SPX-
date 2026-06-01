@@ -7,7 +7,7 @@ local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 
 local Custom = {} do
-  Custom.ColorRGB = Color3.fromRGB(250, 7, 7)
+  Custom.ColorRGB = Color3.fromRGB(135, 255, 55)
 
   function Custom:Create(Name, Properties, Parent)
     local _instance = Instance.new(Name)
@@ -591,28 +591,16 @@ function Speed_Library:CreateWindow(Config)
     CornerRadius = UDim.new(0, 2)
   }, LayersTab)
 
-  local TopTitleLine = Custom:Create("Frame", {
+  Custom:Create("Frame", {
     AnchorPoint = Vector2.new(0.5, 0),
-    BackgroundColor3 = Custom.ColorRGB,
-    BackgroundTransparency = 0,
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 0.85,
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     BorderSizePixel = 0,
     Position = UDim2.new(0.5, 0, 0, 38),
-    Size = UDim2.new(1, -14, 0, 2),
-    Name = "TopTitleLine"
+    Size = UDim2.new(1, 0, 0, 1),
+    Name = "DecideFrame"
   }, Main)
-
-  Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 8)
-  }, TopTitleLine)
-
-  Custom:Create("UIGradient", {
-    Color = ColorSequence.new{
-      ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)),
-      ColorSequenceKeypoint.new(0.5, Custom.ColorRGB),
-      ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))
-    }
-  }, TopTitleLine)
 
   local Layers = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -685,7 +673,7 @@ function Speed_Library:CreateWindow(Config)
 
   local ScrollTab = Custom:Create("ScrollingFrame", {
     CanvasSize = UDim2.new(0, 0, 2.10000002, 0),
-    ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
+    ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0), 0, 0),
     ScrollBarThickness = 0,
     Active = true,
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -995,9 +983,9 @@ function Speed_Library:CreateWindow(Config)
   })
 
   Custom:Create("UIStroke", {
-    Color = Color3.fromRGB(55, 55, 55),
-    Thickness = 1,
-    Transparency = 0.75,
+    Color = Custom.ColorRGB,
+    Thickness = 1.8,
+    Transparency = 0.25,
     Parent = DropdownSelect
   })
 
@@ -1043,8 +1031,8 @@ function Speed_Library:CreateWindow(Config)
 			CanvasSize = UDim2.new(0, 0, 0, 0),
 			AutomaticCanvasSize = Enum.AutomaticSize.Y,
 			ScrollingDirection = Enum.ScrollingDirection.Y,
-			ScrollBarImageColor3 = Custom.ColorRGB,
-			ScrollBarThickness = 4,
+			ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
+			ScrollBarThickness = 0,
 			Active = true,
 			LayoutOrder = CountTab,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1238,38 +1226,8 @@ function Speed_Library:CreateWindow(Config)
         Size = UDim2.new(1, -50, 0, 13),
         Name = "SectionTitle"
       }, SectionReal)
+      -- SectionDecideFrame removed: no line under section titles
   
-      --// Clean premium section design: no bottom red line, only soft hover/card animation
-      local SectionStroke = Custom:Create("UIStroke", {
-        Color = Color3.fromRGB(255, 255, 255),
-        Thickness = 1,
-        Transparency = 0.92,
-      }, SectionReal)
-
-      SectionReal.MouseEnter:Connect(function()
-        TweenService:Create(SectionReal, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-          BackgroundTransparency = 0.89
-        }):Play()
-        TweenService:Create(SectionStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-          Transparency = 0.76
-        }):Play()
-        TweenService:Create(SectionTitle, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-          TextColor3 = Color3.fromRGB(255, 255, 255)
-        }):Play()
-      end)
-
-      SectionReal.MouseLeave:Connect(function()
-        TweenService:Create(SectionReal, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-          BackgroundTransparency = 0.935
-        }):Play()
-        TweenService:Create(SectionStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-          Transparency = 0.92
-        }):Play()
-        TweenService:Create(SectionTitle, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-          TextColor3 = Color3.fromRGB(230, 230, 230)
-        }):Play()
-      end)
-
       local SectionAdd = Custom:Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0),
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1317,9 +1275,9 @@ function Speed_Library:CreateWindow(Config)
             end
           end
     
-          TweenService:Create(FeatureFrame, TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Rotation = 90}):Play()
-          TweenService:Create(Section, TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)}):Play()
-          TweenService:Create(SectionAdd, TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)}):Play()
+          TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 90}):Play()
+          TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)}):Play()
+          TweenService:Create(SectionAdd, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)}):Play()
             
           task.wait(0.5)
           UpdateSizeScroll()
@@ -1330,8 +1288,8 @@ function Speed_Library:CreateWindow(Config)
         CircleClick(SectionButton, Player:GetMouse().X, Player:GetMouse().Y)
         
         if OpenSection then
-          TweenService:Create(FeatureFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Rotation = 0}):Play()
-          TweenService:Create(Section, TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(1, 1, 0, 30)}):Play()
+          TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 0}):Play()
+          TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, 30)}):Play()
     
           OpenSection = false
           task.wait(0.1)
@@ -2285,7 +2243,7 @@ function Speed_Library:CreateWindow(Config)
 
         local ScrollSelect = Custom:Create("ScrollingFrame", {
           CanvasSize = UDim2.new(0, 0, 0, 0),
-          ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
+          ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0), 0, 0),
           ScrollBarThickness = 0,
           Active = true,
           LayoutOrder = CountDropdown,
@@ -2520,10 +2478,7 @@ function Speed_Library:CreateWindow(Config)
   }
 
   local ThemeColors = {
-    Crimson = Color3.fromRGB(250, 7, 7),
-    Cherry = Color3.fromRGB(255, 35, 55),
-    Ruby = Color3.fromRGB(210, 20, 45),
-    Rose = Color3.fromRGB(255, 70, 120),
+    Green = Color3.fromRGB(135, 255, 55),
     Orange = Color3.fromRGB(255, 120, 25),
     Gold = Color3.fromRGB(255, 190, 55),
     Lime = Color3.fromRGB(135, 255, 55),
@@ -2535,7 +2490,9 @@ function Speed_Library:CreateWindow(Config)
     Violet = Color3.fromRGB(150, 85, 255),
     Purple = Color3.fromRGB(190, 75, 255),
     Pink = Color3.fromRGB(255, 70, 190),
-    White = Color3.fromRGB(255, 255, 255)
+    White = Color3.fromRGB(255, 255, 255),
+    Gray = Color3.fromRGB(150, 150, 150),
+    Black = Color3.fromRGB(20, 20, 20)
   }
 
   local function SetCornerRadius(Object, Radius)
@@ -2564,7 +2521,7 @@ function Speed_Library:CreateWindow(Config)
           v.Color = Color
         end
       elseif v:IsA("Frame") then
-        if v.Name == "SliderInput" or v.Name == "SliderDraggable" or v.Name == "SliderCircle" or v.Name == "ChooseFrame" or v.Name == "NameTabLine" or v.Name == "TopTitleLine" then
+        if v.Name == "SliderInput" or v.Name == "SliderDraggable" or v.Name == "SliderCircle" or v.Name == "ChooseFrame" or v.Name == "NameTabLine" then
           v.BackgroundColor3 = Color
         end
       elseif v:IsA("ImageLabel") then
@@ -2602,7 +2559,7 @@ function Speed_Library:CreateWindow(Config)
           end
         elseif v:IsA("Frame") then
           local n = v.Name
-          if n == "SliderInput" or n == "SliderDraggable" or n == "SliderCircle" or n == "FeatureFrame2" or n == "TopTitleLine" then
+          if n == "SliderInput" or n == "SliderDraggable" or n == "SliderCircle" or n == "FeatureFrame2" then
             v.BackgroundColor3 = Color
           end
         elseif v:IsA("ImageLabel") or v:IsA("ImageButton") then
@@ -2612,8 +2569,8 @@ function Speed_Library:CreateWindow(Config)
           end
         elseif v:IsA("ScrollingFrame") then
         if v.Name == "ScrolLayers" then
-          v.ScrollBarImageColor3 = Color
-          v.ScrollBarThickness = 4
+          v.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
+          v.ScrollBarThickness = 0
           v.AutomaticCanvasSize = Enum.AutomaticSize.Y
           v.ScrollingDirection = Enum.ScrollingDirection.Y
         end
@@ -2899,84 +2856,253 @@ function Speed_Library:CreateWindow(Config)
     ApplyCardTransparency(0.935)
     ApplyGlass(false)
     ApplyCompactMode(false)
-    ApplyAccent(ThemeColors.Crimson)
+    ApplyAccent(ThemeColors.Green)
     AutoResizeTabs()
   end
 
 
-  --// Built-in minimal library color tab
+
+
+  local function SHX_HideAllScrollBars()
+    if not SpeedHubXGui then return end
+    for _, obj in ipairs(SpeedHubXGui:GetDescendants()) do
+      if obj:IsA("ScrollingFrame") then
+        obj.ScrollBarThickness = 0
+        obj.ScrollBarImageTransparency = 1
+      end
+    end
+  end
+  task.defer(SHX_HideAllScrollBars)
+
+  --// Built-in beauty/settings tab
   do
     local SettingsTab = Tabs:CreateTab({
-      Name = "Lib Color",
+      Name = "Lib Settings",
       Icon = "rbxassetid://125609963478878"
     })
-
-    local function CleanOldHighlights()
+    local function FixAllScrollingAndHighlights()
       for _, v in ipairs(SpeedHubXGui:GetDescendants()) do
         if v.Name == "RedCornerGlow" then
           v:Destroy()
-        elseif v:IsA("UIStroke") then
-          local pn = v.Parent and v.Parent.Name or ""
-          if pn == "Dropdown" or pn == "DropdownSelect" or pn == "SelectOptionsFrame" or pn == "FeatureFrame2" or pn == "SliderCircle" or pn == "Toggle" or pn == "Button" or pn == "Slider" then
-            v.Color = Color3.fromRGB(55, 55, 55)
-            v.Thickness = 1
-            v.Transparency = 0.85
-          end
-        elseif v:IsA("ScrollingFrame") and v.Name == "ScrolLayers" then
+        elseif v:IsA("ScrollingFrame") then
+          -- Force every page/dropdown list to scroll correctly, especially the Lib Settings tab.
           v.Active = true
           v.ScrollingEnabled = true
           v.ScrollingDirection = Enum.ScrollingDirection.Y
           v.AutomaticCanvasSize = Enum.AutomaticSize.Y
-          v.ScrollBarThickness = 4
-          v.ScrollBarImageColor3 = Custom.ColorRGB
+          local Layout = v:FindFirstChildOfClass("UIListLayout")
+          if Layout then
+            v.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 24)
+          else
+            v.CanvasSize = UDim2.new(0, 0, 0, 0)
+          end
+          if v.Name == "ScrolLayers" then
+            v.ScrollBarThickness = 0
+            v.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
+          end
+        elseif v:IsA("UIStroke") then
+          local pn = v.Parent and v.Parent.Name or ""
+          -- Remove all corner/glow outlines from dropdowns, toggles, slider circles, etc.
+          if pn == "Dropdown" or pn == "DropdownSelect" or pn == "SelectOptionsFrame" or pn == "FeatureFrame2" or pn == "SliderCircle" or pn == "Toggle" or pn == "Button" or pn == "Slider" then
+            v.Transparency = 1
+            v.Thickness = 0
+          end
         end
       end
     end
 
-    local ColorSection = SettingsTab:AddSection("Library Color", true)
+    task.defer(FixAllScrollingAndHighlights)
 
-    ColorSection:AddDropdown({
-      Title = "Library Color",
-      Content = "Changes accents, sliders, buttons, icons and lines. Main window stays dark.",
+
+    local ThemeSection = SettingsTab:AddSection("Theme", true)
+    ThemeSection:AddDropdown({
+      Title = "Accent Color",
+      Content = "Changes only UI accents, glows, sliders and dropdown highlights",
       Multi = false,
-      Options = {
-        "Crimson", "Cherry", "Ruby", "Rose", "Orange", "Gold",
-        "Lime", "Emerald", "Mint", "Cyan", "Sky", "Blue",
-        "Violet", "Purple", "Pink", "White"
-      },
-      Default = {"Crimson"},
+      Options = {"Green", "Orange", "Gold", "Lime", "Emerald", "Mint", "Cyan", "Sky", "Blue", "Violet", "Purple", "Pink", "White", "Gray", "Black"},
+      Default = {"Green"},
       Callback = function(Value)
         local Pick = typeof(Value) == "table" and Value[1] or Value
-        local Color = ThemeColors[Pick] or ThemeColors.Crimson
-        ApplyLibraryColor(Color)
-
-        if TopTitleLine then
-          TopTitleLine.BackgroundColor3 = Color
-          local Gradient = TopTitleLine:FindFirstChildOfClass("UIGradient")
-          if Gradient then
-            Gradient.Color = ColorSequence.new{
-              ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)),
-              ColorSequenceKeypoint.new(0.5, Color),
-              ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))
-            }
-          end
-        end
+        ApplyAccent(ThemeColors[Pick] or ThemeColors.Green)
       end
     })
 
-    ColorSection:AddButton({
-      Title = "Reset Color",
-      Content = "Returns library color to default red.",
+    ThemeSection:AddDropdown({
+      Title = "Library Color",
+      Content = "Changes accents, sliders, dropdowns and highlights, but keeps the main window frame dark",
+      Multi = false,
+      Options = {"Green", "Orange", "Gold", "Lime", "Emerald", "Mint", "Cyan", "Sky", "Blue", "Violet", "Purple", "Pink", "White", "Gray", "Black"},
+      Default = {"Green"},
+      Callback = function(Value)
+        local Pick = typeof(Value) == "table" and Value[1] or Value
+        ApplyLibraryColor(ThemeColors[Pick] or ThemeColors.Green)
+      end
+    })
+
+    ThemeSection:AddToggle({
+      Title = "RGB Title",
+      Content = "Animated rainbow color only for the title description text",
+      Default = false,
+      Callback = function(Value)
+        SetTitleRGB(Value)
+      end
+    })
+
+
+    local WindowSection = SettingsTab:AddSection("Window", true)
+    WindowSection:AddSlider({
+      Title = "Corner Radius",
+      Content = "Makes the main window and cards rounder",
+      Increment = 1,
+      Min = 4,
+      Max = 24,
+      Default = 14,
+      Callback = function(Value)
+        ApplyRoundness(Value)
+      end
+    })
+
+    WindowSection:AddSlider({
+      Title = "Window Transparency",
+      Content = "Controls only the main window transparency",
+      Increment = 0.01,
+      Min = 0,
+      Max = 0.45,
+      Default = 0.1,
+      Callback = function(Value)
+        TweenService:Create(Main, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+          BackgroundTransparency = Value
+        }):Play()
+      end
+    })
+
+    WindowSection:AddToggle({
+      Title = "Glass Cards",
+      Content = "Softer transparent card style for buttons, toggles, sliders and dropdowns",
+      Default = false,
+      Callback = function(Value)
+        ApplyGlass(Value)
+      end
+    })
+
+    local EffectsSection = SettingsTab:AddSection("Effects", true)
+    EffectsSection:AddToggle({
+      Title = "Soft Particles",
+      Content = "Small animated particles inside the window background",
+      Default = false,
+      Callback = function(Value)
+        SetParticles(Value)
+      end
+    })
+
+    EffectsSection:AddToggle({
+      Title = "Premium Shine",
+      Content = "Animated top shine line and soft pulsing window border",
+      Default = false,
+      Callback = function(Value)
+        SetWowAnimation(Value)
+      end
+    })
+
+    EffectsSection:AddButton({
+      Title = "Apply Premium Style",
+      Content = "Applies rounded corners, accents, glow and clean fonts",
       Callback = function()
-        ApplyLibraryColor(ThemeColors.Crimson)
+        ApplyPremiumStyle()
       end
     })
 
+    local TabSection = SettingsTab:AddSection("Tabs", true)
+    TabSection:AddButton({
+      Title = "Auto Fit Tabs",
+      Content = "Automatically resizes the tab frame for long tab names",
+      Callback = function()
+        AutoResizeTabs()
+      end
+    })
+
+    TabSection:AddSlider({
+      Title = "Tab Frame Width",
+      Content = "Manual width for longer tab names",
+      Increment = 5,
+      Min = 100,
+      Max = 260,
+      Default = CurrentTabWidth,
+      Callback = function(Value)
+        ApplyTabWidth(Value, true)
+      end
+    })
+
+    local LayoutSection = SettingsTab:AddSection("Layout", true)
+    LayoutSection:AddSlider({
+      Title = "UI Scale",
+      Content = "Changes the whole library size without resizing tabs manually",
+      Increment = 0.01,
+      Min = 0.75,
+      Max = 1.35,
+      Default = 1,
+      Callback = function(Value)
+        ApplyUIScale(Value)
+      end
+    })
+
+    LayoutSection:AddToggle({
+      Title = "Compact Mode",
+      Content = "Makes sections closer together so more functions fit on screen",
+      Default = false,
+      Callback = function(Value)
+        ApplyCompactMode(Value)
+      end
+    })
+
+    LayoutSection:AddSlider({
+      Title = "Text Size",
+      Content = "Changes most library text size",
+      Increment = 1,
+      Min = 10,
+      Max = 18,
+      Default = 13,
+      Callback = function(Value)
+        ApplyTextSize(Value)
+      end
+    })
+
+    local CardsSection = SettingsTab:AddSection("Cards", true)
+    CardsSection:AddSlider({
+      Title = "Card Transparency",
+      Content = "Controls transparency for buttons, toggles, sliders and dropdown cards",
+      Increment = 0.01,
+      Min = 0.86,
+      Max = 0.98,
+      Default = 0.935,
+      Callback = function(Value)
+        ApplyCardTransparency(Value)
+      end
+    })
+
+    CardsSection:AddButton({
+      Title = "Reset Style",
+      Content = "Returns the library style to a clean default look",
+      Callback = function()
+        ResetLibraryStyle()
+      end
+    })
+
+    local CleanSection = SettingsTab:AddSection("Clean Fixes", true)
+    CleanSection:AddParagraph({
+      Title = "Included",
+      Content = "No red tab line, white close warning text, fixed slider input, bigger thin minus, auto tab width, UI scale, compact mode, text size and card transparency."
+    })
+
+    -- Fast startup: do not run heavy premium effects automatically.
+    -- Only light fixes are applied once after the UI is fully created.
     task.defer(function()
-      CleanOldHighlights()
       AutoResizeTabs()
-      task.wait(0.2)
-      CleanOldHighlights()
+      FixAllScrollingAndHighlights()
+      task.wait(0.15)
+      FixAllScrollingAndHighlights()
+      task.wait(0.35)
+      FixAllScrollingAndHighlights()
     end)
   end
 
