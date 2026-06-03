@@ -1,5 +1,3 @@
---// Doca V1 UI Library separated from main script
---// Doca V1 section Add("Sticker") patch + corner mini icon removed
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -9,9 +7,7 @@ local VirtualUser = game:GetService("VirtualUser")
 
 local Custom = {} do
   Custom.ColorRGB = Color3.fromRGB(250, 7, 7)
-  --// Doca V1 premium section badges
-  --// Only Roblox-safe letters are used here, so icons will not turn into □ squares.
-  --// The style is made by the badge background/glow, not by unsupported emoji symbols.
+
   Custom.SectionStickers = {
     ["discord"] = "DC",
     ["localplayer"] = "ME",
@@ -45,8 +41,6 @@ local Custom = {} do
     ["settings"] = "SE"
   }
 
-  --// Real Roblox image icons for sections.
-  --// These are the same working image style as the left tabs, so there are no □ squares.
   Custom.SectionImages = {
     ["discord"] = "rbxassetid://10734898592",
     ["localplayer"] = "rbxassetid://10723407389",
@@ -104,7 +98,6 @@ local Custom = {} do
 
     return self.SectionImages.misc
   end
-
 
   function Custom:GetSectionIconType(Title)
     local Text = tostring(Title or ""):lower():gsub("[^%w]", "")
@@ -372,7 +365,6 @@ local Custom = {} do
     return "DV"
   end
 
-
   function Custom:Create(Name, Properties, Parent)
     local _instance = Instance.new(Name)
 
@@ -380,7 +372,6 @@ local Custom = {} do
       _instance[i] = v
     end
 
-    --// Doca V1 default polish
     if Name == "UICorner" and Properties.CornerRadius == nil then
       _instance.CornerRadius = UDim.new(0, 14)
     end
@@ -431,8 +422,6 @@ end
 
 Custom:EnabledAFK()
 
---// Doca V1 duplicate protection
---// If the script is executed again, the old opened library/open button is removed first.
 local DOCA_MAIN_GUI_NAME = "DocaV1_SpeedHubXGui"
 local DOCA_OPEN_GUI_NAME = "DocaV1_OpenButtonGui"
 
@@ -488,8 +477,6 @@ end
 
 DocaCloseOldLibrary()
 
---// Doca V1 hard runtime cleanup
---// Fixes stuck old Auto Kill / Auto Kill In Part / Ring Aura after re-execute.
 local function DocaHardRuntimeCleanup()
   pcall(function()
     _G.DocaV1_AutoKillActive = false
@@ -538,8 +525,6 @@ local function DocaHardRuntimeCleanup()
     _G.ringParticles = {}
   end)
 
-  --// Extra cleanup for previous versions where Auto Kill connections were local.
-  --// This only disconnects connections that look like Doca V1 Auto Kill closures.
   pcall(function()
     if getconnections and debug and debug.getupvalue then
       local function LooksLikeDocaAutoKill(Function)
@@ -602,7 +587,6 @@ local function OpenClose()
     Name = "MainCorner",
     CornerRadius = UDim.new(0, 18),
   }, Close_ImageButton)
-
 
   local dragging, dragStart, startPos = false, nil, nil
 
@@ -672,7 +656,7 @@ end
 function CircleClick(Button, X, Y)
 	task.spawn(function()
 		Button.ClipsDescendants = true
-		
+
 		local Circle = Instance.new("ImageLabel")
 		Circle.Image = "rbxassetid://106471194043211"
 		Circle.ImageColor3 = Color3.fromRGB(80, 80, 80)
@@ -682,7 +666,7 @@ function CircleClick(Button, X, Y)
 		Circle.ZIndex = 10
 		Circle.Name = "Circle"
 		Circle.Parent = Button
-		
+
 		local NewX = X - Button.AbsolutePosition.X
 		local NewY = Y - Button.AbsolutePosition.Y
 		Circle.Position = UDim2.new(0, NewX, 0, NewY)
@@ -696,9 +680,9 @@ function CircleClick(Button, X, Y)
 			Size = UDim2.new(0, Size, 0, Size),
 			Position = UDim2.new(0.5, -Size/2, 0.5, -Size/2)
 		})
-		
+
 		Tween:Play()
-		
+
 		Tween.Completed:Connect(function()
 			for i = 1, 10 do
 				Circle.ImageTransparency = Circle.ImageTransparency + 0.01
@@ -796,7 +780,7 @@ function Speed_Library:SetNotification(Config)
   NotificationLayout.ChildRemoved:Connect(function()
     Count = 0
     local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-    
+
     for _, v in ipairs(NotificationLayout:GetChildren()) do
       local NewPOS = UDim2.new(0, 0, 1, -((v.Size.Y.Offset + 12) * Count))
       local tween = TweenService:Create(v, tweenInfo, {Position = NewPOS})
@@ -858,7 +842,7 @@ function Speed_Library:SetNotification(Config)
     Name = "DropShadow",
     Parent = DropShadowHolder
   })
- 
+
   local Top = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
     BackgroundTransparency = 0.999,
@@ -992,7 +976,6 @@ function Speed_Library:CreateWindow(Config)
   local TabWidth = Config[3] or Config["Tab Width"] or 135
   local SizeUi = Config[4] or Config.SizeUi or UDim2.fromOffset(650, 330)
 
-  --// Rayfield-style key system settings
   local KeySystem = Config.KeySystem == true or Config.Key_System == true or Config.UseKeySystem == true
   local KeySettings = Config.KeySettings or Config.Key_Settings or {}
   local KeyTitle = tostring(KeySettings.Title or Title or "Doca V1")
@@ -1010,7 +993,6 @@ function Speed_Library:CreateWindow(Config)
     KeyList = {"DocaV1"}
   end
 
-  --// Admin bypass: these players open Doca V1 without the key system.
   local KeyAdmins = KeySettings.Admins or KeySettings.AdminUsers or Config.Admins or {"Ayoo_Drxbble"}
   if type(KeyAdmins) == "string" then
     KeyAdmins = {KeyAdmins}
@@ -1063,7 +1045,6 @@ function Speed_Library:CreateWindow(Config)
     end)
   end
 
-  --// Show key system every execute by default, so it never disappears because of an old saved key.
   local SavedKeyValid = AdminKeyBypass or (ForceKeyEveryLaunch and false or ReadSavedKey())
 
   local Funcs = {}
@@ -1126,7 +1107,6 @@ function Speed_Library:CreateWindow(Config)
     CornerRadius = UDim.new(0, 20)
   }, Main)
 
-  --// Premium separator line between top bar and content
   local MainSeparatorHolder = Custom:Create("Frame", {
     Name = "MainSeparatorHolder",
     AnchorPoint = Vector2.new(0.5, 0.5),
@@ -1253,7 +1233,6 @@ function Speed_Library:CreateWindow(Config)
     end
   end)
 
-  --// Floating balls effect
   local FloatingBalls = Custom:Create("Frame", {
     Name = "FloatingBalls",
     BackgroundTransparency = 1,
@@ -1353,7 +1332,7 @@ function Speed_Library:CreateWindow(Config)
 
   local Min = Custom:Create("TextButton", {
     Font = Enum.Font.SourceSans,
-    Text = "-", 
+    Text = "-",
     TextColor3 = Color3.fromRGB(255, 255, 255),
     TextSize = 18,
     AnchorPoint = Vector2.new(1, 0.5),
@@ -1379,7 +1358,6 @@ function Speed_Library:CreateWindow(Config)
   Custom:Create("UICorner", {
     CornerRadius = UDim.new(0, 14)
   }, LayersTab)
-
 
   local Layers = Custom:Create("Frame", {
     BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1460,7 +1438,6 @@ function Speed_Library:CreateWindow(Config)
     Name = "ScrollTab"
   }, LayersTab)
 
-  --// Side player profile: avatar + username + display name
   local PlayerAvatarImage = ""
   pcall(function()
     PlayerAvatarImage = Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
@@ -1644,14 +1621,11 @@ function Speed_Library:CreateWindow(Config)
     end
   end
 
-  -- Minimize now hides the whole library and shows the old floating open button.
-  -- It does NOT collapse the library into a small top bar anymore.
   Min.Activated:Connect(function()
 		CircleClick(Min, Player:GetMouse().X, Player:GetMouse().Y)
     SetWindowVisible(false)
 	end)
 
-  -- RightShift hides/shows the library using the same floating button system.
   UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed or Speed_Library:IsUnloaded() then return end
     if input.KeyCode == Enum.KeyCode.RightShift then
@@ -1663,8 +1637,6 @@ function Speed_Library:CreateWindow(Config)
     SetWindowVisible(true)
 	end)
 
-  --// Premium rounded delete/close confirmation popup
-  --// Soft rounded card, shadow, clean red accent and smooth open/close animations.
   local ConfirmOverlay = Custom:Create("TextButton", {
     Name = "ConfirmOverlay",
     Text = "",
@@ -1869,8 +1841,6 @@ function Speed_Library:CreateWindow(Config)
     Rotation = 25
   }, DeleteButton)
 
-
-  --// Separate always-white labels, so gradients/strokes never hide the button text.
   Custom:Create("TextLabel", {
     Name = "CancelButtonWhiteText",
     BackgroundTransparency = 1,
@@ -2085,7 +2055,6 @@ function Speed_Library:CreateWindow(Config)
       ZIndex = 3001
     }, KeyOverlay)
 
-    --// Mobile fit: scales the whole key system down so it always stays inside the screen.
     local KeyMobileScale = Custom:Create("UIScale", {
       Name = "KeyMobileScale",
       Scale = 1
@@ -2531,7 +2500,6 @@ function Speed_Library:CreateWindow(Config)
     Custom:Create("UICorner", {CornerRadius = UDim.new(0, 14)}, VerifyButton)
     Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.52}, VerifyButton)
 
-    --// Separate white label, so the red gradient never darkens the button text.
     local VerifyButtonText = Custom:Create("TextLabel", {
       Name = "VerifyButtonText",
       BackgroundTransparency = 1,
@@ -2660,9 +2628,6 @@ function Speed_Library:CreateWindow(Config)
 
 	MakeDraggable(Top, DropShadowHolder)
 
-
-  -- /// Blur
-
   local MoreBlur = Custom:Create("Frame", {
     AnchorPoint = Vector2.new(1, 1),
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -2735,7 +2700,7 @@ function Speed_Library:CreateWindow(Config)
 
       _Hide:Play()
       _Move:Play()
-        
+
       task.wait(0.2)
       MoreBlur.Visible = false
     end
@@ -2781,15 +2746,13 @@ function Speed_Library:CreateWindow(Config)
     Parent = DropdownFolder
   })
 
-  -- /// Create Tab
-
   local Tabs = {}
   local CountTab = 0
   local CountDropdown = 0
   function Tabs:CreateTab(Config)
-    local _Name = Config[1] or Config.Name or "" 
+    local _Name = Config[1] or Config.Name or ""
     local Icon = Config[2] or Config.Icon or ""
-    
+
     local ScrolLayers = Custom:Create("ScrollingFrame", {
 			ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80),
 			ScrollBarThickness = 0,
@@ -2905,8 +2868,6 @@ function Speed_Library:CreateWindow(Config)
       end
     end)
 
-    --- /// Section
-   
     local Sections, CountSection = {}, 0
 
     function Sections:AddSection(Title, OpenSection, Image, Sticker)
@@ -2934,8 +2895,6 @@ function Speed_Library:CreateWindow(Config)
       SectionSticker = tostring(SectionSticker or "")
       SectionIconType = tostring(SectionIconType or "")
 
-      -- Auto icon is handled inside the library, so your main script can keep normal AddSection("Name") calls.
-      -- Drawn mini-icons are used first, so sections do not show wrong asset pictures or Roblox □ squares.
       if SectionIconType == "" and SectionImage == "" and SectionSticker == "" then
         SectionIconType = Custom:GetSectionIconType(Title)
       end
@@ -2947,7 +2906,7 @@ function Speed_Library:CreateWindow(Config)
       end
 
       local HasSectionVisual = SectionIconType ~= "" or SectionImage ~= "" or SectionSticker ~= ""
-  
+
       local Section = Custom:Create("Frame", {
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 0.999,
@@ -2958,7 +2917,7 @@ function Speed_Library:CreateWindow(Config)
         Size = UDim2.new(1, 0, 0, 30),
         Name = "Section"
       }, ScrolLayers)
-  
+
       local SectionReal = Custom:Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0),
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -2970,11 +2929,11 @@ function Speed_Library:CreateWindow(Config)
         Size = UDim2.new(1, 1, 0, 30),
         Name = "SectionReal"
       }, Section)
-  
+
       Custom:Create("UICorner", {
         CornerRadius = UDim.new(0, 12)
       }, SectionReal)
-  
+
       local SectionButton = Custom:Create("TextButton", {
         Font = Enum.Font.SourceSans,
         Text = "",
@@ -2988,7 +2947,7 @@ function Speed_Library:CreateWindow(Config)
         ZIndex = 8,
         Name = "SectionButton"
       }, SectionReal)
-  
+
       local FeatureFrame = Custom:Create("Frame", {
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -2999,7 +2958,7 @@ function Speed_Library:CreateWindow(Config)
         Size = UDim2.new(0, 20, 0, 20),
         Name = "FeatureFrame"
       }, SectionReal)
-  
+
       local FeatureImg = Custom:Create("ImageLabel", {
         Image = "rbxassetid://125609963478878",
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -3012,7 +2971,7 @@ function Speed_Library:CreateWindow(Config)
         Size = UDim2.new(1, 6, 1, 6),
         Name = "FeatureImg"
       }, FeatureFrame)
-  
+
       local SectionIconHolder = Custom:Create("Frame", {
         Name = "SectionIconHolder",
         AnchorPoint = Vector2.new(0, 0.5),
@@ -3184,7 +3143,7 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(1, HasVisual and -78 or -50, 0, 18)
         }):Play()
       end
-  
+
       local SectionDecideFrame = Custom:Create("Frame", {
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
@@ -3193,7 +3152,7 @@ function Speed_Library:CreateWindow(Config)
         Size = UDim2.new(0, 0, 0, 0),
         Name = "SectionDecideFrame"
       }, Section)
-  
+
       local SectionAdd = Custom:Create("Frame", {
         AnchorPoint = Vector2.new(0.5, 0),
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -3206,56 +3165,56 @@ function Speed_Library:CreateWindow(Config)
         Size = UDim2.new(1, 0, 0, 100),
         Name = "SectionAdd"
       }, Section)
-  
+
       Custom:Create("UICorner", {
         CornerRadius = UDim.new(0, 8)
       }, SectionAdd)
-    
+
       Custom:Create("UIListLayout", {
         Padding = UDim.new(0, 3),
         SortOrder = Enum.SortOrder.LayoutOrder
       }, SectionAdd)
-  
+
       local function UpdateSizeScroll()
         local OffsetY = 0
-  
+
         for _, child in pairs(ScrolLayers:GetChildren()) do
           if child.Name ~= "UIListLayout" then
             OffsetY = OffsetY + 3 + child.Size.Y.Offset
           end
         end
-        
+
         ScrolLayers.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
       end
-    
+
       local function UpdateSizeSection()
         if OpenSection then
           local SectionSizeYWitdh = 38
-  
+
           for _, v in pairs(SectionAdd:GetChildren()) do
             if v.Name ~= "UIListLayout" and v.Name ~= "UICorner" then
               SectionSizeYWitdh = SectionSizeYWitdh + v.Size.Y.Offset + 3
             end
           end
-    
+
           TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 90}):Play()
           TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, SectionSizeYWitdh)}):Play()
           TweenService:Create(SectionAdd, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, SectionSizeYWitdh - 38)}):Play()
           TweenService:Create(SectionDecideFrame, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, 2)}):Play()
-            
+
           task.wait(0.5)
           UpdateSizeScroll()
         end
       end
-    
+
       local function ToggleSection()
         CircleClick(SectionButton, Player:GetMouse().X, Player:GetMouse().Y)
-        
+
         if OpenSection then
           TweenService:Create(FeatureFrame, TweenInfo.new(0.1), {Rotation = 0}):Play()
           TweenService:Create(Section, TweenInfo.new(0.1), {Size = UDim2.new(1, 1, 0, 30)}):Play()
           TweenService:Create(SectionDecideFrame, TweenInfo.new(0.1), {Size = UDim2.new(0, 0, 0, 2)}):Play()
-    
+
           OpenSection = false
           task.wait(0.1)
           UpdateSizeScroll()
@@ -3264,11 +3223,11 @@ function Speed_Library:CreateWindow(Config)
           UpdateSizeSection()
         end
       end
-    
+
       SectionButton.Activated:Connect(ToggleSection)
       SectionAdd.ChildAdded:Connect(UpdateSizeSection)
       SectionAdd.ChildRemoved:Connect(UpdateSizeSection)
-    
+
       UpdateSizeScroll()
 
       local Item, ItemCount = {}, 0
@@ -3289,12 +3248,6 @@ function Speed_Library:CreateWindow(Config)
         return Item
       end
 
-      --// Short section sticker API
-      --// Usage:
-      --// local Section = Tab:AddSection("Auto Tools")
-      --// Section:Add("⚡")
-      --// Section:Add({Sticker = "⚡"})
-      --// Section:Add({Image = "rbxassetid://123456789"})
       function Item:Add(Value)
         if type(Value) == "table" then
           local NewSticker = Value[1] or Value.Sticker or Value.Emoji or Value.Symbol or Value.Text
@@ -3332,7 +3285,6 @@ function Speed_Library:CreateWindow(Config)
         return Item
       end
 
-      -- Lowercase aliases for calls like section:add("🔥")
       Item.add = Item.Add
       Item.addSticker = Item.AddSticker
       Item.sticker = Item.Sticker
@@ -3515,7 +3467,7 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(1, 0, 0, 35),
           Name = "Paragraph",
         }, SectionAdd)
-      
+
         Custom:Create("UICorner", {
           CornerRadius = UDim.new(0, 8),
         }, Paragraph)
@@ -3537,7 +3489,7 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(1, -16, 0, TitleTextSize + 1),
           Name = "ParagraphTitle",
         }, Paragraph)
-      
+
         local ParagraphContent = Custom:Create("TextLabel", {
           Font = Config.ContentFont or Enum.Font.GothamBold,
           Text = Content,
@@ -3608,7 +3560,7 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(1, 0, 0, 30),
           Name = "Seperator",
         }, SectionAdd)
-      
+
         local SeperatorTitle = Custom:Create("TextLabel", {
           Font = Enum.Font.GothamBold,
           Text = Title,
@@ -3625,11 +3577,11 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(1, -16, 1, 0),
           Name = "SeperatorTitle",
         }, Seperator)
-        
+
         Custom:Create("UICorner", {
           CornerRadius = UDim.new(0, 10),
         }, Seperator)
-        
+
         local Gradient = Custom:Create("UIGradient", {
           Color = ColorSequence.new{
             ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 120, 120)),
@@ -3637,7 +3589,7 @@ function Speed_Library:CreateWindow(Config)
           },
           Rotation = 90,
         }, Seperator)
-  
+
         function Sep_Funcs:Set(Config)
           local Title = Config[1] or Config.Title or ""
 
@@ -3650,7 +3602,7 @@ function Speed_Library:CreateWindow(Config)
 
       function Item:AddLine()
         local LineFuncs = {}
-    
+
         local Line = Custom:Create("Frame", {
           BackgroundColor3 = Color3.fromRGB(90, 90, 90),
           BackgroundTransparency = 0.2,
@@ -3659,9 +3611,9 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(1, 0, 0, 7),
           Name = "Line",
         }, SectionAdd)
-    
+
         Custom:Create("UICorner", {CornerRadius = UDim.new(0, 8)}, Line)
-    
+
         Custom:Create("UIGradient", {
           Color = ColorSequence.new{
             ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 80, 80)),
@@ -3669,7 +3621,7 @@ function Speed_Library:CreateWindow(Config)
           },
           Rotation = 0,
         }, Line)
-    
+
         ItemCount = ItemCount + 1
         return LineFuncs
      end
@@ -3739,11 +3691,11 @@ function Speed_Library:CreateWindow(Config)
           ButtonContent.Size = UDim2.new(1, -100, 0, 12 * ContentLines)
           Button.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
         end
-      
+
         ButtonTitle.TextWrapped = true
         ButtonContent.TextWrapped = true
         UpdateButtonSize()
-      
+
         ButtonTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateButtonSize()
           UpdateSizeSection()
@@ -3851,7 +3803,7 @@ function Speed_Library:CreateWindow(Config)
 					Position = UDim2.new(0, 10, 0, 23),
 					Size = UDim2.new(1, -100, 0, 12)
 				}, Toggle)
-				
+
         local function UpdateToggleSize()
           local TitleWidth = math.max(ToggleTitle.AbsoluteSize.X, 1)
           local ContentWidth = math.max(ToggleContent.AbsoluteSize.X, 1)
@@ -3864,11 +3816,11 @@ function Speed_Library:CreateWindow(Config)
           Toggle.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
           ToggleContent.TextWrapped = true
         end
-      
+
         ToggleTitle.TextWrapped = true
         ToggleContent.TextWrapped = true
         UpdateToggleSize()
-      
+
         ToggleTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateToggleSize()
           UpdateSizeSection()
@@ -3891,7 +3843,6 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(1, 0, 1, 0)
         }, Toggle)
 
-        
 				local FeatureFrame2 = Custom:Create("Frame", {
 					Name = "FeatureFrame2",
 					AnchorPoint = Vector2.new(1, 0.5),
@@ -3905,7 +3856,7 @@ function Speed_Library:CreateWindow(Config)
         Custom:Create("UICorner", {
           CornerRadius = UDim.new(0, 8)
         }, FeatureFrame2)
-      
+
         local UIStroke8 = Custom:Create("UIStroke", {
           Color = Color3.fromRGB(255, 255, 255),
           Thickness = 2,
@@ -3924,7 +3875,7 @@ function Speed_Library:CreateWindow(Config)
           CornerRadius = UDim.new(0, 14)
         }, ToggleCircle)
 
-        local function ToggleAnimation(isOn)          
+        local function ToggleAnimation(isOn)
           local TitleColor = isOn and Custom.ColorRGB or Color3.fromRGB(230, 230, 230)
           local CirclePosition = isOn and UDim2.new(0, 15, 0, 0) or UDim2.new(0, 0, 0, 0)
           local StrokeColor = isOn and Custom.ColorRGB or Color3.fromRGB(255, 255, 255)
@@ -3933,19 +3884,19 @@ function Speed_Library:CreateWindow(Config)
           local FrameTransparency = isOn and 0 or 0.92
 
           local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
-      
+
           TweenService:Create(ToggleTitle, tweenInfo, {TextColor3 = TitleColor}):Play()
           TweenService:Create(ToggleCircle, tweenInfo, {Position = CirclePosition}):Play()
           TweenService:Create(UIStroke8, tweenInfo, {Color = StrokeColor, Transparency = StrokeTransparency}):Play()
           TweenService:Create(FeatureFrame2, tweenInfo, {BackgroundColor3 = FrameColor, BackgroundTransparency = FrameTransparency}):Play()
         end
-      
+
         ToggleButton.Activated:Connect(function()
           CircleClick(ToggleButton, Player:GetMouse().X, Player:GetMouse().Y)
           Funcs_Toggle.Value = not Funcs_Toggle.Value
           Funcs_Toggle:Set(Funcs_Toggle.Value)
         end)
-      
+
         function Funcs_Toggle:Set(Value)
           Funcs_Toggle.Value = Value
           Callback(Value)
@@ -3968,7 +3919,7 @@ function Speed_Library:CreateWindow(Config)
         local Callback = Config[7] or Config.Callback or function() end
 
 				local Funcs_Slider = {Value = Default}
-        
+
         local Slider = Custom:Create("Frame", {
 					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 					BackgroundTransparency = 0.9350000023841858,
@@ -4058,7 +4009,6 @@ function Speed_Library:CreateWindow(Config)
           CornerRadius = UDim.new(0, 8),
         }, SliderInput)
 
-         
 				local TextBox = Custom:Create("TextBox", {
 					Font = Enum.Font.GothamBold,
 					Text = "90",
@@ -4118,46 +4068,46 @@ function Speed_Library:CreateWindow(Config)
 
         local function Round(Number, Factor)
           local Result = math.floor(Number / Factor + (math.sign(Number) * 0.5)) * Factor
-          if Result < 0 then 
-            Result = Result + Factor 
+          if Result < 0 then
+            Result = Result + Factor
           end
           return Result
         end
-        
+
         function Funcs_Slider:Set(Value)
           Value = math.clamp(Round(Value, Increment), Min, Max)
           Funcs_Slider.Value = Value
           TextBox.Text = tostring(Value)
-            
+
           TweenService:Create(SliderDraggable, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.fromScale((Value - Min) / (Max - Min), 1) }):Play()
         end
-        
+
         SliderFrame.InputBegan:Connect(function(Input)
           if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             Dragging = true
           end
         end)
-      
+
         SliderFrame.InputEnded:Connect(function(Input)
           if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
             Dragging = false
             Callback(Funcs_Slider.Value)
           end
         end)
-      
+
         local _LastX = nil
         UserInputService.InputChanged:Connect(function(Input)
           if Dragging then
             local CurrPosX = Input.Position.X
             if CurrPosX ~= _LastX then
               _LastX = CurrPosX
-      
+
               local SizeScale = math.clamp((CurrPosX - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
               Funcs_Slider:Set(Min + ((Max - Min) * SizeScale))
             end
           end
         end)
-        
+
         TextBox:GetPropertyChangedSignal("Text"):Connect(function()
           local Valid = TextBox.Text:gsub("[^%d]", "")
           if Valid ~= "" then
@@ -4167,7 +4117,7 @@ function Speed_Library:CreateWindow(Config)
             TextBox.Text = "0"
           end
         end)
-        
+
         TextBox.FocusLost:Connect(function()
           if TextBox.Text ~= "" then
             Funcs_Slider:Set(tonumber(TextBox.Text))
@@ -4177,7 +4127,7 @@ function Speed_Library:CreateWindow(Config)
             Callback(Funcs_Slider.Value)
           end
         end)
-        
+
         Funcs_Slider:Set(tonumber(Default))
         Callback(Funcs_Slider.Value)
 
@@ -4253,11 +4203,11 @@ function Speed_Library:CreateWindow(Config)
           InputContent.Size = UDim2.new(1, -180, 0, 12 * ContentLines)
           Input.Size = UDim2.new(1, 0, 0, 28 + (13 * TitleLines) + (12 * ContentLines))
         end
-      
+
         InputTitle.TextWrapped = true
         InputContent.TextWrapped = true
         UpdateInputSize()
-      
+
         InputTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateInputSize()
           UpdateSizeSection()
@@ -4278,7 +4228,6 @@ function Speed_Library:CreateWindow(Config)
           Size = UDim2.new(0, 148, 0, 30),
           Name = "InputFrame"
         }, Input)
-    
 
         Custom:Create("UICorner", {
           CornerRadius = UDim.new(0, 8)
@@ -4406,7 +4355,7 @@ function Speed_Library:CreateWindow(Config)
         DropdownTitle.TextWrapped = true
         DropdownContent.TextWrapped = true
         UpdateDropdownSize()
-        
+
         DropdownTitle:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
           UpdateDropdownSize()
           UpdateSizeSection()
@@ -4435,14 +4384,14 @@ function Speed_Library:CreateWindow(Config)
         DropdownButton.Activated:Connect(function()
           if not MoreBlur.Visible then
             MoreBlur.Visible = true
-              
+
             local tweenInfo = TweenInfo.new(0.1)
 
             DropPageLayout:JumpToIndex(SelectOptionsFrame.LayoutOrder)
-                            
+
             local BlurTween = TweenService:Create(MoreBlur, tweenInfo, {BackgroundTransparency = 0.7})
             local DropdownTween = TweenService:Create(DropdownSelect, tweenInfo, {Position = UDim2.new(1, -11, 0.5, 0)})
-              
+
             BlurTween:Play()
             DropdownTween:Play()
           end
@@ -4538,7 +4487,7 @@ function Speed_Library:CreateWindow(Config)
             end
           end
         end
-        
+
         function Funcs_Dropdown:Set(Value)
           Funcs_Dropdown.Value = Value or Funcs_Dropdown.Value
 
@@ -4550,13 +4499,13 @@ function Speed_Library:CreateWindow(Config)
               local Size = isTextFound and UDim2.new(0, 1, 0, 12) or UDim2.new(0, 0, 0, 0)
               local BackgroundTransparency = isTextFound and 0.935 or 0.999
               local Transparency = isTextFound and 0 or 0.999
-          
+
               TweenService:Create(Drop.ChooseFrame, tweenInfoInOut, {Size = Size}):Play()
               TweenService:Create(Drop.ChooseFrame.UIStroke, tweenInfoInOut, {Transparency = Transparency}):Play()
               TweenService:Create(Drop, tweenInfoInOut, {BackgroundTransparency = BackgroundTransparency}):Play()
             end
           end
-        
+
           local DropdownValueTable = table.concat(Funcs_Dropdown.Value, ", ")
           OptionSelecting.Text = DropdownValueTable ~= "" and DropdownValueTable or "Select Options"
           Callback(Funcs_Dropdown.Value)
@@ -4564,7 +4513,7 @@ function Speed_Library:CreateWindow(Config)
 
         function Funcs_Dropdown:AddOption(OptionName)
           OptionName = OptionName or "Option"
-  
+
           local Option = Custom:Create("Frame", {
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             BackgroundTransparency = 0.999,
@@ -4574,11 +4523,11 @@ function Speed_Library:CreateWindow(Config)
             Size = UDim2.new(1, 0, 0, 30),
             Name = "Option"
           }, ScrollSelect)
-  
+
           Custom:Create("UICorner", {
             CornerRadius = UDim.new(0, 8)
           }, Option)
-  
+
           local OptionButton = Custom:Create("TextButton", {
             Font = Enum.Font.GothamBold,
             Text = "",
@@ -4592,7 +4541,7 @@ function Speed_Library:CreateWindow(Config)
             Size = UDim2.new(1, 0, 1, 0),
             Name = "OptionButton"
           }, Option)
-  
+
           Custom:Create("TextLabel", {
             Font = Enum.Font.GothamBold,
             Text = OptionName,
@@ -4608,7 +4557,7 @@ function Speed_Library:CreateWindow(Config)
             Size = UDim2.new(1, -100, 0, 13),
             Name = "OptionText"
           }, Option)
-  
+
           local ChooseFrame = Custom:Create("Frame", {
             BackgroundTransparency = 1,
             BorderSizePixel = 0,
@@ -4621,11 +4570,11 @@ function Speed_Library:CreateWindow(Config)
             Transparency = 1,
             Thickness = 0
           }, ChooseFrame)
-  
+
           OptionButton.Activated:Connect(function()
 
             CircleClick(OptionButton, Player:GetMouse().X, Player:GetMouse().Y)
-        
+
             local isOptionSelected = Option.BackgroundTransparency > 0.95
 
             if Multi then
@@ -4647,7 +4596,7 @@ function Speed_Library:CreateWindow(Config)
 
             Funcs_Dropdown:Set(Funcs_Dropdown.Value)
           end)
-        
+
           local function UpdateCanvasSize()
             local OffsetY = 0
 
@@ -4659,7 +4608,7 @@ function Speed_Library:CreateWindow(Config)
 
             ScrollSelect.CanvasSize = UDim2.new(0, 0, 0, OffsetY)
           end
-        
+
           UpdateCanvasSize()
 
           DropCount = DropCount + 1
@@ -4668,19 +4617,19 @@ function Speed_Library:CreateWindow(Config)
         function Funcs_Dropdown:Refresh(RefreshList, Selecting)
           RefreshList = RefreshList or {}
           Selecting = Selecting or {}
-          
+
           Funcs_Dropdown:Clear()
-          
+
           for _, Drop in ipairs(RefreshList) do
             Funcs_Dropdown:AddOption(Drop)
           end
-      
+
           Funcs_Dropdown.Options = RefreshList
           Funcs_Dropdown:Set(Selecting)
         end
-      
+
         Funcs_Dropdown:Refresh(Funcs_Dropdown.Options, Funcs_Dropdown.Value)
-      
+
         ItemCount = ItemCount + 1
         CountDropdown = CountDropdown + 1
         return Funcs_Dropdown
