@@ -1,3 +1,5 @@
+--// Doca V1 UI Library separated from main script
+--// Doca V1 section Add("Sticker") patch + corner mini icon removed
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -7,6 +9,369 @@ local VirtualUser = game:GetService("VirtualUser")
 
 local Custom = {} do
   Custom.ColorRGB = Color3.fromRGB(250, 7, 7)
+  --// Doca V1 premium section badges
+  --// Only Roblox-safe letters are used here, so icons will not turn into □ squares.
+  --// The style is made by the badge background/glow, not by unsupported emoji symbols.
+  Custom.SectionStickers = {
+    ["discord"] = "DC",
+    ["localplayer"] = "ME",
+    ["player"] = "PL",
+    ["misc"] = "FX",
+    ["autotools"] = "AF",
+    ["treadmill"] = "TR",
+    ["rocks"] = "RK",
+    ["barlift"] = "BL",
+    ["benchpress"] = "BP",
+    ["squatlift"] = "SQ",
+    ["pullup"] = "PU",
+    ["pullupsection"] = "PU",
+    ["boulder"] = "BO",
+    ["bouldersection"] = "BO",
+    ["stats"] = "ST",
+    ["regularfarm"] = "RF",
+    ["packfarm"] = "PK",
+    ["whitelistsystem"] = "WL",
+    ["killer"] = "KL",
+    ["targetkiller"] = "TG",
+    ["deathring"] = "DR",
+    ["deathringv2"] = "D2",
+    ["shop"] = "SH",
+    ["damagedurabilitycalculator"] = "DM",
+    ["statcalculator"] = "SC",
+    ["glitchcalculator"] = "GX",
+    ["music"] = "MS",
+    ["usermusic"] = "UM",
+    ["teleport"] = "TP",
+    ["settings"] = "SE"
+  }
+
+  --// Real Roblox image icons for sections.
+  --// These are the same working image style as the left tabs, so there are no □ squares.
+  Custom.SectionImages = {
+    ["discord"] = "rbxassetid://10734898592",
+    ["localplayer"] = "rbxassetid://10723407389",
+    ["player"] = "rbxassetid://10723407389",
+    ["misc"] = "rbxassetid://10709811261",
+    ["autotools"] = "rbxassetid://10709811261",
+    ["treadmill"] = "rbxassetid://10734906744",
+    ["rocks"] = "rbxassetid://10734952479",
+    ["barlift"] = "rbxassetid://10734962068",
+    ["benchpress"] = "rbxassetid://10709783311",
+    ["squatlift"] = "rbxassetid://10709773755",
+    ["pullup"] = "rbxassetid://10734905958",
+    ["pullupsection"] = "rbxassetid://10734905958",
+    ["boulder"] = "rbxassetid://10734898592",
+    ["bouldersection"] = "rbxassetid://10734898592",
+    ["stats"] = "rbxassetid://10709773755",
+    ["regularfarm"] = "rbxassetid://10734933826",
+    ["packfarm"] = "rbxassetid://10734950309",
+    ["whitelistsystem"] = "rbxassetid://10723407389",
+    ["killer"] = "rbxassetid://10734962068",
+    ["targetkiller"] = "rbxassetid://10734898592",
+    ["deathring"] = "rbxassetid://10734905958",
+    ["deathringv2"] = "rbxassetid://10709783311",
+    ["shop"] = "rbxassetid://10734952479",
+    ["damagedurabilitycalculator"] = "rbxassetid://10709783311",
+    ["statcalculator"] = "rbxassetid://10709773755",
+    ["glitchcalculator"] = "rbxassetid://10734898592",
+    ["music"] = "rbxassetid://10734905958",
+    ["usermusic"] = "rbxassetid://10734906744",
+    ["teleport"] = "rbxassetid://10734906744",
+    ["settings"] = "rbxassetid://10734950309"
+  }
+
+  function Custom:GetSectionImage(Title)
+    local Text = tostring(Title or ""):lower():gsub("[^%w]", "")
+    if self.SectionImages[Text] then
+      return self.SectionImages[Text]
+    end
+
+    if Text:find("discord") then return self.SectionImages.discord end
+    if Text:find("local") or Text:find("player") then return self.SectionImages.localplayer end
+    if Text:find("auto") then return self.SectionImages.autotools end
+    if Text:find("treadmill") then return self.SectionImages.treadmill end
+    if Text:find("rock") or Text:find("boulder") then return self.SectionImages.rocks end
+    if Text:find("bar") or Text:find("bench") or Text:find("squat") or Text:find("pull") then return self.SectionImages.killer end
+    if Text:find("rebirth") or Text:find("regular") or Text:find("pack") then return self.SectionImages.regularfarm end
+    if Text:find("white") or Text:find("kill") or Text:find("target") or Text:find("death") then return self.SectionImages.killer end
+    if Text:find("shop") then return self.SectionImages.shop end
+    if Text:find("calc") or Text:find("damage") or Text:find("glitch") then return self.SectionImages.damagedurabilitycalculator end
+    if Text:find("stat") then return self.SectionImages.stats end
+    if Text:find("music") then return self.SectionImages.music end
+    if Text:find("teleport") then return self.SectionImages.teleport end
+    if Text:find("setting") then return self.SectionImages.settings end
+    if Text:find("misc") then return self.SectionImages.misc end
+
+    return self.SectionImages.misc
+  end
+
+
+  function Custom:GetSectionIconType(Title)
+    local Text = tostring(Title or ""):lower():gsub("[^%w]", "")
+
+    if Text:find("discord") then return "discord" end
+    if Text:find("local") or Text:find("player") then return "player" end
+    if Text:find("auto") then return "auto" end
+    if Text:find("treadmill") then return "treadmill" end
+    if Text:find("rock") then return "rocks" end
+    if Text:find("bar") then return "barlift" end
+    if Text:find("bench") then return "benchpress" end
+    if Text:find("squat") then return "squatlift" end
+    if Text:find("pull") then return "pullup" end
+    if Text:find("boulder") then return "boulder" end
+    if Text:find("rebirth") or Text:find("regular") then return "regularfarm" end
+    if Text:find("pack") then return "packfarm" end
+    if Text:find("white") then return "whitelist" end
+    if Text == "killer" or Text:find("^killer") then return "killer" end
+    if Text:find("target") then return "targetkiller" end
+    if Text:find("death") and Text:find("v2") then return "deathringv2" end
+    if Text:find("death") then return "deathring" end
+    if Text:find("shop") then return "shop" end
+    if Text:find("damage") or Text:find("durability") then return "damagecalc" end
+    if Text:find("glitch") then return "glitchcalc" end
+    if Text:find("calc") then return "statcalc" end
+    if Text:find("stat") then return "stats" end
+    if Text:find("user") and Text:find("music") then return "usermusic" end
+    if Text:find("music") then return "music" end
+    if Text:find("teleport") then return "teleport" end
+    if Text:find("setting") then return "settings" end
+    if Text:find("misc") then return "misc" end
+
+    return "misc"
+  end
+
+  function Custom:DrawSectionIcon(Holder, IconType)
+    if not Holder then return end
+
+    IconType = tostring(IconType or "misc"):lower()
+
+    local White = Color3.fromRGB(255, 255, 255)
+    local Soft = Color3.fromRGB(255, 115, 128)
+    local Red = self.ColorRGB or Color3.fromRGB(250, 7, 7)
+    local Dark = Color3.fromRGB(20, 20, 24)
+    local Z = (Holder.ZIndex or 20) + 5
+
+    local function Part(Name, Pos, Size, Color, Radius, Rotation, Transparency)
+      local Obj = Custom:Create("Frame", {
+        Name = Name,
+        BackgroundColor3 = Color or White,
+        BackgroundTransparency = Transparency or 0,
+        BorderSizePixel = 0,
+        Position = Pos,
+        Size = Size,
+        Rotation = Rotation or 0,
+        ZIndex = Z
+      }, Holder)
+
+      Custom:Create("UICorner", {
+        CornerRadius = Radius or UDim.new(0, 4)
+      }, Obj)
+
+      return Obj
+    end
+
+    local function Ring(Name, Pos, Size, StrokeColor, Thickness)
+      local Obj = Part(Name, Pos, Size, Color3.fromRGB(255, 255, 255), UDim.new(1, 0), 0, 1)
+      Custom:Create("UIStroke", {
+        Color = StrokeColor or White,
+        Thickness = Thickness or 2,
+        Transparency = 0.05
+      }, Obj)
+      return Obj
+    end
+
+    if IconType == "discord" then
+      Part("Bubble", UDim2.new(0, 4, 0, 6), UDim2.new(0, 20, 0, 13), White, UDim.new(0, 7))
+      Part("BubbleTail", UDim2.new(0, 8, 0, 17), UDim2.new(0, 7, 0, 7), White, UDim.new(0, 2), 45)
+      Part("Dot1", UDim2.new(0, 10, 0, 11), UDim2.new(0, 3, 0, 3), Red, UDim.new(1, 0))
+      Part("Dot2", UDim2.new(0, 16, 0, 11), UDim2.new(0, 3, 0, 3), Red, UDim.new(1, 0))
+
+    elseif IconType == "player" then
+      Part("Head", UDim2.new(0, 9, 0, 4), UDim2.new(0, 10, 0, 10), White, UDim.new(1, 0))
+      Part("Body", UDim2.new(0, 6, 0, 16), UDim2.new(0, 16, 0, 8), White, UDim.new(0, 8))
+      Part("ChestGlow", UDim2.new(0, 9, 0, 19), UDim2.new(0, 10, 0, 2), Red, UDim.new(1, 0))
+
+    elseif IconType == "auto" then
+      Part("BoltTop", UDim2.new(0, 12, 0, 3), UDim2.new(0, 6, 0, 14), White, UDim.new(0, 2), 18)
+      Part("BoltBottom", UDim2.new(0, 8, 0, 13), UDim2.new(0, 7, 0, 13), Red, UDim.new(0, 2), 18)
+      Part("BoltCut", UDim2.new(0, 13, 0, 12), UDim2.new(0, 7, 0, 4), Dark, UDim.new(0, 2), 18)
+
+    elseif IconType == "treadmill" then
+      Part("Base", UDim2.new(0, 5, 0, 20), UDim2.new(0, 18, 0, 3), White, UDim.new(1, 0))
+      Part("Handle", UDim2.new(0, 18, 0, 9), UDim2.new(0, 3, 0, 13), Red, UDim.new(1, 0), -12)
+      Part("Head", UDim2.new(0, 8, 0, 5), UDim2.new(0, 5, 0, 5), White, UDim.new(1, 0))
+      Part("Body", UDim2.new(0, 11, 0, 10), UDim2.new(0, 3, 0, 10), White, UDim.new(1, 0), -25)
+      Part("Leg", UDim2.new(0, 9, 0, 16), UDim2.new(0, 3, 0, 8), Red, UDim.new(1, 0), 42)
+
+    elseif IconType == "rocks" then
+      Part("RockMain", UDim2.new(0, 6, 0, 8), UDim2.new(0, 17, 0, 14), White, UDim.new(0, 6), -8)
+      Part("RockSide", UDim2.new(0, 4, 0, 14), UDim2.new(0, 9, 0, 8), Soft, UDim.new(0, 4), 18)
+      Part("RockDot", UDim2.new(0, 15, 0, 12), UDim2.new(0, 3, 0, 3), Red, UDim.new(1, 0))
+
+    elseif IconType == "barlift" then
+      Part("Bar", UDim2.new(0, 4, 0, 13), UDim2.new(0, 20, 0, 3), White, UDim.new(1, 0))
+      Part("LeftWeight", UDim2.new(0, 2, 0, 9), UDim2.new(0, 4, 0, 11), Red, UDim.new(0, 2))
+      Part("RightWeight", UDim2.new(0, 22, 0, 9), UDim2.new(0, 4, 0, 11), Red, UDim.new(0, 2))
+      Part("CenterGrip", UDim2.new(0, 12, 0, 10), UDim2.new(0, 4, 0, 9), Soft, UDim.new(0, 2))
+
+    elseif IconType == "benchpress" then
+      Part("Bench", UDim2.new(0, 5, 0, 19), UDim2.new(0, 18, 0, 3), White, UDim.new(1, 0), -8)
+      Part("Bar", UDim2.new(0, 5, 0, 8), UDim2.new(0, 18, 0, 3), Red, UDim.new(1, 0))
+      Part("WeightL", UDim2.new(0, 3, 0, 5), UDim2.new(0, 3, 0, 9), White, UDim.new(0, 2))
+      Part("WeightR", UDim2.new(0, 22, 0, 5), UDim2.new(0, 3, 0, 9), White, UDim.new(0, 2))
+      Part("Body", UDim2.new(0, 10, 0, 14), UDim2.new(0, 9, 0, 3), Soft, UDim.new(1, 0), -8)
+
+    elseif IconType == "squatlift" then
+      Part("Person", UDim2.new(0, 12, 0, 8), UDim2.new(0, 5, 0, 13), White, UDim.new(1, 0), -8)
+      Part("Head", UDim2.new(0, 11, 0, 4), UDim2.new(0, 6, 0, 6), White, UDim.new(1, 0))
+      Part("Bar", UDim2.new(0, 5, 0, 9), UDim2.new(0, 18, 0, 3), Red, UDim.new(1, 0))
+      Part("Leg1", UDim2.new(0, 9, 0, 18), UDim2.new(0, 4, 0, 7), Soft, UDim.new(1, 0), 40)
+      Part("Leg2", UDim2.new(0, 16, 0, 18), UDim2.new(0, 4, 0, 7), Soft, UDim.new(1, 0), -40)
+
+    elseif IconType == "pullup" then
+      Part("TopBar", UDim2.new(0, 5, 0, 5), UDim2.new(0, 18, 0, 3), White, UDim.new(1, 0))
+      Part("ArmL", UDim2.new(0, 9, 0, 7), UDim2.new(0, 3, 0, 11), Red, UDim.new(1, 0), 22)
+      Part("ArmR", UDim2.new(0, 16, 0, 7), UDim2.new(0, 3, 0, 11), Red, UDim.new(1, 0), -22)
+      Part("Head", UDim2.new(0, 11, 0, 14), UDim2.new(0, 6, 0, 6), White, UDim.new(1, 0))
+      Part("Body", UDim2.new(0, 13, 0, 19), UDim2.new(0, 3, 0, 6), Soft, UDim.new(1, 0))
+
+    elseif IconType == "boulder" then
+      Part("Boulder", UDim2.new(0, 5, 0, 5), UDim2.new(0, 18, 0, 18), White, UDim.new(0, 9), 12)
+      Part("Crack1", UDim2.new(0, 13, 0, 8), UDim2.new(0, 3, 0, 11), Red, UDim.new(1, 0), 38)
+      Part("Crack2", UDim2.new(0, 10, 0, 15), UDim2.new(0, 8, 0, 3), Red, UDim.new(1, 0), 12)
+
+    elseif IconType == "stats" then
+      Part("Bar1", UDim2.new(0, 6, 0, 15), UDim2.new(0, 4, 0, 8), Red, UDim.new(0, 2))
+      Part("Bar2", UDim2.new(0, 12, 0, 10), UDim2.new(0, 4, 0, 13), White, UDim.new(0, 2))
+      Part("Bar3", UDim2.new(0, 18, 0, 6), UDim2.new(0, 4, 0, 17), Soft, UDim.new(0, 2))
+
+    elseif IconType == "regularfarm" then
+      Ring("Ring", UDim2.new(0, 6, 0, 6), UDim2.new(0, 16, 0, 16), White, 2)
+      Part("Arrow1", UDim2.new(0, 17, 0, 5), UDim2.new(0, 6, 0, 3), Red, UDim.new(0, 2), 32)
+      Part("Arrow2", UDim2.new(0, 5, 0, 18), UDim2.new(0, 6, 0, 3), Red, UDim.new(0, 2), 32)
+
+    elseif IconType == "packfarm" then
+      Part("Box", UDim2.new(0, 6, 0, 7), UDim2.new(0, 16, 0, 15), White, UDim.new(0, 4))
+      Part("Lid", UDim2.new(0, 8, 0, 5), UDim2.new(0, 12, 0, 4), Red, UDim.new(0, 3))
+      Part("Line", UDim2.new(0, 13, 0, 8), UDim2.new(0, 2, 0, 13), Soft, UDim.new(1, 0))
+
+    elseif IconType == "whitelist" then
+      Part("ShieldTop", UDim2.new(0, 7, 0, 5), UDim2.new(0, 14, 0, 15), White, UDim.new(0, 6))
+      Part("ShieldPoint", UDim2.new(0, 10, 0, 16), UDim2.new(0, 8, 0, 8), White, UDim.new(0, 2), 45)
+      Part("Check1", UDim2.new(0, 10, 0, 13), UDim2.new(0, 3, 0, 8), Red, UDim.new(1, 0), -42)
+      Part("Check2", UDim2.new(0, 14, 0, 10), UDim2.new(0, 3, 0, 11), Red, UDim.new(1, 0), 42)
+
+    elseif IconType == "killer" then
+      Part("Blade", UDim2.new(0, 12, 0, 2), UDim2.new(0, 5, 0, 19), White, UDim.new(0, 2), 40)
+      Part("Handle", UDim2.new(0, 7, 0, 18), UDim2.new(0, 11, 0, 3), Red, UDim.new(1, 0), 40)
+      Part("Grip", UDim2.new(0, 7, 0, 20), UDim2.new(0, 4, 0, 7), Soft, UDim.new(1, 0), 40)
+
+    elseif IconType == "targetkiller" then
+      Ring("Target1", UDim2.new(0, 5, 0, 5), UDim2.new(0, 18, 0, 18), White, 2)
+      Ring("Target2", UDim2.new(0, 9, 0, 9), UDim2.new(0, 10, 0, 10), Red, 2)
+      Part("Dot", UDim2.new(0, 12, 0, 12), UDim2.new(0, 4, 0, 4), White, UDim.new(1, 0))
+
+    elseif IconType == "deathring" then
+      Ring("DeathRing", UDim2.new(0, 5, 0, 5), UDim2.new(0, 18, 0, 18), Red, 2)
+      Part("Skull", UDim2.new(0, 9, 0, 8), UDim2.new(0, 10, 0, 9), White, UDim.new(0, 5))
+      Part("Eye1", UDim2.new(0, 11, 0, 11), UDim2.new(0, 2, 0, 2), Dark, UDim.new(1, 0))
+      Part("Eye2", UDim2.new(0, 15, 0, 11), UDim2.new(0, 2, 0, 2), Dark, UDim.new(1, 0))
+
+    elseif IconType == "deathringv2" then
+      Ring("Outer", UDim2.new(0, 4, 0, 4), UDim2.new(0, 20, 0, 20), White, 2)
+      Ring("Inner", UDim2.new(0, 9, 0, 9), UDim2.new(0, 10, 0, 10), Red, 2)
+      Part("Pulse", UDim2.new(0, 13, 0, 2), UDim2.new(0, 2, 0, 24), Soft, UDim.new(1, 0), 45)
+
+    elseif IconType == "shop" then
+      Part("Basket", UDim2.new(0, 6, 0, 9), UDim2.new(0, 16, 0, 9), White, UDim.new(0, 3))
+      Part("Handle", UDim2.new(0, 8, 0, 5), UDim2.new(0, 12, 0, 3), Red, UDim.new(1, 0))
+      Part("Wheel1", UDim2.new(0, 8, 0, 20), UDim2.new(0, 4, 0, 4), Soft, UDim.new(1, 0))
+      Part("Wheel2", UDim2.new(0, 18, 0, 20), UDim2.new(0, 4, 0, 4), Soft, UDim.new(1, 0))
+
+    elseif IconType == "damagecalc" then
+      Part("Calc", UDim2.new(0, 7, 0, 4), UDim2.new(0, 14, 0, 20), White, UDim.new(0, 4))
+      Part("Screen", UDim2.new(0, 10, 0, 7), UDim2.new(0, 8, 0, 3), Red, UDim.new(0, 2))
+      Part("B1", UDim2.new(0, 10, 0, 13), UDim2.new(0, 3, 0, 3), Dark, UDim.new(1, 0))
+      Part("B2", UDim2.new(0, 15, 0, 13), UDim2.new(0, 3, 0, 3), Dark, UDim.new(1, 0))
+      Part("B3", UDim2.new(0, 10, 0, 18), UDim2.new(0, 3, 0, 3), Red, UDim.new(1, 0))
+      Part("B4", UDim2.new(0, 15, 0, 18), UDim2.new(0, 3, 0, 3), Red, UDim.new(1, 0))
+
+    elseif IconType == "statcalc" then
+      Part("AxisX", UDim2.new(0, 5, 0, 21), UDim2.new(0, 18, 0, 3), White, UDim.new(1, 0))
+      Part("AxisY", UDim2.new(0, 5, 0, 6), UDim2.new(0, 3, 0, 18), White, UDim.new(1, 0))
+      Part("Line1", UDim2.new(0, 8, 0, 15), UDim2.new(0, 9, 0, 3), Red, UDim.new(1, 0), -28)
+      Part("Line2", UDim2.new(0, 15, 0, 10), UDim2.new(0, 8, 0, 3), Soft, UDim.new(1, 0), -28)
+
+    elseif IconType == "glitchcalc" then
+      Part("Block1", UDim2.new(0, 5, 0, 6), UDim2.new(0, 10, 0, 6), White, UDim.new(0, 3))
+      Part("Block2", UDim2.new(0, 13, 0, 11), UDim2.new(0, 10, 0, 6), Red, UDim.new(0, 3))
+      Part("Block3", UDim2.new(0, 7, 0, 17), UDim2.new(0, 14, 0, 5), Soft, UDim.new(0, 3))
+      Part("Cut", UDim2.new(0, 10, 0, 10), UDim2.new(0, 8, 0, 3), Dark, UDim.new(0, 2), -25)
+
+    elseif IconType == "music" then
+      Part("Stem", UDim2.new(0, 15, 0, 5), UDim2.new(0, 3, 0, 16), White, UDim.new(1, 0))
+      Part("Flag", UDim2.new(0, 15, 0, 5), UDim2.new(0, 8, 0, 4), Red, UDim.new(0, 2), 10)
+      Part("Note", UDim2.new(0, 8, 0, 17), UDim2.new(0, 8, 0, 6), White, UDim.new(1, 0))
+
+    elseif IconType == "usermusic" then
+      Ring("Headphones", UDim2.new(0, 6, 0, 5), UDim2.new(0, 16, 0, 16), White, 2)
+      Part("LeftPad", UDim2.new(0, 5, 0, 15), UDim2.new(0, 5, 0, 8), Red, UDim.new(0, 3))
+      Part("RightPad", UDim2.new(0, 18, 0, 15), UDim2.new(0, 5, 0, 8), Red, UDim.new(0, 3))
+      Part("Cut", UDim2.new(0, 8, 0, 12), UDim2.new(0, 12, 0, 12), Dark, UDim.new(1, 0))
+
+    elseif IconType == "teleport" then
+      Part("PinHead", UDim2.new(0, 8, 0, 4), UDim2.new(0, 12, 0, 12), White, UDim.new(1, 0))
+      Part("PinPoint", UDim2.new(0, 11, 0, 13), UDim2.new(0, 7, 0, 7), White, UDim.new(0, 2), 45)
+      Part("PinDot", UDim2.new(0, 12, 0, 8), UDim2.new(0, 4, 0, 4), Red, UDim.new(1, 0))
+      Part("Shadow", UDim2.new(0, 8, 0, 22), UDim2.new(0, 12, 0, 2), Soft, UDim.new(1, 0))
+
+    elseif IconType == "settings" then
+      Ring("GearRing", UDim2.new(0, 7, 0, 7), UDim2.new(0, 14, 0, 14), White, 2)
+      Part("GearDot", UDim2.new(0, 12, 0, 12), UDim2.new(0, 4, 0, 4), Red, UDim.new(1, 0))
+      Part("Tooth1", UDim2.new(0, 13, 0, 2), UDim2.new(0, 3, 0, 6), White, UDim.new(1, 0))
+      Part("Tooth2", UDim2.new(0, 13, 0, 20), UDim2.new(0, 3, 0, 6), White, UDim.new(1, 0))
+      Part("Tooth3", UDim2.new(0, 2, 0, 13), UDim2.new(0, 6, 0, 3), White, UDim.new(1, 0))
+      Part("Tooth4", UDim2.new(0, 20, 0, 13), UDim2.new(0, 6, 0, 3), White, UDim.new(1, 0))
+
+    else
+      Part("DotA", UDim2.new(0, 6, 0, 6), UDim2.new(0, 6, 0, 6), White, UDim.new(1, 0))
+      Part("DotB", UDim2.new(0, 16, 0, 6), UDim2.new(0, 6, 0, 6), Red, UDim.new(1, 0))
+      Part("DotC", UDim2.new(0, 11, 0, 16), UDim2.new(0, 6, 0, 6), Soft, UDim.new(1, 0))
+    end
+  end
+
+  function Custom:GetSectionSticker(Title)
+    local Text = tostring(Title or ""):lower():gsub("[^%w]", "")
+    if self.SectionStickers[Text] then
+      return self.SectionStickers[Text]
+    end
+
+    if Text:find("discord") then return "DC" end
+    if Text:find("local") or Text:find("player") then return "ME" end
+    if Text:find("auto") then return "AF" end
+    if Text:find("treadmill") then return "TR" end
+    if Text:find("rock") then return "RK" end
+    if Text:find("bar") then return "BL" end
+    if Text:find("bench") then return "BP" end
+    if Text:find("squat") then return "SQ" end
+    if Text:find("pull") then return "PU" end
+    if Text:find("boulder") then return "BO" end
+    if Text:find("rebirth") or Text:find("regular") then return "RB" end
+    if Text:find("pack") then return "PK" end
+    if Text:find("white") then return "WL" end
+    if Text:find("kill") then return "KL" end
+    if Text:find("target") then return "TG" end
+    if Text:find("death") then return "DR" end
+    if Text:find("shop") then return "SH" end
+    if Text:find("calc") or Text:find("damage") then return "DM" end
+    if Text:find("stat") then return "ST" end
+    if Text:find("music") then return "MS" end
+    if Text:find("teleport") then return "TP" end
+    if Text:find("setting") then return "SE" end
+
+    return "DV"
+  end
+
 
   function Custom:Create(Name, Properties, Parent)
     local _instance = Instance.new(Name)
@@ -66,25 +431,178 @@ end
 
 Custom:EnabledAFK()
 
+--// Doca V1 duplicate protection
+--// If the script is executed again, the old opened library/open button is removed first.
+local DOCA_MAIN_GUI_NAME = "DocaV1_SpeedHubXGui"
+local DOCA_OPEN_GUI_NAME = "DocaV1_OpenButtonGui"
+
+local function DocaGetGuiParent()
+  if RunService:IsStudio() then
+    return Player:WaitForChild("PlayerGui")
+  end
+
+  local okHui, hui = pcall(function()
+    if gethui then
+      return gethui()
+    end
+  end)
+  if okHui and hui then
+    return hui
+  end
+
+  local CoreGui = game:GetService("CoreGui")
+  local okClone, clonedCoreGui = pcall(function()
+    if cloneref then
+      return cloneref(CoreGui)
+    end
+  end)
+
+  if okClone and clonedCoreGui then
+    return clonedCoreGui
+  end
+
+  return CoreGui
+end
+
+local function DocaCloseOldLibrary()
+  local Parent = DocaGetGuiParent()
+
+  for _, GuiName in ipairs({DOCA_MAIN_GUI_NAME, DOCA_OPEN_GUI_NAME}) do
+    local OldGui = Parent:FindFirstChild(GuiName)
+    if OldGui then
+      pcall(function()
+        OldGui:Destroy()
+      end)
+    end
+  end
+
+  pcall(function()
+    if _G.DocaV1_MainGui and _G.DocaV1_MainGui.Parent then
+      _G.DocaV1_MainGui:Destroy()
+    end
+    if _G.DocaV1_OpenGui and _G.DocaV1_OpenGui.Parent then
+      _G.DocaV1_OpenGui:Destroy()
+    end
+  end)
+end
+
+DocaCloseOldLibrary()
+
+--// Doca V1 hard runtime cleanup
+--// Fixes stuck old Auto Kill / Auto Kill In Part / Ring Aura after re-execute.
+local function DocaHardRuntimeCleanup()
+  pcall(function()
+    _G.DocaV1_AutoKillActive = false
+
+    if _G.DocaV1_AutoKillConnections then
+      for _, Connection in pairs(_G.DocaV1_AutoKillConnections) do
+        pcall(function()
+          if Connection and Connection.Disconnect then
+            Connection:Disconnect()
+          end
+        end)
+      end
+    end
+    _G.DocaV1_AutoKillConnections = {}
+
+    if _G.DocaV1_AutoKillReturnCFrame and Player.Character then
+      local Root = Player.Character:FindFirstChild("HumanoidRootPart")
+      if Root then
+        Root.CFrame = _G.DocaV1_AutoKillReturnCFrame
+        Root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+        Root.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+        Root.Velocity = Vector3.new(0, 0, 0)
+        Root.RotVelocity = Vector3.new(0, 0, 0)
+      end
+    end
+    _G.DocaV1_AutoKillReturnCFrame = nil
+
+    local OldPart = workspace:FindFirstChild("DocaV1_AutoKillInPart")
+    if OldPart then
+      OldPart:Destroy()
+    end
+
+    _G.showDeathRing = false
+    if _G.visualizerConnection then
+      _G.visualizerConnection:Disconnect()
+      _G.visualizerConnection = nil
+    end
+    if _G.deathRingFolder then
+      _G.deathRingFolder:Destroy()
+      _G.deathRingFolder = nil
+    end
+    local OldRing = workspace:FindFirstChild("DeathRingVisualizer")
+    if OldRing then
+      OldRing:Destroy()
+    end
+    _G.ringParticles = {}
+  end)
+
+  --// Extra cleanup for previous versions where Auto Kill connections were local.
+  --// This only disconnects connections that look like Doca V1 Auto Kill closures.
+  pcall(function()
+    if getconnections and debug and debug.getupvalue then
+      local function LooksLikeDocaAutoKill(Function)
+        if type(Function) ~= "function" then
+          return false
+        end
+        for Index = 1, 80 do
+          local Name = debug.getupvalue(Function, Index)
+          if not Name then
+            break
+          end
+          if Name == "DocaStartKillingActive" or Name == "DocaAutoKillInPartEnabled" or Name == "DocaAutoKillPart" or Name == "DocaMoveMeToKillPart" then
+            return true
+          end
+        end
+        return false
+      end
+
+      for _, Signal in ipairs({RunService.Heartbeat, RunService.Stepped, RunService.RenderStepped}) do
+        for _, Connection in ipairs(getconnections(Signal)) do
+          local Function = Connection.Function or Connection.func or Connection.callback
+          if LooksLikeDocaAutoKill(Function) then
+            if Connection.Disable then
+              Connection:Disable()
+            elseif Connection.Disconnect then
+              Connection:Disconnect()
+            end
+          end
+        end
+      end
+    end
+  end)
+end
+
+DocaHardRuntimeCleanup()
+
 local function OpenClose()
   local ScreenGui = Custom:Create("ScreenGui", {
-    ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-  }, RunService:IsStudio() and Player.PlayerGui or (gethui() or cloneref(game:GetService("CoreGui")) or game:GetService("CoreGui")))
+    Name = DOCA_OPEN_GUI_NAME,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    IgnoreGuiInset = true,
+    ResetOnSpawn = false
+  }, DocaGetGuiParent())
 
   local Close_ImageButton = Custom:Create("ImageButton", {
-    BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-    BorderColor3 = Color3.fromRGB(255, 0, 0),
-    BackgroundTransparency = 1,
+    Name = "DocaOpenButton",
+    AutoButtonColor = false,
+    BackgroundColor3 = Color3.fromRGB(18, 18, 20),
+    BackgroundTransparency = 0.06,
+    BorderSizePixel = 0,
     Position = UDim2.new(0.1021, 0, 0.0743, 0),
-    Size = UDim2.new(0, 59, 0, 49),
+    Size = UDim2.new(0, 54, 0, 54),
     Image = "rbxassetid://117940532936627",
+    ImageColor3 = Color3.fromRGB(245, 245, 245),
+    ImageTransparency = 0.02,
     Visible = false,
   }, ScreenGui)
 
   local UICorner = Custom:Create("UICorner", {
     Name = "MainCorner",
-    CornerRadius = UDim.new(0, 14),
+    CornerRadius = UDim.new(0, 18),
   }, Close_ImageButton)
+
 
   local dragging, dragStart, startPos = false, nil, nil
 
@@ -117,6 +635,9 @@ local function OpenClose()
 end
 
 local Open_Close = OpenClose()
+pcall(function()
+  _G.DocaV1_OpenGui = Open_Close:FindFirstAncestorOfClass("ScreenGui")
+end)
 
 local function MakeDraggable(topbarobject, object)
   local dragging, dragStart, startPos = false, nil, nil
@@ -465,25 +986,110 @@ function Speed_Library:SetNotification(Config)
 end
 
 function Speed_Library:CreateWindow(Config)
+  Config = Config or {}
   local Title = Config[1] or Config.Title or ""
   local Description = Config[2] or Config.Description or ""
-  local TabWidth = Config[3] or Config["Tab Width"] or 120
-  local SizeUi = Config[4] or Config.SizeUi or UDim2.fromOffset(550, 315)
+  local TabWidth = Config[3] or Config["Tab Width"] or 135
+  local SizeUi = Config[4] or Config.SizeUi or UDim2.fromOffset(650, 330)
+
+  --// Rayfield-style key system settings
+  local KeySystem = Config.KeySystem == true or Config.Key_System == true or Config.UseKeySystem == true
+  local KeySettings = Config.KeySettings or Config.Key_Settings or {}
+  local KeyTitle = tostring(KeySettings.Title or Title or "Doca V1")
+  local KeySubtitle = tostring(KeySettings.Subtitle or "Key System")
+  local KeyNote = tostring(KeySettings.Note or "Enter your key to unlock the library.")
+  local KeyFileName = tostring(KeySettings.FileName or "DocaV1_Key") .. ".txt"
+  local SaveKey = KeySettings.SaveKey == true
+  local ForceKeyEveryLaunch = KeySettings.ForceEveryLaunch ~= false
+  local KeyLink = tostring(KeySettings.Link or KeySettings.Discord or (tostring(Description):find("discord.gg") and Description) or "")
+  local KeyList = KeySettings.Key or KeySettings.Keys or Config.Keys or {"DocaV1"}
+
+  if type(KeyList) == "string" then
+    KeyList = {KeyList}
+  elseif type(KeyList) ~= "table" then
+    KeyList = {"DocaV1"}
+  end
+
+  --// Admin bypass: these players open Doca V1 without the key system.
+  local KeyAdmins = KeySettings.Admins or KeySettings.AdminUsers or Config.Admins or {"Ayoo_Drxbble"}
+  if type(KeyAdmins) == "string" then
+    KeyAdmins = {KeyAdmins}
+  elseif type(KeyAdmins) ~= "table" then
+    KeyAdmins = {"Ayoo_Drxbble"}
+  end
+
+  local function IsKeySystemAdmin()
+    local PlayerName = tostring(Player.Name or ""):lower()
+    local PlayerDisplayName = tostring(Player.DisplayName or ""):lower()
+
+    for _, AdminName in ipairs(KeyAdmins) do
+      local AdminText = tostring(AdminName or ""):lower()
+      if AdminText ~= "" and (PlayerName == AdminText or PlayerDisplayName == AdminText) then
+        return true
+      end
+    end
+
+    return false
+  end
+
+  local AdminKeyBypass = IsKeySystemAdmin()
+
+  local function CheckKey(Value)
+    Value = tostring(Value or "")
+    for _, Key in ipairs(KeyList) do
+      if Value == tostring(Key) then
+        return true
+      end
+    end
+    return false
+  end
+
+  local function ReadSavedKey()
+    if not SaveKey then return false end
+    local Ok, Result = pcall(function()
+      if isfile and readfile and isfile(KeyFileName) then
+        return readfile(KeyFileName)
+      end
+    end)
+    return Ok and Result and CheckKey(Result)
+  end
+
+  local function WriteSavedKey(Value)
+    if not SaveKey then return end
+    pcall(function()
+      if writefile then
+        writefile(KeyFileName, tostring(Value or ""))
+      end
+    end)
+  end
+
+  --// Show key system every execute by default, so it never disappears because of an old saved key.
+  local SavedKeyValid = AdminKeyBypass or (ForceKeyEveryLaunch and false or ReadSavedKey())
 
   local Funcs = {}
 
   local SpeedHubXGui = Custom:Create("ScreenGui", {
-    ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-  }, RunService:IsStudio() and Player.PlayerGui or (gethui() or cloneref(game:GetService("CoreGui")) or game:GetService("CoreGui")))
+    Name = DOCA_MAIN_GUI_NAME,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    IgnoreGuiInset = true,
+    ResetOnSpawn = false
+  }, DocaGetGuiParent())
+
+  _G.DocaV1_MainGui = SpeedHubXGui
 
   local DropShadowHolder = Custom:Create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundTransparency = 1,
     BorderSizePixel = 0,
-    Size = UDim2.new(0, 455, 0, 350),
+    Size = UDim2.new(0, 650, 0, 365),
     ZIndex = 0,
     Name = "DropShadowHolder",
-    Position = UDim2.new(0, (SpeedHubXGui.AbsoluteSize.X // 2 - 455 // 2), 0, (SpeedHubXGui.AbsoluteSize.Y // 2 - 350 // 2))
+    Position = UDim2.new(0.5, 0, 0.5, 0)
   }, SpeedHubXGui)
+
+  if KeySystem and not SavedKeyValid then
+    DropShadowHolder.Visible = false
+  end
 
   local DropShadow = Custom:Create("ImageLabel", {
     Image = "rbxassetid://5028857472",
@@ -850,9 +1456,107 @@ function Speed_Library:CreateWindow(Config)
     BackgroundTransparency = 0.9990000128746033,
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     BorderSizePixel = 0,
-    Size = UDim2.new(1, 0, 1, -10),
+    Size = UDim2.new(1, 0, 1, -88),
     Name = "ScrollTab"
   }, LayersTab)
+
+  --// Side player profile: avatar + username + display name
+  local PlayerAvatarImage = ""
+  pcall(function()
+    PlayerAvatarImage = Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+  end)
+
+  local UserProfile = Custom:Create("Frame", {
+    Name = "UserProfile",
+    BackgroundColor3 = Color3.fromRGB(20, 20, 23),
+    BackgroundTransparency = 0.06,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 0, 1, -76),
+    Size = UDim2.new(1, 0, 0, 70),
+    ZIndex = 7
+  }, LayersTab)
+
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 13)}, UserProfile)
+  Custom:Create("UIStroke", {
+    Color = Custom.ColorRGB,
+    Thickness = 1,
+    Transparency = 0.48
+  }, UserProfile)
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(48, 16, 20)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 17))
+    },
+    Rotation = 25
+  }, UserProfile)
+
+  local AvatarHolder = Custom:Create("Frame", {
+    Name = "AvatarHolder",
+    BackgroundColor3 = Color3.fromRGB(30, 30, 34),
+    BackgroundTransparency = 0.18,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 8, 0.5, -20),
+    Size = UDim2.new(0, 40, 0, 40),
+    ZIndex = 8
+  }, UserProfile)
+
+  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, AvatarHolder)
+  Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 70, 86), Thickness = 1.2, Transparency = 0.12}, AvatarHolder)
+
+  local Avatar = Custom:Create("ImageLabel", {
+    Name = "Avatar",
+    Image = PlayerAvatarImage,
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 3, 0, 3),
+    Size = UDim2.new(1, -6, 1, -6),
+    ZIndex = 9
+  }, AvatarHolder)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, Avatar)
+
+  local OnlineDot = Custom:Create("Frame", {
+    Name = "OnlineDot",
+    BackgroundColor3 = Color3.fromRGB(75, 255, 125),
+    BorderSizePixel = 0,
+    AnchorPoint = Vector2.new(1, 1),
+    Position = UDim2.new(1, 1, 1, 1),
+    Size = UDim2.new(0, 9, 0, 9),
+    ZIndex = 10
+  }, AvatarHolder)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, OnlineDot)
+
+  local DisplayNameLabel = Custom:Create("TextLabel", {
+    Name = "DisplayName",
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Font = Enum.Font.GothamBold,
+    Text = tostring(Player.DisplayName or Player.Name),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextSize = 12,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Position = UDim2.new(0, 55, 0, 15),
+    Size = UDim2.new(1, -59, 0, 16),
+    ZIndex = 8
+  }, UserProfile)
+
+  local UsernameLabel = Custom:Create("TextLabel", {
+    Name = "Username",
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Font = Enum.Font.GothamMedium,
+    Text = "@" .. tostring(Player.Name),
+    TextColor3 = Color3.fromRGB(190, 190, 196),
+    TextSize = 10,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Position = UDim2.new(0, 55, 0, 34),
+    Size = UDim2.new(1, -59, 0, 14),
+    ZIndex = 8
+  }, UserProfile)
+
+  pcall(function()
+    DisplayNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    UsernameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+  end)
 
   local UIListLayout = Custom:Create("UIListLayout", {
     Padding = UDim.new(0, 0),
@@ -874,24 +1578,99 @@ function Speed_Library:CreateWindow(Config)
   ScrollTab.ChildAdded:Connect(UpdateSize)
   ScrollTab.ChildRemoved:Connect(UpdateSize)
 
+  local WindowHidden = false
+  local WindowAnimating = false
+  local WindowOpenPosition = DropShadowHolder.Position
+  local WindowStartPosition = UDim2.new(WindowOpenPosition.X.Scale, WindowOpenPosition.X.Offset, WindowOpenPosition.Y.Scale, WindowOpenPosition.Y.Offset - 95)
+  local FinalWindowSize = SizeUi
+
+  local function GetTopHiddenPosition()
+    return UDim2.new(WindowOpenPosition.X.Scale, WindowOpenPosition.X.Offset, WindowOpenPosition.Y.Scale, WindowOpenPosition.Y.Offset - 95)
+  end
+
+  local function SetWindowVisible(State)
+    if WindowAnimating or Speed_Library:IsUnloaded() then return end
+    WindowHidden = not State
+    WindowAnimating = true
+
+    if State then
+      DropShadowHolder.Visible = true
+      Open_Close.Visible = false
+      DropShadowHolder.Position = GetTopHiddenPosition()
+      Main.Size = UDim2.new(0, math.floor((FinalWindowSize.X.Offset > 0 and FinalWindowSize.X.Offset or Main.AbsoluteSize.X) * 0.94), 0, math.floor((FinalWindowSize.Y.Offset > 0 and FinalWindowSize.Y.Offset or Main.AbsoluteSize.Y) * 0.94))
+      DropShadow.Size = Main.Size
+      Main.BackgroundTransparency = 1
+      DropShadow.ImageTransparency = 1
+
+      TweenService:Create(DropShadowHolder, TweenInfo.new(0.46, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = WindowOpenPosition
+      }):Play()
+      TweenService:Create(Main, TweenInfo.new(0.42, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        Size = FinalWindowSize,
+        BackgroundTransparency = 0.05
+      }):Play()
+      TweenService:Create(DropShadow, TweenInfo.new(0.42, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        Size = FinalWindowSize,
+        ImageTransparency = 0.42
+      }):Play()
+
+      task.delay(0.48, function()
+        WindowAnimating = false
+      end)
+    else
+      Open_Close.Visible = true
+
+      TweenService:Create(DropShadowHolder, TweenInfo.new(0.34, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Position = GetTopHiddenPosition()
+      }):Play()
+      TweenService:Create(Main, TweenInfo.new(0.30, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        BackgroundTransparency = 1
+      }):Play()
+      TweenService:Create(DropShadow, TweenInfo.new(0.30, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        ImageTransparency = 1
+      }):Play()
+
+      task.delay(0.34, function()
+        if WindowHidden then
+          DropShadowHolder.Visible = false
+          DropShadowHolder.Position = WindowOpenPosition
+          Main.Size = FinalWindowSize
+          DropShadow.Size = FinalWindowSize
+          Main.BackgroundTransparency = 0.05
+          DropShadow.ImageTransparency = 0.42
+        end
+        WindowAnimating = false
+      end)
+    end
+  end
+
+  -- Minimize now hides the whole library and shows the old floating open button.
+  -- It does NOT collapse the library into a small top bar anymore.
   Min.Activated:Connect(function()
 		CircleClick(Min, Player:GetMouse().X, Player:GetMouse().Y)
-		DropShadowHolder.Visible = false
-
-		if not Open_Close.Visible then Open_Close.Visible = true end
+    SetWindowVisible(false)
 	end)
+
+  -- RightShift hides/shows the library using the same floating button system.
+  UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or Speed_Library:IsUnloaded() then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then
+      SetWindowVisible(WindowHidden)
+    end
+  end)
 
   Open_Close.Activated:Connect(function()
-		DropShadowHolder.Visible = true
-		if Open_Close.Visible then Open_Close.Visible = false end
+    SetWindowVisible(true)
 	end)
 
-  --// Premium close confirmation popup
+  --// Premium rounded delete/close confirmation popup
+  --// Soft rounded card, shadow, clean red accent and smooth open/close animations.
   local ConfirmOverlay = Custom:Create("TextButton", {
     Name = "ConfirmOverlay",
     Text = "",
     AutoButtonColor = false,
     Active = true,
+    Selectable = false,
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
     BackgroundTransparency = 1,
     BorderSizePixel = 0,
@@ -904,268 +1683,980 @@ function Speed_Library:CreateWindow(Config)
     ConfirmOverlay.Modal = true
   end)
 
+  local ConfirmCardSize = UDim2.new(0, 370, 0, 152)
+  local ConfirmCardSmallSize = UDim2.new(0, 340, 0, 126)
+
+  local ConfirmShadow = Custom:Create("ImageLabel", {
+    Name = "ConfirmShadow",
+    Image = "rbxassetid://5028857472",
+    ImageColor3 = Color3.fromRGB(0, 0, 0),
+    ImageTransparency = 1,
+    ScaleType = Enum.ScaleType.Slice,
+    SliceCenter = Rect.new(49, 49, 450, 450),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(0, 430, 0, 206),
+    ZIndex = 908
+  }, ConfirmOverlay)
+
   local ConfirmFrame = Custom:Create("Frame", {
     Name = "ConfirmFrame",
     AnchorPoint = Vector2.new(0.5, 0.5),
-    Position = UDim2.new(0.5, 0, 0.5, 18),
-    Size = UDim2.new(0, 0, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(18, 18, 21),
-    BackgroundTransparency = 0,
+    Position = UDim2.new(0.5, 0, 0.5, 8),
+    Size = ConfirmCardSmallSize,
+    BackgroundColor3 = Color3.fromRGB(10, 10, 13),
+    BackgroundTransparency = 1,
     BorderSizePixel = 0,
     ClipsDescendants = true,
     ZIndex = 910
   }, ConfirmOverlay)
 
   Custom:Create("UICorner", {
-    CornerRadius = UDim.new(0, 20)
+    CornerRadius = UDim.new(0, 22)
+  }, ConfirmFrame)
+
+  Custom:Create("UIStroke", {
+    Color = Color3.fromRGB(255, 55, 70),
+    Thickness = 1.15,
+    Transparency = 0.22
   }, ConfirmFrame)
 
   Custom:Create("UIGradient", {
     Color = ColorSequence.new{
-      ColorSequenceKeypoint.new(0, Color3.fromRGB(26, 22, 24)),
-      ColorSequenceKeypoint.new(0.45, Color3.fromRGB(18, 18, 21)),
-      ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 12))
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(18, 18, 22)),
+      ColorSequenceKeypoint.new(0.55, Color3.fromRGB(12, 12, 15)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(22, 6, 9))
     },
-    Rotation = 90
-  }, ConfirmFrame)
-
-  Custom:Create("UIStroke", {
-    Color = Custom.ColorRGB,
-    Thickness = 1.3,
-    Transparency = 0.18
+    Rotation = 0
   }, ConfirmFrame)
 
   local ConfirmTopGlow = Custom:Create("Frame", {
     Name = "ConfirmTopGlow",
     AnchorPoint = Vector2.new(0.5, 0),
     BackgroundColor3 = Custom.ColorRGB,
-    BackgroundTransparency = 0.08,
+    BackgroundTransparency = 1,
     BorderSizePixel = 0,
-    Position = UDim2.new(0.5, 0, 0, 0),
-    Size = UDim2.new(1, -26, 0, 3),
-    ZIndex = 912
+    Position = UDim2.new(0.5, 0, 0, -36),
+    Size = UDim2.new(0, 0, 0, 0),
+    ZIndex = 911
+  }, ConfirmFrame)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, ConfirmTopGlow)
+
+  local ConfirmAccent = Custom:Create("Frame", {
+    Name = "ConfirmAccent",
+    BackgroundColor3 = Custom.ColorRGB,
+    BackgroundTransparency = 0.18,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0, 22, 0, 16),
+    Size = UDim2.new(1, -44, 0, 2),
+    ZIndex = 914
   }, ConfirmFrame)
 
-  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, ConfirmTopGlow)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, ConfirmAccent)
   Custom:Create("UIGradient", {
     Color = ColorSequence.new{
-      ColorSequenceKeypoint.new(0, Color3.fromRGB(18, 18, 21)),
-      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 55, 70)),
-      ColorSequenceKeypoint.new(1, Color3.fromRGB(18, 18, 21))
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(14, 14, 17)),
+      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 70, 86)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(14, 14, 17))
     }
-  }, ConfirmTopGlow)
+  }, ConfirmAccent)
 
   local ConfirmIcon = Custom:Create("Frame", {
     Name = "ConfirmIcon",
-    BackgroundColor3 = Custom.ColorRGB,
-    BackgroundTransparency = 0.85,
+    BackgroundColor3 = Color3.fromRGB(255, 45, 62),
+    BackgroundTransparency = 0.08,
     BorderSizePixel = 0,
-    Position = UDim2.new(0, 18, 0, 18),
-    Size = UDim2.new(0, 36, 0, 36),
-    ZIndex = 912
+    Position = UDim2.new(0, 24, 0, 37),
+    Size = UDim2.new(0, 42, 0, 42),
+    ZIndex = 914
   }, ConfirmFrame)
 
-  Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, ConfirmIcon)
-  Custom:Create("UIStroke", {Color = Custom.ColorRGB, Thickness = 1.2, Transparency = 0.25}, ConfirmIcon)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 14)}, ConfirmIcon)
+  Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.72}, ConfirmIcon)
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 72, 88)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 10, 24))
+    },
+    Rotation = 35
+  }, ConfirmIcon)
 
-  local ConfirmIconText = Custom:Create("TextLabel", {
+  Custom:Create("TextLabel", {
     Name = "ConfirmIconText",
     BackgroundTransparency = 1,
     Size = UDim2.new(1, 0, 1, 0),
-    Font = Enum.Font.GothamBold,
+    Font = Enum.Font.GothamBlack,
     Text = "!",
-    TextColor3 = Custom.ColorRGB,
-    TextSize = 21,
-    ZIndex = 913
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextSize = 24,
+    ZIndex = 915
   }, ConfirmIcon)
 
-  local ConfirmTitle = Custom:Create("TextLabel", {
+  Custom:Create("TextLabel", {
     Name = "ConfirmTitle",
     BackgroundTransparency = 1,
-    Position = UDim2.new(0, 66, 0, 18),
-    Size = UDim2.new(1, -84, 0, 24),
-    Font = Enum.Font.GothamBold,
-    Text = "Close Library?",
+    Position = UDim2.new(0, 80, 0, 34),
+    Size = UDim2.new(1, -102, 0, 26),
+    Font = Enum.Font.GothamBlack,
+    Text = "Close Doca V1?",
     TextColor3 = Color3.fromRGB(255, 255, 255),
     TextSize = 18,
     TextWrapped = true,
     TextXAlignment = Enum.TextXAlignment.Left,
-    ZIndex = 912
+    ZIndex = 914
   }, ConfirmFrame)
 
-  local ConfirmText = Custom:Create("TextLabel", {
+  Custom:Create("TextLabel", {
     Name = "ConfirmText",
     BackgroundTransparency = 1,
-    Position = UDim2.new(0, 66, 0, 45),
-    Size = UDim2.new(1, -84, 0, 42),
-    Font = Enum.Font.Gotham,
-    Text = "This will turn off enabled toggles and close the library safely.",
-    TextColor3 = Color3.fromRGB(185, 185, 192),
+    Position = UDim2.new(0, 80, 0, 61),
+    Size = UDim2.new(1, -102, 0, 38),
+    Font = Enum.Font.GothamMedium,
+    Text = "This will close the library and safely turn off enabled functions.",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
     TextSize = 13,
     TextWrapped = true,
     TextXAlignment = Enum.TextXAlignment.Left,
     TextYAlignment = Enum.TextYAlignment.Top,
-    ZIndex = 912
+    ZIndex = 914
   }, ConfirmFrame)
 
-  local NoButton = Custom:Create("TextButton", {
-    Name = "NoButton",
+  local CancelButton = Custom:Create("TextButton", {
+    Name = "CancelButton",
     AutoButtonColor = false,
-    Position = UDim2.new(0, 18, 1, -52),
-    Size = UDim2.new(0.5, -24, 0, 36),
-    BackgroundColor3 = Color3.fromRGB(38, 38, 43),
+    Position = UDim2.new(0, 22, 1, -44),
+    Size = UDim2.new(0.5, -31, 0, 32),
+    BackgroundColor3 = Color3.fromRGB(30, 30, 36),
+    BackgroundTransparency = 0.02,
     BorderSizePixel = 0,
-    Font = Enum.Font.GothamBold,
-    Text = "No",
+    Font = Enum.Font.GothamBlack,
+    Text = "",
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 14,
-    ZIndex = 912
+    TextSize = 12,
+    ZIndex = 914
   }, ConfirmFrame)
 
-  local YesButton = Custom:Create("TextButton", {
-    Name = "YesButton",
+  local DeleteButton = Custom:Create("TextButton", {
+    Name = "DeleteButton",
     AutoButtonColor = false,
     AnchorPoint = Vector2.new(1, 0),
-    Position = UDim2.new(1, -18, 1, -52),
-    Size = UDim2.new(0.5, -24, 0, 36),
+    Position = UDim2.new(1, -22, 1, -44),
+    Size = UDim2.new(0.5, -31, 0, 32),
     BackgroundColor3 = Custom.ColorRGB,
+    BackgroundTransparency = 0,
     BorderSizePixel = 0,
-    Font = Enum.Font.GothamBold,
-    Text = "Yes, close",
+    Font = Enum.Font.GothamBlack,
+    Text = "",
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    TextSize = 14,
-    ZIndex = 912
+    TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+    TextStrokeTransparency = 0.62,
+    TextSize = 12,
+    ZIndex = 914
   }, ConfirmFrame)
 
-  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 10)}, NoButton)
-  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 10)}, YesButton)
-  ApplyHover(NoButton, 0, 0, Color3.fromRGB(38, 38, 43), Color3.fromRGB(58, 58, 64))
-  ApplyHover(YesButton, 0, 0, Custom.ColorRGB, Color3.fromRGB(255, 60, 78))
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 12)}, CancelButton)
+  Custom:Create("UICorner", {CornerRadius = UDim.new(0, 12)}, DeleteButton)
+  Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.88}, CancelButton)
+  Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.62}, DeleteButton)
+  Custom:Create("UIGradient", {
+    Color = ColorSequence.new{
+      ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 42, 58)),
+      ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 86, 100)),
+      ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 12, 28))
+    },
+    Rotation = 25
+  }, DeleteButton)
 
-  local ConfirmBusy = false
+
+  --// Separate always-white labels, so gradients/strokes never hide the button text.
+  Custom:Create("TextLabel", {
+    Name = "CancelButtonWhiteText",
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Size = UDim2.new(1, 0, 1, 0),
+    Font = Enum.Font.GothamBlack,
+    Text = "CANCEL",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+    TextStrokeTransparency = 0.65,
+    TextSize = 12,
+    TextXAlignment = Enum.TextXAlignment.Center,
+    TextYAlignment = Enum.TextYAlignment.Center,
+    ZIndex = 916
+  }, CancelButton)
+
+  Custom:Create("TextLabel", {
+    Name = "DeleteButtonWhiteText",
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Size = UDim2.new(1, 0, 1, 0),
+    Font = Enum.Font.GothamBlack,
+    Text = "CLOSE",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+    TextStrokeTransparency = 0.55,
+    TextSize = 12,
+    TextXAlignment = Enum.TextXAlignment.Center,
+    TextYAlignment = Enum.TextYAlignment.Center,
+    ZIndex = 916
+  }, DeleteButton)
+
+  local ConfirmOpen = false
+  local ConfirmClosing = false
+  local ConfirmTweening = false
+
   local function ShowConfirm()
-    if ConfirmBusy then return end
-    ConfirmBusy = true
+    if ConfirmOpen or ConfirmClosing or ConfirmTweening then return end
+    ConfirmOpen = true
+    ConfirmTweening = true
     ConfirmOverlay.Visible = true
     ConfirmOverlay.BackgroundTransparency = 1
-    ConfirmFrame.Size = UDim2.new(0, 0, 0, 0)
-    ConfirmFrame.Position = UDim2.new(0.5, 0, 0.5, 22)
+    ConfirmFrame.Visible = true
+    ConfirmFrame.Position = UDim2.new(0.5, 0, 0.5, 8)
+    ConfirmFrame.Size = ConfirmCardSmallSize
+    ConfirmFrame.BackgroundTransparency = 1
+    ConfirmShadow.ImageTransparency = 1
 
     TweenService:Create(ConfirmOverlay, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-      BackgroundTransparency = 0.38
+      BackgroundTransparency = 0.46
+    }):Play()
+    TweenService:Create(ConfirmShadow, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+      ImageTransparency = 0.48
     }):Play()
     TweenService:Create(ConfirmFrame, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-      Size = UDim2.new(0, 390, 0, 154),
-      Position = UDim2.new(0.5, 0, 0.5, 0)
+      Position = UDim2.new(0.5, 0, 0.5, 0),
+      Size = ConfirmCardSize,
+      BackgroundTransparency = 0.01
     }):Play()
 
-    task.wait(0.28)
-    ConfirmBusy = false
+    task.delay(0.30, function()
+      ConfirmTweening = false
+    end)
   end
 
   local function HideConfirm()
-    if ConfirmBusy then return end
-    ConfirmBusy = true
+    if not ConfirmOpen or ConfirmClosing or ConfirmTweening then return end
+    ConfirmOpen = false
+    ConfirmTweening = true
 
     TweenService:Create(ConfirmOverlay, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
       BackgroundTransparency = 1
     }):Play()
-    TweenService:Create(ConfirmFrame, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-      Size = UDim2.new(0, 0, 0, 0),
-      Position = UDim2.new(0.5, 0, 0.5, -18)
+    TweenService:Create(ConfirmShadow, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      ImageTransparency = 1
+    }):Play()
+    TweenService:Create(ConfirmFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      Position = UDim2.new(0.5, 0, 0.5, 8),
+      Size = ConfirmCardSmallSize,
+      BackgroundTransparency = 1
     }):Play()
 
-    task.wait(0.16)
-    ConfirmOverlay.Visible = false
-    ConfirmBusy = false
+    task.delay(0.19, function()
+      if not ConfirmOpen then
+        ConfirmOverlay.Visible = false
+      end
+      ConfirmTweening = false
+    end)
   end
 
   local function CloseLibraryAnimated()
-    if ConfirmBusy then return end
-    ConfirmBusy = true
+    if ConfirmClosing then return end
+    ConfirmClosing = true
+    ConfirmOpen = false
 
-    Speed_Library:_RunUnload()
+    task.spawn(function()
+      Speed_Library:_RunUnload()
+    end)
 
-    local EndPosition = UDim2.new(
-      DropShadowHolder.Position.X.Scale,
-      DropShadowHolder.Position.X.Offset,
-      DropShadowHolder.Position.Y.Scale,
-      DropShadowHolder.Position.Y.Offset - 70
-    )
+    ConfirmOverlay.Visible = false
+    Open_Close.Visible = false
 
-    TweenService:Create(ConfirmFrame, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-      Size = UDim2.new(0, 0, 0, 0),
-      Position = UDim2.new(0.5, 0, 0.5, -20)
-    }):Play()
-    TweenService:Create(ConfirmOverlay, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-      BackgroundTransparency = 1
-    }):Play()
-    local CloseShrinkSize = UDim2.new(0, math.max(40, math.floor(Main.AbsoluteSize.X * 0.92)), 0, math.max(40, math.floor(Main.AbsoluteSize.Y * 0.92)))
+    local EndPosition = GetTopHiddenPosition()
+    local ShrinkSize = UDim2.new(0, math.floor((FinalWindowSize.X.Offset > 0 and FinalWindowSize.X.Offset or Main.AbsoluteSize.X) * 0.90), 0, math.floor((FinalWindowSize.Y.Offset > 0 and FinalWindowSize.Y.Offset or Main.AbsoluteSize.Y) * 0.90))
 
-    TweenService:Create(DropShadowHolder, TweenInfo.new(0.36, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+    TweenService:Create(DropShadowHolder, TweenInfo.new(0.34, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
       Position = EndPosition
     }):Play()
-    TweenService:Create(Main, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+
+    TweenService:Create(Main, TweenInfo.new(0.30, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
       BackgroundTransparency = 1,
-      Size = CloseShrinkSize
-    }):Play()
-    TweenService:Create(DropShadow, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
-      ImageTransparency = 1,
-      Size = CloseShrinkSize
+      Size = ShrinkSize
     }):Play()
 
-    task.wait(0.36)
-    if SpeedHubXGui then SpeedHubXGui:Destroy() end
+    TweenService:Create(DropShadow, TweenInfo.new(0.30, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      ImageTransparency = 1,
+      Size = ShrinkSize
+    }):Play()
+
+    task.delay(0.36, function()
+      if Open_Close then Open_Close:Destroy() end
+      if SpeedHubXGui then SpeedHubXGui:Destroy() end
+      _G.DocaV1_MainGui = nil
+      _G.DocaV1_OpenGui = nil
+    end)
   end
 
   Close.Activated:Connect(function()
-    CircleClick(Close, Player:GetMouse().X, Player:GetMouse().Y)
     ShowConfirm()
   end)
 
-  NoButton.Activated:Connect(function()
-    CircleClick(NoButton, Player:GetMouse().X, Player:GetMouse().Y)
+  CancelButton.Activated:Connect(function()
     HideConfirm()
   end)
 
-  YesButton.Activated:Connect(function()
-    CircleClick(YesButton, Player:GetMouse().X, Player:GetMouse().Y)
+  DeleteButton.Activated:Connect(function()
     CloseLibraryAnimated()
   end)
 
   local BaseWindowWidth = (SizeUi.X.Offset > 0 and SizeUi.X.Offset or 550)
   local BaseWindowHeight = (SizeUi.Y.Offset > 0 and SizeUi.Y.Offset or 315)
   local AutoWindowWidth = math.max(BaseWindowWidth, 150 + TextLabel.TextBounds.X + TextLabel1.TextBounds.X + TabWidth)
-  local FinalWindowSize = UDim2.new(0, AutoWindowWidth, 0, BaseWindowHeight)
+  FinalWindowSize = UDim2.new(0, AutoWindowWidth, 0, BaseWindowHeight)
   DropShadow.Size = FinalWindowSize
   Main.Size = FinalWindowSize
+  NormalWindowSize = FinalWindowSize
+  DropShadowHolder.AnchorPoint = Vector2.new(0.5, 0.5)
   DropShadowHolder.Size = UDim2.new(0, AutoWindowWidth + 10, 0, BaseWindowHeight + 35)
+  DropShadowHolder.Position = UDim2.new(0.5, 0, 0.5, 0)
 
-  local WindowOpenPosition = DropShadowHolder.Position
-  local WindowStartPosition = UDim2.new(WindowOpenPosition.X.Scale, WindowOpenPosition.X.Offset, WindowOpenPosition.Y.Scale, WindowOpenPosition.Y.Offset - 85)
+  WindowOpenPosition = UDim2.new(0.5, 0, 0.5, 0)
+  WindowStartPosition = UDim2.new(WindowOpenPosition.X.Scale, WindowOpenPosition.X.Offset, WindowOpenPosition.Y.Scale, WindowOpenPosition.Y.Offset - 95)
   local OpenStartSize = UDim2.new(0, math.floor(AutoWindowWidth * 0.94), 0, math.floor(BaseWindowHeight * 0.94))
 
-  DropShadowHolder.Position = WindowStartPosition
-  Main.BackgroundTransparency = 1
-  DropShadow.ImageTransparency = 1
-  Main.Size = OpenStartSize
-  DropShadow.Size = OpenStartSize
+  local function PlayWindowIntro()
+    if not DropShadowHolder or not DropShadowHolder.Parent then return end
+    WindowHidden = false
+    WindowAnimating = true
+    DropShadowHolder.Visible = true
+    Open_Close.Visible = false
+    DropShadowHolder.Position = WindowStartPosition
+    Main.BackgroundTransparency = 1
+    DropShadow.ImageTransparency = 1
+    Main.Size = OpenStartSize
+    DropShadow.Size = OpenStartSize
 
-  task.defer(function()
-    if DropShadowHolder and DropShadowHolder.Parent then
-      TweenService:Create(DropShadowHolder, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Position = WindowOpenPosition
-      }):Play()
-      TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-        BackgroundTransparency = 0.05,
-        Size = FinalWindowSize
-      }):Play()
-      TweenService:Create(DropShadow, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-        ImageTransparency = 0.42,
-        Size = FinalWindowSize
-      }):Play()
+    TweenService:Create(DropShadowHolder, TweenInfo.new(0.52, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+      Position = WindowOpenPosition
+    }):Play()
+    TweenService:Create(Main, TweenInfo.new(0.46, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+      BackgroundTransparency = 0.05,
+      Size = FinalWindowSize
+    }):Play()
+    TweenService:Create(DropShadow, TweenInfo.new(0.46, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+      ImageTransparency = 0.42,
+      Size = FinalWindowSize
+    }):Play()
+
+    task.delay(0.54, function()
+      WindowAnimating = false
+    end)
+  end
+
+  local function CreateRayfieldKeySystem(OnUnlock)
+    local DiscordText = KeyLink ~= "" and KeyLink or "https://discord.gg/ZQ7dms4EyD"
+    local EnteredOnce = false
+
+    local KeyOverlay = Custom:Create("TextButton", {
+      Name = "DocaKeyOverlay",
+      Text = "",
+      AutoButtonColor = false,
+      Active = true,
+      Selectable = false,
+      BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Size = UDim2.new(1, 0, 1, 0),
+      ZIndex = 3000
+    }, SpeedHubXGui)
+
+    pcall(function()
+      KeyOverlay.Modal = true
+    end)
+
+    local KeyHolder = Custom:Create("Frame", {
+      Name = "DocaKeyHolder",
+      AnchorPoint = Vector2.new(0.5, 0.5),
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Position = UDim2.new(0.5, 0, 0.5, -95),
+      Size = UDim2.new(0, 690, 0, 380),
+      ZIndex = 3001
+    }, KeyOverlay)
+
+    --// Mobile fit: scales the whole key system down so it always stays inside the screen.
+    local KeyMobileScale = Custom:Create("UIScale", {
+      Name = "KeyMobileScale",
+      Scale = 1
+    }, KeyHolder)
+
+    local function UpdateKeyMobileScale()
+      local ViewportSize = Vector2.new(690, 380)
+
+      pcall(function()
+        if workspace.CurrentCamera then
+          ViewportSize = workspace.CurrentCamera.ViewportSize
+        end
+      end)
+
+      local Padding = 24
+      local ScaleX = math.clamp((ViewportSize.X - Padding) / 690, 0.55, 1)
+      local ScaleY = math.clamp((ViewportSize.Y - Padding) / 380, 0.55, 1)
+      KeyMobileScale.Scale = math.min(ScaleX, ScaleY)
     end
-  end)
+
+    UpdateKeyMobileScale()
+
+    pcall(function()
+      if workspace.CurrentCamera then
+        workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateKeyMobileScale)
+      end
+    end)
+
+    local KeyShadow = Custom:Create("ImageLabel", {
+      Name = "KeyShadow",
+      Image = "rbxassetid://5028857472",
+      ImageColor3 = Color3.fromRGB(0, 0, 0),
+      ImageTransparency = 1,
+      ScaleType = Enum.ScaleType.Slice,
+      SliceCenter = Rect.new(49, 49, 450, 450),
+      AnchorPoint = Vector2.new(0.5, 0.5),
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Position = UDim2.new(0.5, 0, 0.5, 0),
+      Size = UDim2.new(1, 56, 1, 56),
+      ZIndex = 3001
+    }, KeyHolder)
+
+    local KeyCard = Custom:Create("Frame", {
+      Name = "KeyCard",
+      AnchorPoint = Vector2.new(0.5, 0.5),
+      BackgroundColor3 = Color3.fromRGB(13, 13, 15),
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      ClipsDescendants = true,
+      Position = UDim2.new(0.5, 0, 0.5, 0),
+      Size = UDim2.new(1, 0, 1, 0),
+      ZIndex = 3002
+    }, KeyHolder)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 22)}, KeyCard)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 35, 55), Thickness = 1.4, Transparency = 0.36}, KeyCard)
+
+    local KeyGradient = Custom:Create("UIGradient", {
+      Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(18, 18, 20)),
+        ColorSequenceKeypoint.new(0.44, Color3.fromRGB(12, 12, 14)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 9, 17))
+      },
+      Rotation = 0
+    }, KeyCard)
+
+    task.spawn(function()
+      while KeyCard and KeyCard.Parent do
+        TweenService:Create(KeyGradient, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 18}):Play()
+        task.wait(4)
+        TweenService:Create(KeyGradient, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = -14}):Play()
+        task.wait(4)
+      end
+    end)
+
+    local RedGlow = Custom:Create("Frame", {
+      Name = "KeyRedGlow",
+      AnchorPoint = Vector2.new(0.5, 0.5),
+      BackgroundColor3 = Color3.fromRGB(255, 22, 42),
+      BackgroundTransparency = 0.88,
+      BorderSizePixel = 0,
+      Position = UDim2.new(0.78, 0, 0.22, 0),
+      Size = UDim2.new(0, 250, 0, 250),
+      ZIndex = 3003
+    }, KeyCard)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, RedGlow)
+
+    local TopBar = Custom:Create("Frame", {
+      Name = "KeyTopBar",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Size = UDim2.new(1, 0, 0, 48),
+      ZIndex = 3010
+    }, KeyCard)
+
+    Custom:Create("TextLabel", {
+      Name = "KeyBrand",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = "Doca V1",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 15,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      Position = UDim2.new(0, 20, 0, 0),
+      Size = UDim2.new(0, 80, 1, 0),
+      ZIndex = 3011
+    }, TopBar)
+
+    local HeaderLink = Custom:Create("TextLabel", {
+      Name = "KeyHeaderDiscord",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = DiscordText,
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 13,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      Position = UDim2.new(0, 98, 0, 0),
+      Size = UDim2.new(1, -155, 1, 0),
+      ZIndex = 3011
+    }, TopBar)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 0.25, Transparency = 0.55}, HeaderLink)
+
+    local KeyClose = Custom:Create("TextButton", {
+      Name = "KeyClose",
+      AutoButtonColor = false,
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBold,
+      Text = "X",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 14,
+      AnchorPoint = Vector2.new(1, 0.5),
+      Position = UDim2.new(1, -16, 0.5, 0),
+      Size = UDim2.new(0, 32, 0, 32),
+      ZIndex = 3011
+    }, TopBar)
+
+    local Line = Custom:Create("Frame", {
+      Name = "KeyTopLine",
+      AnchorPoint = Vector2.new(0.5, 0),
+      BackgroundColor3 = Custom.ColorRGB,
+      BackgroundTransparency = 0.06,
+      BorderSizePixel = 0,
+      ClipsDescendants = true,
+      Position = UDim2.new(0.5, 0, 0, 47),
+      Size = UDim2.new(1, -38, 0, 2),
+      ZIndex = 3010
+    }, KeyCard)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, Line)
+    Custom:Create("UIGradient", {
+      Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 12, 14)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 45, 62)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 14))
+      }
+    }, Line)
+
+    local LineShine = Custom:Create("Frame", {
+      Name = "LineShine",
+      AnchorPoint = Vector2.new(0.5, 0.5),
+      BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+      BackgroundTransparency = 0.1,
+      BorderSizePixel = 0,
+      Position = UDim2.new(-0.15, 0, 0.5, 0),
+      Size = UDim2.new(0, 85, 0, 8),
+      ZIndex = 3012
+    }, Line)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, LineShine)
+    Custom:Create("UIGradient", {
+      Transparency = NumberSequence.new{
+        NumberSequenceKeypoint.new(0, 1),
+        NumberSequenceKeypoint.new(0.5, 0),
+        NumberSequenceKeypoint.new(1, 1)
+      }
+    }, LineShine)
+
+    task.spawn(function()
+      while LineShine and LineShine.Parent do
+        LineShine.Position = UDim2.new(-0.16, 0, 0.5, 0)
+        TweenService:Create(LineShine, TweenInfo.new(1.45, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.16, 0, 0.5, 0)}):Play()
+        task.wait(2.2)
+      end
+    end)
+
+    local LeftPanel = Custom:Create("Frame", {
+      Name = "KeyLeftPanel",
+      BackgroundColor3 = Color3.fromRGB(16, 16, 18),
+      BackgroundTransparency = 0.02,
+      BorderSizePixel = 0,
+      ClipsDescendants = true,
+      Position = UDim2.new(0, 20, 0, 66),
+      Size = UDim2.new(0, 206, 1, -86),
+      ZIndex = 3006
+    }, KeyCard)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 18)}, LeftPanel)
+    Custom:Create("UIStroke", {Color = Custom.ColorRGB, Thickness = 1, Transparency = 0.48}, LeftPanel)
+    Custom:Create("UIGradient", {
+      Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(48, 12, 18)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 17))
+      },
+      Rotation = 35
+    }, LeftPanel)
+
+    local AvatarRing = Custom:Create("Frame", {
+      Name = "KeyAvatarRing",
+      BackgroundColor3 = Color3.fromRGB(30, 30, 34),
+      BackgroundTransparency = 0.03,
+      BorderSizePixel = 0,
+      Position = UDim2.new(0.5, -44, 0, 24),
+      Size = UDim2.new(0, 88, 0, 88),
+      ZIndex = 3010
+    }, LeftPanel)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, AvatarRing)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 68, 86), Thickness = 1.6, Transparency = 0.08}, AvatarRing)
+
+    local KeyAvatar = Custom:Create("ImageLabel", {
+      Name = "KeyAvatar",
+      Image = PlayerAvatarImage,
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Position = UDim2.new(0, 6, 0, 6),
+      Size = UDim2.new(1, -12, 1, -12),
+      ZIndex = 3011
+    }, AvatarRing)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, KeyAvatar)
+
+    local OnlineDot = Custom:Create("Frame", {
+      Name = "KeyOnlineDot",
+      BackgroundColor3 = Color3.fromRGB(70, 255, 120),
+      BorderSizePixel = 0,
+      AnchorPoint = Vector2.new(1, 1),
+      Position = UDim2.new(1, 0, 1, 0),
+      Size = UDim2.new(0, 15, 0, 15),
+      ZIndex = 3012
+    }, AvatarRing)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, OnlineDot)
+
+    Custom:Create("TextLabel", {
+      Name = "KeyDisplayName",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = Player.DisplayName,
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 16,
+      TextXAlignment = Enum.TextXAlignment.Center,
+      TextTruncate = Enum.TextTruncate.AtEnd,
+      Position = UDim2.new(0, 14, 0, 124),
+      Size = UDim2.new(1, -28, 0, 24),
+      ZIndex = 3010
+    }, LeftPanel)
+
+    Custom:Create("TextLabel", {
+      Name = "KeyUserName",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamMedium,
+      Text = "@" .. Player.Name,
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 12,
+      TextXAlignment = Enum.TextXAlignment.Center,
+      TextTruncate = Enum.TextTruncate.AtEnd,
+      Position = UDim2.new(0, 14, 0, 149),
+      Size = UDim2.new(1, -28, 0, 18),
+      ZIndex = 3010
+    }, LeftPanel)
+
+    local DiscordCard = Custom:Create("Frame", {
+      Name = "DiscordCard",
+      BackgroundColor3 = Color3.fromRGB(23, 23, 27),
+      BackgroundTransparency = 0.05,
+      BorderSizePixel = 0,
+      Position = UDim2.new(0, 14, 1, -98),
+      Size = UDim2.new(1, -28, 0, 82),
+      ZIndex = 3010
+    }, LeftPanel)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 14)}, DiscordCard)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.90}, DiscordCard)
+
+    Custom:Create("TextLabel", {
+      Name = "DiscordCardTitle",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = "Discord Server",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 13,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      Position = UDim2.new(0, 12, 0, 8),
+      Size = UDim2.new(1, -24, 0, 18),
+      ZIndex = 3011
+    }, DiscordCard)
+
+    Custom:Create("TextLabel", {
+      Name = "DiscordCardLink",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamMedium,
+      Text = DiscordText,
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 11,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      TextTruncate = Enum.TextTruncate.AtEnd,
+      Position = UDim2.new(0, 12, 0, 30),
+      Size = UDim2.new(1, -24, 0, 16),
+      ZIndex = 3011
+    }, DiscordCard)
+
+    local CopyDiscord = Custom:Create("TextButton", {
+      Name = "CopyDiscord",
+      AutoButtonColor = false,
+      BackgroundColor3 = Color3.fromRGB(255, 36, 54),
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = "COPY LINK",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 11,
+      Position = UDim2.new(0, 12, 1, -28),
+      Size = UDim2.new(1, -24, 0, 22),
+      ZIndex = 3011
+    }, DiscordCard)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 9)}, CopyDiscord)
+
+    local RightPanel = Custom:Create("Frame", {
+      Name = "KeyRightPanel",
+      BackgroundColor3 = Color3.fromRGB(18, 18, 21),
+      BackgroundTransparency = 0.18,
+      BorderSizePixel = 0,
+      ClipsDescendants = true,
+      Position = UDim2.new(0, 244, 0, 66),
+      Size = UDim2.new(1, -264, 1, -86),
+      ZIndex = 3006
+    }, KeyCard)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 18)}, RightPanel)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.88}, RightPanel)
+
+    Custom:Create("TextLabel", {
+      Name = "AccessTitle",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = "Premium Access",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 28,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      Position = UDim2.new(0, 24, 0, 22),
+      Size = UDim2.new(1, -48, 0, 34),
+      ZIndex = 3010
+    }, RightPanel)
+
+    local AccessDesc = Custom:Create("TextLabel", {
+      Name = "AccessDescription",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamMedium,
+      Text = KeyNote ~= "" and KeyNote or ("Join the Discord server, get the key, then unlock Doca V1."),
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 13,
+      TextWrapped = true,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      TextYAlignment = Enum.TextYAlignment.Top,
+      Position = UDim2.new(0, 24, 0, 62),
+      Size = UDim2.new(1, -48, 0, 62),
+      ZIndex = 3010
+    }, RightPanel)
+
+    local InputBack = Custom:Create("Frame", {
+      Name = "KeyInputBack",
+      BackgroundColor3 = Color3.fromRGB(25, 25, 29),
+      BorderSizePixel = 0,
+      Position = UDim2.new(0, 24, 0, 136),
+      Size = UDim2.new(1, -48, 0, 48),
+      ZIndex = 3010
+    }, RightPanel)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 14)}, InputBack)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.84}, InputBack)
+
+    local KeyBox = Custom:Create("TextBox", {
+      Name = "KeyBox",
+      BackgroundTransparency = 1,
+      ClearTextOnFocus = false,
+      Font = Enum.Font.GothamBold,
+      PlaceholderText = "Enter key here...",
+      PlaceholderColor3 = Color3.fromRGB(235, 235, 235),
+      Text = "",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 14,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      Position = UDim2.new(0, 16, 0, 0),
+      Size = UDim2.new(1, -32, 1, 0),
+      ZIndex = 3011
+    }, InputBack)
+
+    local Status = Custom:Create("TextLabel", {
+      Name = "KeyStatus",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamMedium,
+      Text = "Discord: " .. DiscordText,
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 12,
+      TextWrapped = true,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      TextYAlignment = Enum.TextYAlignment.Top,
+      Position = UDim2.new(0, 26, 0, 190),
+      Size = UDim2.new(1, -52, 0, 58),
+      ZIndex = 3010
+    }, RightPanel)
+
+    local KeyHint = Custom:Create("TextLabel", {
+      Name = "KeyHint",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = "ACCESS KEY",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 13,
+      TextXAlignment = Enum.TextXAlignment.Left,
+      Position = UDim2.new(0, 26, 1, -64),
+      Size = UDim2.new(0, 170, 0, 24),
+      ZIndex = 3010
+    }, RightPanel)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 0.25, Transparency = 0.55}, KeyHint)
+
+    local VerifyButton = Custom:Create("TextButton", {
+      Name = "VerifyButton",
+      AutoButtonColor = false,
+      BackgroundColor3 = Custom.ColorRGB,
+      BorderSizePixel = 0,
+      ClipsDescendants = true,
+      Font = Enum.Font.GothamBlack,
+      Text = "",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextSize = 13,
+      AnchorPoint = Vector2.new(1, 0),
+      Position = UDim2.new(1, -24, 1, -68),
+      Size = UDim2.new(0, 190, 0, 42),
+      ZIndex = 3010
+    }, RightPanel)
+    Custom:Create("UICorner", {CornerRadius = UDim.new(0, 14)}, VerifyButton)
+    Custom:Create("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.52}, VerifyButton)
+
+    --// Separate white label, so the red gradient never darkens the button text.
+    local VerifyButtonText = Custom:Create("TextLabel", {
+      Name = "VerifyButtonText",
+      BackgroundTransparency = 1,
+      BorderSizePixel = 0,
+      Font = Enum.Font.GothamBlack,
+      Text = "UNLOCK DOCA V1",
+      TextColor3 = Color3.fromRGB(255, 255, 255),
+      TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+      TextStrokeTransparency = 0.25,
+      TextSize = 13,
+      TextXAlignment = Enum.TextXAlignment.Center,
+      TextYAlignment = Enum.TextYAlignment.Center,
+      Size = UDim2.new(1, 0, 1, 0),
+      ZIndex = 3014
+    }, VerifyButton)
+    local ButtonGradient = Custom:Create("UIGradient", {
+      Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 26, 42)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 72, 88)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 16, 34))
+      },
+      Rotation = 0
+    }, VerifyButton)
+
+    task.spawn(function()
+      while VerifyButton and VerifyButton.Parent do
+        TweenService:Create(ButtonGradient, TweenInfo.new(1.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 180}):Play()
+        task.wait(1.9)
+        TweenService:Create(ButtonGradient, TweenInfo.new(1.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 360}):Play()
+        task.wait(1.9)
+      end
+    end)
+
+    local Unlocking = false
+
+    local function SetStatus(Text, Color)
+      Status.Text = Text
+      Status.TextColor3 = Color or Color3.fromRGB(255, 255, 255)
+    end
+
+    local function WrongKey()
+      SetStatus("Wrong key. Get access from the Discord server.", Color3.fromRGB(255, 90, 105))
+      TweenService:Create(InputBack, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(55, 14, 22)}):Play()
+      local Original = KeyHolder.Position
+      for _, Offset in ipairs({-9, 9, -6, 6, 0}) do
+        TweenService:Create(KeyHolder, TweenInfo.new(0.045, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+          Position = UDim2.new(Original.X.Scale, Original.X.Offset + Offset, Original.Y.Scale, Original.Y.Offset)
+        }):Play()
+        task.wait(0.045)
+      end
+      TweenService:Create(InputBack, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(25, 25, 29)}):Play()
+    end
+
+    local function CloseKeySystem(ShouldUnlock)
+      TweenService:Create(KeyHolder, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Position = UDim2.new(0.5, 0, 0.5, -95)}):Play()
+      TweenService:Create(KeyCard, TweenInfo.new(0.26, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+      TweenService:Create(KeyShadow, TweenInfo.new(0.26, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {ImageTransparency = 1}):Play()
+      TweenService:Create(KeyOverlay, TweenInfo.new(0.26, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+
+      task.delay(0.34, function()
+        if KeyOverlay then
+          KeyOverlay:Destroy()
+        end
+        if ShouldUnlock and type(OnUnlock) == "function" then
+          OnUnlock()
+        elseif not ShouldUnlock and SpeedHubXGui then
+          SpeedHubXGui:Destroy()
+        end
+      end)
+    end
+
+    local function TryUnlock()
+      if Unlocking then return end
+      local Entered = tostring(KeyBox.Text or "")
+      if not CheckKey(Entered) then
+        WrongKey()
+        return
+      end
+      Unlocking = true
+      SetStatus("Key accepted. Opening Doca V1...", Color3.fromRGB(90, 255, 140))
+      WriteSavedKey(Entered)
+      CloseKeySystem(true)
+    end
+
+    VerifyButton.Activated:Connect(function()
+      CircleClick(VerifyButton, Player:GetMouse().X, Player:GetMouse().Y)
+      TryUnlock()
+    end)
+
+    KeyBox.FocusLost:Connect(function(EnterPressed)
+      if EnterPressed then
+        TryUnlock()
+      end
+    end)
+
+    CopyDiscord.Activated:Connect(function()
+      CircleClick(CopyDiscord, Player:GetMouse().X, Player:GetMouse().Y)
+      pcall(function()
+        if setclipboard then
+          setclipboard(DiscordText)
+        end
+      end)
+      SetStatus("Discord link copied: " .. DiscordText, Color3.fromRGB(220, 220, 230))
+    end)
+
+    KeyClose.Activated:Connect(function()
+      if Unlocking then return end
+      CloseKeySystem(false)
+    end)
+
+    task.defer(function()
+      TweenService:Create(KeyOverlay, TweenInfo.new(0.24, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.28}):Play()
+      TweenService:Create(KeyShadow, TweenInfo.new(0.34, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageTransparency = 0.40}):Play()
+      TweenService:Create(KeyCard, TweenInfo.new(0.36, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.04}):Play()
+      TweenService:Create(KeyHolder, TweenInfo.new(0.46, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+    end)
+  end
+
+  if KeySystem and not SavedKeyValid then
+    CreateRayfieldKeySystem(function()
+      PlayWindowIntro()
+    end)
+  else
+    PlayWindowIntro()
+  end
 
 	MakeDraggable(Top, DropShadowHolder)
 
@@ -1418,12 +2909,14 @@ function Speed_Library:CreateWindow(Config)
    
     local Sections, CountSection = {}, 0
 
-    function Sections:AddSection(Title, OpenSection, Image)
+    function Sections:AddSection(Title, OpenSection, Image, Sticker)
       local IsSectionConfig = type(Title) == "table"
       local SectionConfig = IsSectionConfig and Title or {}
       local Title = IsSectionConfig and (SectionConfig[1] or SectionConfig.Title or SectionConfig.Name or "") or (Title or "")
       local OpenSection = IsSectionConfig and (SectionConfig.Open or SectionConfig.Default or false) or (OpenSection or false)
       local SectionImage = IsSectionConfig and (SectionConfig[2] or SectionConfig.Icon or SectionConfig.Image or SectionConfig.Picture or SectionConfig.Photo or "") or (Image or "")
+      local SectionSticker = IsSectionConfig and (SectionConfig.Sticker or SectionConfig.Emoji or SectionConfig.Symbol or "") or (Sticker or "")
+      local SectionIconType = IsSectionConfig and (SectionConfig.IconType or SectionConfig.IconStyle or SectionConfig.Type or "") or ""
 
       local function NormalizeSectionImage(Value)
         if Value == nil then return "" end
@@ -1438,6 +2931,22 @@ function Speed_Library:CreateWindow(Config)
       end
 
       SectionImage = NormalizeSectionImage(SectionImage)
+      SectionSticker = tostring(SectionSticker or "")
+      SectionIconType = tostring(SectionIconType or "")
+
+      -- Auto icon is handled inside the library, so your main script can keep normal AddSection("Name") calls.
+      -- Drawn mini-icons are used first, so sections do not show wrong asset pictures or Roblox □ squares.
+      if SectionIconType == "" and SectionImage == "" and SectionSticker == "" then
+        SectionIconType = Custom:GetSectionIconType(Title)
+      end
+      if SectionIconType == "" and SectionImage == "" and SectionSticker == "" then
+        SectionImage = Custom:GetSectionImage(Title)
+      end
+      if SectionIconType == "" and SectionImage == "" and SectionSticker == "" then
+        SectionSticker = Custom:GetSectionSticker(Title)
+      end
+
+      local HasSectionVisual = SectionIconType ~= "" or SectionImage ~= "" or SectionSticker ~= ""
   
       local Section = Custom:Create("Frame", {
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -1508,12 +3017,13 @@ function Speed_Library:CreateWindow(Config)
         Name = "SectionIconHolder",
         AnchorPoint = Vector2.new(0, 0.5),
         BackgroundColor3 = Color3.fromRGB(28, 28, 30),
-        BackgroundTransparency = SectionImage ~= "" and 0.15 or 1,
+        BackgroundTransparency = HasSectionVisual and 0.12 or 1,
         BorderSizePixel = 0,
         Position = UDim2.new(0, 8, 0.5, 0),
-        Size = UDim2.new(0, 22, 0, 22),
-        Visible = SectionImage ~= "",
-        ZIndex = 2
+        Size = UDim2.new(0, 28, 0, 28),
+        Visible = HasSectionVisual,
+        ClipsDescendants = true,
+        ZIndex = 20
       }, SectionReal)
 
       Custom:Create("UICorner", {
@@ -1523,21 +3033,108 @@ function Speed_Library:CreateWindow(Config)
       local SectionIconStroke = Custom:Create("UIStroke", {
         Color = Custom.ColorRGB,
         Thickness = 1,
-        Transparency = 0.45
+        Transparency = HasSectionVisual and 0.38 or 1
       }, SectionIconHolder)
+
+      Custom:Create("UIGradient", {
+        Color = ColorSequence.new{
+          ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 10, 18)),
+          ColorSequenceKeypoint.new(0.48, Color3.fromRGB(24, 24, 28)),
+          ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 45, 62))
+        },
+        Rotation = 35
+      }, SectionIconHolder)
+
+      local SectionIconGlow = Custom:Create("Frame", {
+        Name = "SectionIconGlow",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Custom.ColorRGB,
+        BackgroundTransparency = 0.82,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(1, 0, 1, 0),
+        Visible = HasSectionVisual,
+        ZIndex = 1
+      }, SectionIconHolder)
+      Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, SectionIconGlow)
+
+      local SectionMiniSpark = Custom:Create("Frame", {
+        Name = "SectionMiniSpark",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Color3.fromRGB(255, 100, 112),
+        BackgroundTransparency = 0.08,
+        BorderSizePixel = 0,
+        Position = UDim2.new(1, -5, 0, 5),
+        Size = UDim2.new(0, 4, 0, 4),
+        Visible = false,
+        ZIndex = 5
+      }, SectionIconHolder)
+      Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, SectionMiniSpark)
+
+      task.spawn(function()
+        while SectionIconHolder and SectionIconHolder.Parent do
+          if SectionIconHolder.Visible then
+            TweenService:Create(SectionIconGlow, TweenInfo.new(1.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+              BackgroundTransparency = 0.90
+            }):Play()
+            TweenService:Create(SectionMiniSpark, TweenInfo.new(1.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+              BackgroundTransparency = 0.42
+            }):Play()
+            task.wait(1.05)
+            TweenService:Create(SectionIconGlow, TweenInfo.new(1.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+              BackgroundTransparency = 0.76
+            }):Play()
+            TweenService:Create(SectionMiniSpark, TweenInfo.new(1.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+              BackgroundTransparency = 0.08
+            }):Play()
+            task.wait(1.05)
+          else
+            task.wait(0.4)
+          end
+        end
+      end)
 
       local SectionIcon = Custom:Create("ImageLabel", {
         Name = "SectionIcon",
         Image = SectionImage,
-        ImageColor3 = Color3.fromRGB(255, 255, 255),
+        ImageColor3 = Color3.fromRGB(255, 245, 245),
         ImageTransparency = 0,
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(1, -6, 1, -6),
-        ZIndex = 3
+        Size = UDim2.new(0, 18, 0, 18),
+        Visible = SectionIconType == "" and SectionImage ~= "",
+        ZIndex = 24
       }, SectionIconHolder)
+
+      local SectionStickerLabel = Custom:Create("TextLabel", {
+        Name = "SectionStickerLabel",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(1, 0, 1, 0),
+        Font = Enum.Font.GothamBlack,
+        Text = SectionSticker,
+        TextColor3 = Color3.fromRGB(255, 238, 240),
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        TextYAlignment = Enum.TextYAlignment.Center,
+        TextScaled = false,
+        Visible = SectionIconType == "" and SectionImage == "" and SectionSticker ~= "",
+        ZIndex = 4
+      }, SectionIconHolder)
+
+      Custom:Create("UIStroke", {
+        Color = Color3.fromRGB(255, 45, 62),
+        Thickness = 0.45,
+        Transparency = 0.22
+      }, SectionStickerLabel)
+
+      if SectionIconType ~= "" then
+        Custom:DrawSectionIcon(SectionIconHolder, SectionIconType)
+      end
 
       local SectionTitle = Custom:Create("TextLabel", {
         Font = Enum.Font.GothamBold,
@@ -1553,24 +3150,38 @@ function Speed_Library:CreateWindow(Config)
         BackgroundTransparency = 0.9990000128746033,
         BorderColor3 = Color3.fromRGB(0, 0, 0),
         BorderSizePixel = 0,
-        Position = UDim2.new(0, SectionImage ~= "" and 38 or 10, 0.5, 0),
-        Size = UDim2.new(1, SectionImage ~= "" and -78 or -50, 0, 18),
+        Position = UDim2.new(0, HasSectionVisual and 43 or 10, 0.5, 0),
+        Size = UDim2.new(1, HasSectionVisual and -83 or -50, 0, 18),
         ZIndex = 2,
         Name = "SectionTitle"
       }, SectionReal)
 
-      local function UpdateSectionIcon(NewImage)
-        SectionImage = NormalizeSectionImage(NewImage)
-        local HasImage = SectionImage ~= ""
+      local function UpdateSectionIcon(NewImage, NewSticker)
+        if NewImage ~= nil then
+          SectionImage = NormalizeSectionImage(NewImage)
+        end
+        if NewSticker ~= nil then
+          SectionSticker = tostring(NewSticker or "")
+        end
 
-        SectionIconHolder.Visible = HasImage
-        SectionIconHolder.BackgroundTransparency = HasImage and 0.15 or 1
-        SectionIconStroke.Transparency = HasImage and 0.45 or 1
+        local HasImage = SectionImage ~= ""
+        local HasSticker = SectionSticker ~= ""
+        local HasVisual = HasImage or HasSticker
+
+        SectionIconHolder.Visible = HasVisual
+        SectionIconHolder.BackgroundTransparency = HasVisual and 0.12 or 1
+        SectionIconStroke.Transparency = HasVisual and 0.30 or 1
+        SectionIconGlow.Visible = HasVisual
+        SectionMiniSpark.Visible = false
         SectionIcon.Image = SectionImage
+        SectionIcon.Visible = HasImage
+        SectionStickerLabel.Text = SectionSticker
+        SectionStickerLabel.Visible = (not HasImage) and HasSticker
+        SectionTitle.Text = Title
 
         TweenService:Create(SectionTitle, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-          Position = UDim2.new(0, HasImage and 38 or 10, 0.5, 0),
-          Size = UDim2.new(1, HasImage and -78 or -50, 0, 18)
+          Position = UDim2.new(0, HasVisual and 38 or 10, 0.5, 0),
+          Size = UDim2.new(1, HasVisual and -78 or -50, 0, 18)
         }):Play()
       end
   
@@ -1665,20 +3276,239 @@ function Speed_Library:CreateWindow(Config)
       function Item:SetTitle(NewTitle)
         Title = tostring(NewTitle or "")
         SectionTitle.Text = Title
+        return Item
       end
 
       function Item:SetImage(NewImage)
-        UpdateSectionIcon(NewImage)
+        UpdateSectionIcon(NewImage, nil)
+        return Item
+      end
+
+      function Item:SetSticker(NewSticker)
+        UpdateSectionIcon(nil, NewSticker)
+        return Item
+      end
+
+      --// Short section sticker API
+      --// Usage:
+      --// local Section = Tab:AddSection("Auto Tools")
+      --// Section:Add("⚡")
+      --// Section:Add({Sticker = "⚡"})
+      --// Section:Add({Image = "rbxassetid://123456789"})
+      function Item:Add(Value)
+        if type(Value) == "table" then
+          local NewSticker = Value[1] or Value.Sticker or Value.Emoji or Value.Symbol or Value.Text
+          local NewImage = Value.Image or Value.Icon or Value.Picture or Value.Photo
+
+          if NewImage ~= nil then
+            UpdateSectionIcon(NewImage, NewSticker)
+          else
+            UpdateSectionIcon(nil, NewSticker)
+          end
+        else
+          UpdateSectionIcon(nil, Value)
+        end
+
+        return Item
+      end
+
+      function Item:AddSticker(NewSticker)
+        UpdateSectionIcon(nil, NewSticker)
+        return Item
+      end
+
+      function Item:Sticker(NewSticker)
+        UpdateSectionIcon(nil, NewSticker)
+        return Item
+      end
+
+      function Item:SetEmoji(NewEmoji)
+        UpdateSectionIcon(nil, NewEmoji)
+        return Item
+      end
+
+      function Item:AddImage(NewImage)
+        UpdateSectionIcon(NewImage, nil)
+        return Item
+      end
+
+      -- Lowercase aliases for calls like section:add("🔥")
+      Item.add = Item.Add
+      Item.addSticker = Item.AddSticker
+      Item.sticker = Item.Sticker
+      Item.setSticker = Item.SetSticker
+      Item.setEmoji = Item.SetEmoji
+      Item.addImage = Item.AddImage
+      Item.setImage = Item.SetImage
+      Item.setTitle = Item.SetTitle
+
+      function Item:AddBanner(Config)
+        Config = Config or {}
+        local Image = Config[1] or Config.Image or Config.Icon or Config.Picture or ""
+        local Title = Config.Title or "ADMIN"
+        local Subtitle = Config.Subtitle or "SPECIAL ACCESS"
+        local Funcs_Banner = {}
+
+        local Banner = Custom:Create("Frame", {
+          Name = "AdminBanner",
+          BackgroundColor3 = Color3.fromRGB(12, 12, 15),
+          BackgroundTransparency = 0.02,
+          BorderSizePixel = 0,
+          ClipsDescendants = true,
+          LayoutOrder = ItemCount,
+          Size = UDim2.new(1, 0, 0, 168)
+        }, SectionAdd)
+
+        Custom:Create("UICorner", {CornerRadius = UDim.new(0, 16)}, Banner)
+        Custom:Create("UIStroke", {
+          Color = Custom.ColorRGB,
+          Thickness = 1.15,
+          Transparency = 0.22
+        }, Banner)
+
+        local BannerGradient = Custom:Create("UIGradient", {
+          Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(13, 13, 16)),
+            ColorSequenceKeypoint.new(0.45, Color3.fromRGB(35, 6, 10)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(13, 13, 16))
+          },
+          Rotation = 20
+        }, Banner)
+
+        local BannerImage = Custom:Create("ImageLabel", {
+          Name = "BannerImage",
+          Image = tostring(Image or ""),
+          BackgroundTransparency = 1,
+          BorderSizePixel = 0,
+          Position = UDim2.new(0, 0, 0, 0),
+          Size = UDim2.new(1, 0, 1, 0),
+          ScaleType = Enum.ScaleType.Crop,
+          ImageTransparency = tostring(Image or "") ~= "" and 0.08 or 1,
+          ZIndex = 1
+        }, Banner)
+
+        local Shade = Custom:Create("Frame", {
+          Name = "BannerShade",
+          BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+          BackgroundTransparency = tostring(Image or "") ~= "" and 0.48 or 0.72,
+          BorderSizePixel = 0,
+          Size = UDim2.new(1, 0, 1, 0),
+          ZIndex = 2
+        }, Banner)
+        Custom:Create("UIGradient", {
+          Transparency = NumberSequence.new{
+            NumberSequenceKeypoint.new(0, 0.62),
+            NumberSequenceKeypoint.new(0.55, 0.82),
+            NumberSequenceKeypoint.new(1, 0.62)
+          },
+          Rotation = 0
+        }, Shade)
+
+        local GlowLine = Custom:Create("Frame", {
+          Name = "BannerGlowLine",
+          AnchorPoint = Vector2.new(0.5, 1),
+          BackgroundColor3 = Custom.ColorRGB,
+          BackgroundTransparency = 0.05,
+          BorderSizePixel = 0,
+          Position = UDim2.new(0.5, 0, 1, -8),
+          Size = UDim2.new(1, -34, 0, 2),
+          ZIndex = 3
+        }, Banner)
+        Custom:Create("UICorner", {CornerRadius = UDim.new(1, 0)}, GlowLine)
+        Custom:Create("UIGradient", {
+          Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 12, 14)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 55, 70)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 14))
+          }
+        }, GlowLine)
+
+        local TitleLabel = Custom:Create("TextLabel", {
+          Name = "BannerTitle",
+          BackgroundTransparency = 1,
+          BorderSizePixel = 0,
+          Font = Enum.Font.GothamBlack,
+          Text = tostring(Title or "ADMIN"),
+          TextColor3 = Color3.fromRGB(255, 255, 255),
+          TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+          TextStrokeTransparency = 0.08,
+          TextSize = 42,
+          TextXAlignment = Enum.TextXAlignment.Center,
+          TextYAlignment = Enum.TextYAlignment.Bottom,
+          Position = UDim2.new(0, 0, 0.5, -40),
+          Size = UDim2.new(1, 0, 0, 54),
+          ZIndex = 4
+        }, Banner)
+
+        local SubLabel = Custom:Create("TextLabel", {
+          Name = "BannerSubtitle",
+          BackgroundTransparency = 1,
+          BorderSizePixel = 0,
+          Font = Enum.Font.GothamBold,
+          Text = tostring(Subtitle or "SPECIAL ACCESS"),
+          TextColor3 = Color3.fromRGB(255, 185, 190),
+          TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+          TextStrokeTransparency = 0.10,
+          TextSize = 18,
+          TextXAlignment = Enum.TextXAlignment.Center,
+          TextYAlignment = Enum.TextYAlignment.Top,
+          Position = UDim2.new(0, 0, 0.5, 12),
+          Size = UDim2.new(1, 0, 0, 26),
+          ZIndex = 4
+        }, Banner)
+
+        task.spawn(function()
+          while Banner and Banner.Parent do
+            TweenService:Create(BannerGradient, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 38}):Play()
+            task.wait(3)
+            TweenService:Create(BannerGradient, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = -18}):Play()
+            task.wait(3)
+          end
+        end)
+
+        function Funcs_Banner:SetImage(NewImage)
+          Image = tostring(NewImage or "")
+          BannerImage.Image = Image
+          BannerImage.ImageTransparency = Image ~= "" and 0 or 1
+          Shade.BackgroundTransparency = Image ~= "" and 0.48 or 0.72
+        end
+
+        function Funcs_Banner:Set(Config2)
+          Config2 = Config2 or {}
+          if Config2.Image ~= nil then
+            Funcs_Banner:SetImage(Config2.Image)
+          end
+          if Config2.Title ~= nil then
+            TitleLabel.Text = tostring(Config2.Title)
+          end
+          if Config2.Subtitle ~= nil then
+            SubLabel.Text = tostring(Config2.Subtitle)
+          end
+        end
+
+        ItemCount = ItemCount + 1
+        task.defer(function()
+          pcall(UpdateSizeSection)
+        end)
+        return Funcs_Banner
       end
 
       function Item:AddParagraph(Config)
+        Config = Config or {}
         local Title = Config[1] or Config.Title or ""
         local Content = Config[2] or Config.Content or ""
+        local HideTitle = Config.HideTitle == true or Config.NoTitle == true or Config.TitleHidden == true
+        local ContentTransparency = Config.ContentTransparency
+        if ContentTransparency == nil then ContentTransparency = 0.6 end
+        local ContentTextSize = Config.ContentTextSize or 12
+        local TitleTextSize = Config.TitleTextSize or 13
+        local ContentColor = Config.ContentColor or Color3.fromRGB(255, 255, 255)
+        local TitleColor = Config.TitleColor or Color3.fromRGB(231, 231, 231)
         local SettingFuncs = {}
 
         local Paragraph = Custom:Create("Frame", {
-          BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-          BackgroundTransparency = 0.935,
+          BackgroundColor3 = Config.BackgroundColor or Color3.fromRGB(255, 255, 255),
+          BackgroundTransparency = Config.BackgroundTransparency or 0.935,
           BorderColor3 = Color3.fromRGB(0, 0, 0),
           BorderSizePixel = 0,
           LayoutOrder = ItemCount,
@@ -1693,8 +3523,10 @@ function Speed_Library:CreateWindow(Config)
         local ParagraphTitle = Custom:Create("TextLabel", {
           Font = Enum.Font.GothamBold,
           Text = Title,
-          TextColor3 = Color3.fromRGB(231, 231, 231),
-          TextSize = 13,
+          TextColor3 = TitleColor,
+          TextSize = TitleTextSize,
+          TextTransparency = HideTitle and 1 or 0,
+          Visible = not HideTitle,
           TextXAlignment = Enum.TextXAlignment.Left,
           TextYAlignment = Enum.TextYAlignment.Top,
           TextWrapped = true,
@@ -1702,30 +3534,44 @@ function Speed_Library:CreateWindow(Config)
           BackgroundTransparency = 0.999,
           BorderSizePixel = 0,
           Position = UDim2.new(0, 10, 0, 10),
-          Size = UDim2.new(1, -16, 0, 13),
+          Size = UDim2.new(1, -16, 0, TitleTextSize + 1),
           Name = "ParagraphTitle",
         }, Paragraph)
       
         local ParagraphContent = Custom:Create("TextLabel", {
-          Font = Enum.Font.GothamBold,
+          Font = Config.ContentFont or Enum.Font.GothamBold,
           Text = Content,
-          TextColor3 = Color3.fromRGB(255, 255, 255),
-          TextSize = 12,
-          TextTransparency = 0.6,
+          TextColor3 = ContentColor,
+          TextSize = ContentTextSize,
+          TextTransparency = ContentTransparency,
           TextXAlignment = Enum.TextXAlignment.Left,
-          TextYAlignment = Enum.TextYAlignment.Bottom,
+          TextYAlignment = Enum.TextYAlignment.Top,
           BackgroundTransparency = 0.999,
           BorderSizePixel = 0,
-          Position = UDim2.new(0, 10, 0, 23),
+          Position = HideTitle and UDim2.new(0, 10, 0, 8) or UDim2.new(0, 10, 0, 23),
           Name = "ParagraphContent",
         }, Paragraph)
 
-        local function UpdateParagraphSize()
-          ParagraphContent.TextWrapped = false
-          local lineCount = math.ceil(ParagraphContent.TextBounds.X / ParagraphContent.AbsoluteSize.X)
+        local function CountLines(Text)
+          Text = tostring(Text or "")
+          local Lines = 1
+          for _ in string.gmatch(Text, "\n") do
+            Lines = Lines + 1
+          end
+          return Lines
+        end
 
-          ParagraphContent.Size = UDim2.new(1, -16, 0, 12 + (12 * lineCount))
-          Paragraph.Size = UDim2.new(1, 0, 0, ParagraphContent.AbsoluteSize.Y + 33)
+        local function UpdateParagraphSize()
+          local Width = math.max(ParagraphContent.AbsoluteSize.X, 1)
+          local WrapLines = math.max(1, math.ceil(ParagraphContent.TextBounds.X / Width))
+          local NewLines = CountLines(ParagraphContent.Text)
+          local LineCount = math.max(NewLines, WrapLines)
+          local LineHeight = ContentTextSize + 3
+          local ContentTop = HideTitle and 8 or 23
+          local BottomPadding = HideTitle and 10 or 12
+
+          ParagraphContent.Size = UDim2.new(1, -16, 0, math.max(LineHeight, LineHeight * LineCount))
+          Paragraph.Size = UDim2.new(1, 0, 0, ContentTop + ParagraphContent.Size.Y.Offset + BottomPadding)
           ParagraphContent.TextWrapped = true
 
           UpdateSizeSection()
@@ -1736,11 +3582,12 @@ function Speed_Library:CreateWindow(Config)
         ParagraphContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateParagraphSize)
 
         function SettingFuncs:Set(Config)
-          local Title = Config[1] or Config.Title or ""
-          local Content = Config[2] or Config.Content or ""
+          Config = Config or {}
+          local NewTitle = Config[1] or Config.Title or Title
+          local NewContent = Config[2] or Config.Content or ""
 
-          ParagraphTitle.Text = Title
-          ParagraphContent.Text = Content
+          ParagraphTitle.Text = NewTitle
+          ParagraphContent.Text = NewContent
 
           UpdateParagraphSize()
         end
@@ -1797,7 +3644,7 @@ function Speed_Library:CreateWindow(Config)
           SeperatorTitle.Text = Title
         end
 
-        ItemCount += 1
+        ItemCount = ItemCount + 1
         return Sep_Funcs
       end
 
@@ -1823,7 +3670,7 @@ function Speed_Library:CreateWindow(Config)
           Rotation = 0,
         }, Line)
     
-        ItemCount += 1
+        ItemCount = ItemCount + 1
         return LineFuncs
      end
 
@@ -1946,7 +3793,7 @@ function Speed_Library:CreateWindow(Config)
 					Callback()
 				end)
 
-        ItemCount += 1
+        ItemCount = ItemCount + 1
 				return Funcs_Button
       end
 
@@ -2107,7 +3954,7 @@ function Speed_Library:CreateWindow(Config)
         Funcs_Toggle:Set(Funcs_Toggle.Value)
         table.insert(Speed_Library._toggles, Funcs_Toggle)
 
-        ItemCount += 1
+        ItemCount = ItemCount + 1
 				return Funcs_Toggle
       end
 
@@ -2334,7 +4181,7 @@ function Speed_Library:CreateWindow(Config)
         Funcs_Slider:Set(tonumber(Default))
         Callback(Funcs_Slider.Value)
 
-        ItemCount += 1
+        ItemCount = ItemCount + 1
 				return Funcs_Slider
       end
 
@@ -2468,7 +4315,7 @@ function Speed_Library:CreateWindow(Config)
 
 				Funcs_Input:Set(Default)
 
-        ItemCount += 1
+        ItemCount = ItemCount + 1
 				return Funcs_Input
       end
 
@@ -2815,7 +4662,7 @@ function Speed_Library:CreateWindow(Config)
         
           UpdateCanvasSize()
 
-          DropCount += 1
+          DropCount = DropCount + 1
         end
 
         function Funcs_Dropdown:Refresh(RefreshList, Selecting)
@@ -2834,16 +4681,16 @@ function Speed_Library:CreateWindow(Config)
       
         Funcs_Dropdown:Refresh(Funcs_Dropdown.Options, Funcs_Dropdown.Value)
       
-        ItemCount += 1
-        CountDropdown += 1
+        ItemCount = ItemCount + 1
+        CountDropdown = CountDropdown + 1
         return Funcs_Dropdown
       end
 
-      ItemCount += 1
+      ItemCount = ItemCount + 1
       return Item
     end
 
-    CountTab += 1
+    CountTab = CountTab + 1
     return Sections
   end
 
